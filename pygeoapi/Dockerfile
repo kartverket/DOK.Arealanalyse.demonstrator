@@ -61,6 +61,7 @@ RUN \
     && pip3 install --break-system-packages -e . \
     && cp /pygeoapi/docker/default.config.yml /pygeoapi/local.config.yml \
     && cp /pygeoapi/docker/entrypoint.sh /entrypoint.sh  \
+    && chmod +x /entrypoint.sh \
     && apt-get remove --purge -y gcc ${DEB_BUILD_DEPS} \
     && apt-get clean \
     && apt autoremove -y  \
