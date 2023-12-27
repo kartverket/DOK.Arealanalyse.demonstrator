@@ -1,0 +1,293 @@
+import { useRef, useState } from 'react'
+import { Accordion, AccordionSummary, AccordionDetails, Button, Checkbox, FormControl, FormControlLabel, InputAdornment, InputLabel, LinearProgress, MenuItem, Paper, Select, Snackbar, Alert } from '@mui/material';
+import { isPolygon } from 'geojson-validation';
+import axios from 'axios'
+import GeometryDialog from 'features/GeometryDialog';
+import IntegerField from 'components/IntegerField';
+import Result from 'features/Result';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import logo from 'assets/gfx/logo-kartverket.svg';
+import styles from './App.module.scss';
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+export default function App() {
+   const [data, setData] = useState(null);
+   const [fetching, setFetching] = useState(false);
+   const [state, setState] = useState(getDefaultValues());
+   const [errorMessage, setErrorMessage] = useState(null);
+   const [expanded, setExpanded] = useState('');
+   const geometryDialogRef = useRef(null);
+
+   function handleGeometryDialogOk(polygon) {
+      setState({ ...state, inputGeometry: polygon });
+   }
+
+   function handleChange(event) {
+      const value = event.target.type === 'checkbox' ?
+         event.target.checked :
+         event.target.value;
+
+      setState({ ...state, [event.target.name]: value })
+   }
+
+   const handleAccordionChange = (panel) => (_, isExpanded) => {
+      setExpanded(isExpanded ? panel : false);
+   };
+
+   function handleCloseError() {
+      setErrorMessage(null);
+   }
+
+   function getDefaultValues() {
+      return {
+         inputGeometry: null,
+         requestedBuffer: 0,
+         context: '',
+         theme: '',
+         includeGuidance: false,
+         includeQualityMeasurement: false
+      };
+   }
+
+   function resetState() {
+      setData(null);
+      /*setState(getDefaultValues());
+      geometryDialogRef.current.reset();*/
+   }
+
+   function getAccordionTitle(result) {
+      const datasetTitle = `«${result.runOnDataset.title}» (${result.title})`;
+
+      switch (result.resultStatus) {
+         case 'NO-HIT-GREEN':
+            return `Området er utenfor ${datasetTitle}`;
+         case 'NO-HIT-YELLOW':
+            return `Området har ikke treff for ${datasetTitle}`;
+         case 'HIT-YELLOW':
+            return `Området har treff i ${datasetTitle}`;
+         case 'HIT-RED':
+            return `Området er i konflikt med ${datasetTitle}`;
+         default:
+            return '';
+      }
+   }
+
+   function getAccordionClassNames(result) {
+      const classNames = [styles.accordion];
+
+      switch (result.resultStatus) {
+         case 'NO-HIT-GREEN':
+            classNames.push(styles.success);
+            break;
+         case 'NO-HIT-YELLOW':
+         case 'HIT-YELLOW':
+            classNames.push(styles.warning);
+            break;
+         case 'HIT-RED':
+            classNames.push(styles.error);
+            break;
+         default:
+            break;
+      }
+
+      return classNames.join(' ');
+   }
+
+   async function start() {
+      const postData = {
+         inputs: {
+            ...state
+         }
+      };
+
+      if (postData.inputs.theme === '') {
+         postData.inputs.theme = null;
+      }
+
+      resetState();
+
+      try {
+         setFetching(true);
+         const response = await axios.post(API_URL, postData);
+
+         if (response.data?.code) {
+            setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.');
+            console.error(response.data.code);
+         } else {
+            setData(response.data);
+         }
+      } catch (error) {
+         setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.');
+         console.error(error);
+      } finally {
+         setFetching(false);
+      }
+   }
+
+   function canStart() {
+      return isPolygon(state.inputGeometry);
+   }
+
+   return (
+      <div className={styles.app}>
+         <div className={styles.heading}>
+            <img src={logo} alt="Kartverket logo" />
+            <h1>Arealanalyse av DOK-datasett</h1>
+         </div>
+
+         <div className={styles.content}>
+            <Paper sx={{ marginBottom: '24px' }}>
+               <div className={styles.input}>
+                  <div className={styles.row}>
+                     <div className={styles.addGeometry}>
+                        <GeometryDialog
+                           ref={geometryDialogRef}
+                           onOk={handleGeometryDialogOk}
+                        />
+
+                        <div className={styles.icons}>
+                           <CheckCircleIcon
+                              color="success"
+                              sx={{
+                                 display: isPolygon(state.inputGeometry) ? 'block !important' : 'none'
+                              }}
+                           />
+                        </div>
+                     </div>
+                     <div>
+                        <IntegerField
+                           name="requestedBuffer"
+                           value={state.requestedBuffer}
+                           onChange={handleChange}
+                           label="Buffer"
+                           InputProps={{
+                              endAdornment: <InputAdornment position="end">[meter]</InputAdornment>
+                           }}
+                           sx={{
+                              width: 150
+                           }}
+                        />
+                     </div>
+                     <div>
+                        <FormControl sx={{ width: 200 }}>
+                           <InputLabel id="context-label">Bruksområde</InputLabel>
+                           <Select
+                              labelId="context-label"
+                              id="context-select"
+                              name="context"
+                              value={state.context}
+                              label="Velg bruksområde"
+                              onChange={handleChange}
+                           >
+                              <MenuItem value="">Velg...</MenuItem>
+                              <MenuItem value="reguleringsplan">Reguleringsplan</MenuItem>
+                              <MenuItem value="ros">ROS</MenuItem>
+                              <MenuItem value="byggesak">Byggesak</MenuItem>
+                           </Select>
+                        </FormControl>
+                     </div>
+                     <div>
+                        <FormControl sx={{ width: 200 }}>
+                           <InputLabel id="theme-label">Tema</InputLabel>
+                           <Select
+                              labelId="theme-label"
+                              id="theme-select"
+                              name="theme"
+                              value={state.theme}
+                              label="Velg tema"
+                              onChange={handleChange}
+                           >
+                              <MenuItem value="">Velg...</MenuItem>
+                              <MenuItem value="natur">Natur</MenuItem>
+                              <MenuItem value="samfunnssikkerhet">Samfunnssikkerhet</MenuItem>
+                           </Select>
+                        </FormControl>
+                     </div>
+                     <div>
+                        <FormControlLabel
+                           control={
+                              <Checkbox
+                                 name="includeGuidance"
+                                 checked={state.includeGuidance}
+                                 onChange={handleChange}
+                              />
+                           }
+                           label="Inkluder veiledning" />
+                     </div>
+                     <div>
+                        <FormControlLabel
+                           control={
+                              <Checkbox
+                                 name="includeQualityMeasurement"
+                                 checked={state.includeQualityMeasurement}
+                                 onChange={handleChange}
+                              />
+                           }
+                           label="Inkluder kvalitetsinformasjon" />
+                     </div>
+                  </div>
+                  <div className={styles.row}>
+                     <div>
+                        <Button
+                           onClick={start}
+                           disabled={!canStart()}
+                           variant="contained"
+                        >
+                           Start DOK-analyse
+                        </Button>
+                     </div>
+                  </div>
+               </div>
+            </Paper>
+            {
+               fetching ?
+                  <LinearProgress /> :
+                  null
+            }
+            {
+               data !== null ?
+                  <div>
+                     {
+
+                        data.resultList.map((result, index) => (
+                           <Accordion
+                              key={result.runOnDataset.datasetId + result.title}
+                              expanded={expanded === `panel-${index}`}
+                              onChange={handleAccordionChange(`panel-${index}`)}
+                           >
+                              <AccordionSummary sx={{ padding: '0 24px', '& .MuiAccordionSummary-content': { margin: '20px 0' } }}>
+                                 <span className={getAccordionClassNames(result)}>
+                                    <span className={styles.accordionTitle}>{getAccordionTitle(result)}</span>
+                                 </span>
+                              </AccordionSummary>
+                              <AccordionDetails sx={{ padding: '6px 24px' }}>
+                                 <Result
+                                    inputGeometry={data.inputGeometry}
+                                    result={result}
+                                 />
+                              </AccordionDetails>
+                           </Accordion>
+                        ))
+                     }
+                  </div> :
+                  null
+            }
+            <Snackbar
+               open={errorMessage !== null}
+               autoHideDuration={5000}
+               onClose={handleCloseError}
+               anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+               <Alert
+                  onClose={handleCloseError}
+                  severity="error"
+                  sx={{ width: '100%', '& .MuiAlert-message': { fontWeight: 400, fontFamily: 'Roboto-Regular' } }}
+               >
+                  {errorMessage}
+               </Alert>
+            </Snackbar>
+         </div>
+      </div>
+   )
+}

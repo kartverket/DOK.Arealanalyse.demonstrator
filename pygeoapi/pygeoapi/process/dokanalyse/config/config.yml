@@ -1,0 +1,225 @@
+stormflo:
+  wfs: https://wfs.geonorge.no/skwms1/wfs.stormflo?service=WFS&version=2.0.0
+  wms: https://wms.geonorge.no/skwms1/wms.stormflo?
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Stormflo/20180601
+  layers:
+  - wfs: app:StormfloNå_Intervall20År
+    wms: stormflona_intervall20ar
+    result_status: HIT-RED
+    geolett_id: 0c5dc043-e5b3-4349-8587-9b464d013d6b
+  - wfs: app:StormfloNå_Intervall200År
+    wms: stormflona_intervall200ar
+    result_status: HIT-YELLOW
+    geolett_id: 9331fc68-bd27-4484-8570-c191a6bda5b1
+  - wfs: app:Stormflo2090_Intervall200År
+    wms: stormflo2090_intervall200ar
+    result_status: HIT-YELLOW
+    geolett_id: 219f938f-e551-476d-bac0-74ac56779976
+  geom_element_name: app:område
+  properties:
+  - app:sikkerhetsklasseFlom
+  - app:områdeID
+  - app:utgangsÅrHavstigning
+  themes:
+  - samfunnssikkerhet
+
+flomsoner:
+  wfs: https://wfs.geonorge.no/skwms1/wfs.flomsoner?service=WFS&version=2.0.0
+  wms: https://nve.geodataonline.no/arcgis/services/Flomsoner1/MapServer/WMSServer?
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Flomsoner/1.1
+  layers:
+  - wfs: app:Analyseområde
+    wms: FlomsoneAnalyseomraade
+    result_status: HIT-RED
+    geolett_id: 5adab8dc-b327-49ed-9336-e85fe2453a05
+  geom_element_name: app:område
+  properties:
+  - app:flomsoneNavn
+  - app:kartlagteFlommer
+  - app:nedbørfelt
+  themes:
+  - samfunnssikkerhet
+
+flom_aktsomhets_omr:
+  wfs: http://wfs.geonorge.no/skwms1/wfs.flomaktsomhetsomrader?service=WFS
+  wms: https://nve.geodataonline.no/arcgis/services/FlomAktsomhet/MapServer/WMSServer?
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Flomaktsomhetsomrader/1.1
+  layers:
+  - wfs: app:FlomAktsomhetOmr
+    wms: Flom_aktsomhetsomrade
+    result_status: HIT-YELLOW
+    geolett_id: 44ef4297-d5a5-4fab-9db3-d67429d7a5f0
+  geom_element_name: app:område
+  properties:
+  - app:vassOmråde
+  - app:temaKvalitet
+  - app:vannKilde
+  themes:
+  - samfunnssikkerhet
+
+jord_flomskred_aktsomhets_omr:
+  wfs: https://wfs.geonorge.no/skwms1/wfs.jord_og_flomskred_aktsomhetsomrader?service=WFS
+  wms: https://nve.geodataonline.no/arcgis/services/SkredJordFlomAktR1/MapServer/WMSServer?
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2
+  layers:
+  - wfs: app:PotensieltSkredfareOmr
+    wms: Potensielt_Jord-Flomskredfare
+    result_status: HIT-RED
+    geolett_id: 643479b5-41d9-4d66-8069-18f746141a41
+  geom_element_name: app:område
+  properties:
+  - app:skredType
+  - app:skredfareVurdering
+  - app:temaKvalitet
+  - app:oppdateringsdato
+  themes:
+  - samfunnssikkerhet
+
+snoskred_aktsomhets_omr:
+  wfs: https://wfs.geonorge.no/skwms1/wfs.snoskredaktsomhetsomrader?SERVICE=WFS
+  wms: https://nve.geodataonline.no/arcgis/services/SkredSnoAktR/MapServer/WMSServer?
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2
+  layers:
+  - wfs: app:PotensieltSkredfareOmr
+    wms: Snoskred-Aktsomhetsomrader
+    result_status: HIT-RED
+    geolett_id: 7831236b-c9c1-4d5f-af4b-cac0304d7d6e
+  geom_element_name: app:område
+  properties:
+  - app:skredType
+  - app:skredfareVurdering
+  - app:temaKvalitet
+  - app:oppdateringsdato
+  themes:
+  - samfunnssikkerhet
+
+steinsprang_aktsomhets_omr:
+  wfs: https://wfs.geonorge.no/skwms1/wfs.steinsprang_aktsomhetsomrader?service=WFS
+  wms: https://nve.geodataonline.no/arcgis/services/SkredSteinAktR/MapServer/WmsServer?
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2
+  layers:
+  - wfs: app:PotensieltSkredfareOmr
+    wms: Steinsprang-AktsomhetOmrader
+    result_status: HIT-RED
+    geolett_id: 2d405ce6-98ea-40f9-905b-f8a0d5c96224
+  geom_element_name: app:område
+  properties:
+  - app:skredType
+  - app:skredfareVurdering
+  - app:temaKvalitet
+  - app:oppdateringsdato
+  themes:
+  - samfunnssikkerhet  
+
+faresone_fjellskred:
+  arcgis: https://nve.geodataonline.no/arcgis/rest/services/Fjellskred1/MapServer
+  wms: https://nve.geodataonline.no/arcgis/services/Fjellskred1/MapServer/WMSServer?
+  layers:
+  - arcgis: 8
+    wms: Faresoner_fjellskred_sammensat    
+    result_status: HIT-RED
+    geolett_id: a43cee7f-bcc4-44a9-b144-419a0c134a25
+  properties:
+  - skredOmrNavn
+  - skredType
+  - skredStatSannsynlighet
+  themes:
+  - samfunnssikkerhet    
+
+faresone_skred_bratt_terreng:
+  arcgis: https://nve.geodataonline.no/arcgis/rest/services/Skredfaresoner1/MapServer
+  wms: https://nve.geodataonline.no/arcgis/services/Skredfaresoner1/MapServer/WMSServer?
+  layers:
+  - arcgis: 0
+    wms: Skredanalyseomraade  
+    result_status: HIT-RED
+    geolett_id: c37bac2a-1e32-49f8-b633-a305c166ec38
+  properties:
+  - skredOmrID
+  - vurdertStatSannsynlighet
+  - KARTLEGGINGSDATO
+  themes:
+  - samfunnssikkerhet   
+
+hensynssone_energianlegg:
+  wfs: https://wfs.geonorge.no/skwms1/wfs.nettanlegg?service=WFS
+  wms: https://nve.geodataonline.no/arcgis/services/Nettanlegg2/MapServer/WMSServer?
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Nettanlegg/1.0
+  layers:
+  - wfs: app:EL_Luftlinje
+    wms: Distribusjonsnett,Regionalnett
+    result_status: HIT-RED
+    geolett_id: cc04ba06-1ad4-40cc-b961-389786a269ad
+  geom_element_name: app:linje
+  properties:
+  - app:navn
+  - app:nettnivå
+  - app:spenning
+  themes:
+  - samfunnssikkerhet    
+
+# kvikkleireskred:
+#   wfs: https://wfs.geonorge.no/skwms1/wfs.skredfaresoner?service=WFS
+#   wms: https://nve.geodataonline.no/arcgis/services/Skredfaresoner1/MapServer/WMSServer?
+#   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredfare/1.2
+#   layers:
+#   - wfs: app:KvikkleireFaresone
+#     wms: Skredsoner
+#     result_status: HIT-RED
+#     geolett_id: d34718b6-da67-47c7-a61d-05f222f8e613
+#   geom_element_name: app:område
+#   properties:
+#   - app:skredOmrID
+#   - app:skredOmrNavn
+#   - app:skredFaregradKlasse
+#   themes:
+#   - samfunnssikkerhet    
+
+
+naturtyper_utvalgte_hul_eik:
+  arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  layers:
+  - arcgis: 0
+    wms: naturtype_utvalgt_omr
+    result_status: HIT-RED
+    geolett_id: 5f93f5a9-84f8-4529-b5ae-5a02597d914b
+    type_filter: UtvalgtNaturtypeKode = 'UN03'
+  properties:
+  - Områdenavn
+  - UtvalgtNaturtype
+  - Nøyaktighetsklasse
+  themes:
+  - natur
+  
+naturtyper_utvalgte_slåttemark:
+  arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  layers:
+  - arcgis: 0
+    wms: naturtype_utvalgt_omr
+    result_status: HIT-RED
+    geolett_id: 41c0fc6a-b938-4877-9a62-183ecba6cd48
+    type_filter: UtvalgtNaturtypeKode = 'UN01'
+  properties:
+  - Områdenavn
+  - UtvalgtNaturtype
+  - Nøyaktighetsklasse
+  themes:
+  - natur
+
+naturtyper_utvalgte_kalkmark_boreonemoral:
+  arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  layers:
+  - arcgis: 0
+    wms: naturtype_utvalgt_omr
+    result_status: HIT-RED
+    geolett_id: 39592497-57fc-418b-b3f1-8947aa8453b7
+    type_filter: UtvalgtNaturtypeKode = 'UN07'
+  properties:
+  - Områdenavn
+  - UtvalgtNaturtype
+  - Nøyaktighetsklasse
+  themes:
+  - natur

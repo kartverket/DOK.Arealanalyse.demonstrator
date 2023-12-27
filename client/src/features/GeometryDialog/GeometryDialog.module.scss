@@ -1,0 +1,26 @@
+.dialogContent {
+   display: flex;
+   flex-direction: column;
+
+   .upload {
+      margin-bottom: 18px;
+   }
+   
+   .geoJson {
+      position: relative;
+      margin-bottom: 18px;
+
+      textarea {
+         font-family: menlo, consolas, monospace;
+         line-height: 1.5;
+      }
+   }
+
+   .icons > * {
+      display: none;
+      position: absolute;
+      top: 24px;
+      right: 48px;
+      z-index: 1;
+   }
+}
