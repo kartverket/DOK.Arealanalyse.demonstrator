@@ -1,7 +1,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { addCrsName, getCrsName, getEpsgCode, parseJson } from 'utils/helpers';
-import { isPolygon } from 'geojson-validation';
+import { isPolygon, isMultiPolygon } from 'geojson-validation';
 import { isUndefined } from 'lodash';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -26,7 +26,7 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
       () => {
          const obj = parseJson(geoJson);
 
-         if (isPolygon(obj)) {
+         if (isPolygon(obj) || isMultiPolygon(obj)) {
             setPolygon(obj);
             setEpsg(getEpsgCode(getCrsName(obj)) || '4326');
          } else {
