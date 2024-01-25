@@ -11,12 +11,12 @@ def get_input_geometry(geom, epsg, buffer, data_output):
         buffered_geom = get_buffered_geometry(geom, buffer, epsg)
         data_output['runAlgorithm'].append('add buffer')
         data_output['runOnInputGeometry'] = buffered_geom
-        geojson = buffered_geom.ExportToJson(['COORDINATE_PRECISION=2'])
+
+        return geojson_to_arcgis_geom(buffered_geom, epsg)
     else:
         data_output['runOnInputGeometry'] = geom
-        geojson = geom.ExportToJson(['COORDINATE_PRECISION=2'])
 
-    return geojson_to_arcgis_geom(geojson, epsg)
+        return geojson_to_arcgis_geom(geom, epsg)
 
 
 async def run_queries(dataset, arcgis_geom, epsg, data_output):
@@ -27,7 +27,6 @@ async def run_queries(dataset, arcgis_geom, epsg, data_output):
         layer_id = layer['arcgis']
         type_filter = layer.get('type_filter', None)
         arcgis_response = await query_arcgis(dataset, layer_id, type_filter, arcgis_geom, epsg)
-
         data_output['runAlgorithm'].append(f'intersect {layer_id}')
 
         if arcgis_response is not None:
@@ -48,16 +47,15 @@ async def run_queries(dataset, arcgis_geom, epsg, data_output):
 
 async def get_shortest_distance(dataset, geom, epsg, data_output):
     buffered_geom = get_buffered_geometry(geom, 20000, epsg)
-    geojson = buffered_geom.ExportToJson(['COORDINATE_PRECISION=2'])
-    arcgis_geom = geojson_to_arcgis_geom(geojson, epsg)
+    arcgis_geom = geojson_to_arcgis_geom(buffered_geom, epsg)
     layer_id = CONFIG[dataset]['layers'][0]['arcgis']
     type_filter = CONFIG[dataset]['layers'][0].get('type_filter', None)
 
     response = await query_arcgis(dataset, layer_id, type_filter, arcgis_geom, epsg)
-    
+
     if response is None:
         return maxsize
-    
+
     distances = []
 
     for feature in response['features']:
@@ -107,7 +105,15 @@ def get_geometry_from_response(feature):
         return None
 
 
-def geojson_to_arcgis_geom(geojson, epsg):
+def geojson_to_arcgis_geom(geom, epsg):
+    if geom.GetGeometryType() == ogr.wkbMultiPolygon:
+        out_geom = ogr.ForceToPolygon(geom)
+    else:
+        out_geom = geom
+
+    coord_precision = 6 if epsg == 4326 else 2
+    geojson = out_geom.ExportToJson(
+        [f'COORDINATE_PRECISION={coord_precision}'])
     obj = json.loads(geojson)
 
     arcgis_geom = {

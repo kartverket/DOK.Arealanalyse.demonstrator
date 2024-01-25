@@ -190,8 +190,10 @@ class DokanalyseProcessor(BaseProcessor):
 
         data_output['runAlgorithm'].append('deliver result')
 
+        coord_precision = 6 if epsg == 4326 else 2
+        
         run_on_input_geometry = json.loads(
-            data_output['runOnInputGeometry'].ExportToJson())
+            data_output['runOnInputGeometry'].ExportToJson([f'COORDINATE_PRECISION={coord_precision}']))
 
         common.add_geojson_crs(run_on_input_geometry, epsg)
 

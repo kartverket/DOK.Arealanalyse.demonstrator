@@ -91,7 +91,9 @@ def get_buffered_geometry(geom, distance, epsg):
 
 
 def get_cartography_url(wms_url, layer):
-    return f'{wms_url}service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&layer={layer}&format=image/png&STYLE=default'
+    first_layer = layer.split(',')[0]
+    
+    return f'{wms_url}service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&layer={first_layer}&format=image/png&STYLE=default'
 
 
 def add_geojson_crs(geojson, epsg):
@@ -138,7 +140,8 @@ async def get_kartkatalog_metadata(id):
     if metadata is None:
         return None
 
-    updated = metadata.get('DateUpdated', metadata.get('DateMetadataUpdated', None))
+    updated = metadata.get(
+        'DateUpdated', metadata.get('DateMetadataUpdated', None))
 
     return {
         'datasetId': id,

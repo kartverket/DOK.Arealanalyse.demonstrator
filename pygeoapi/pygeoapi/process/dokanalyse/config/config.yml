@@ -29,7 +29,7 @@ flomsoner:
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Flomsoner/1.1
   layers:
   - wfs: app:Analyseområde
-    wms: FlomsoneAnalyseomraade
+    wms: FlomsoneAnalyseomraade,Flomsone_200arsflom,Flomsone_200arsflom_klima 
     result_status: HIT-RED
     geolett_id: 5adab8dc-b327-49ed-9336-e85fe2453a05
   geom_element_name: app:område
@@ -157,24 +157,38 @@ hensynssone_energianlegg:
   - app:spenning
   themes:
   - samfunnssikkerhet    
+ 
+naturtyper_utvalgte_slåttemark:
+  arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  layers:
+  - arcgis: 0
+    wms: naturtype_utvalgt_omr
+    result_status: HIT-RED
+    geolett_id: 41c0fc6a-b938-4877-9a62-183ecba6cd48
+    type_filter: UtvalgtNaturtypeKode = 'UN01'
+  properties:
+  - Områdenavn
+  - UtvalgtNaturtype
+  - Nøyaktighetsklasse
+  themes:
+  - natur
 
-# kvikkleireskred:
-#   wfs: https://wfs.geonorge.no/skwms1/wfs.skredfaresoner?service=WFS
-#   wms: https://nve.geodataonline.no/arcgis/services/Skredfaresoner1/MapServer/WMSServer?
-#   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredfare/1.2
-#   layers:
-#   - wfs: app:KvikkleireFaresone
-#     wms: Skredsoner
-#     result_status: HIT-RED
-#     geolett_id: d34718b6-da67-47c7-a61d-05f222f8e613
-#   geom_element_name: app:område
-#   properties:
-#   - app:skredOmrID
-#   - app:skredOmrNavn
-#   - app:skredFaregradKlasse
-#   themes:
-#   - samfunnssikkerhet    
-
+naturtyper_utvalgte_slåttemyr:
+  arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  layers:
+  - arcgis: 0
+    wms: naturtype_utvalgt_omr
+    result_status: HIT-RED
+    geolett_id: f6e743f8-1081-469c-829c-f13201ec943c
+    type_filter: UtvalgtNaturtypeKode = 'UN02'
+  properties:
+  - Områdenavn
+  - UtvalgtNaturtype
+  - Nøyaktighetsklasse
+  themes:
+  - natur  
 
 naturtyper_utvalgte_hul_eik:
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
@@ -191,16 +205,48 @@ naturtyper_utvalgte_hul_eik:
   - Nøyaktighetsklasse
   themes:
   - natur
-  
-naturtyper_utvalgte_slåttemark:
+
+naturtyper_utvalgte_kalklindeskog:
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
   wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
   layers:
   - arcgis: 0
     wms: naturtype_utvalgt_omr
     result_status: HIT-RED
-    geolett_id: 41c0fc6a-b938-4877-9a62-183ecba6cd48
-    type_filter: UtvalgtNaturtypeKode = 'UN01'
+    geolett_id: a2e49e65-2f5e-4188-b848-94cbc32315ff
+    type_filter: UtvalgtNaturtypeKode = 'UN04'
+  properties:
+  - Områdenavn
+  - UtvalgtNaturtype
+  - Nøyaktighetsklasse
+  themes:
+  - natur  
+
+naturtyper_utvalgte_kalksjøer:
+  arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  layers:
+  - arcgis: 0
+    wms: naturtype_utvalgt_omr
+    result_status: HIT-RED
+    geolett_id: 0f18bebe-9fe3-44dd-b6d1-b34e932ff438
+    type_filter: UtvalgtNaturtypeKode = 'UN05'
+  properties:
+  - Områdenavn
+  - UtvalgtNaturtype
+  - Nøyaktighetsklasse
+  themes:
+  - natur
+
+naturtyper_utvalgte_kystlynghei:
+  arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  layers:
+  - arcgis: 0
+    wms: naturtype_utvalgt_omr
+    result_status: HIT-RED
+    geolett_id: ee52d09e-341b-493d-942b-09e5a218fdca
+    type_filter: UtvalgtNaturtypeKode = 'UN06'
   properties:
   - Områdenavn
   - UtvalgtNaturtype
@@ -223,3 +269,20 @@ naturtyper_utvalgte_kalkmark_boreonemoral:
   - Nøyaktighetsklasse
   themes:
   - natur
+
+faresone_kvikkleireskred:
+  arcgis: https://nve.geodataonline.no/arcgis/rest/services/SkredKvikkleire2/MapServer
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  layers:
+  - arcgis: 2
+    wms: Skredanalyseomraade
+    result_status: HIT-RED
+    geolett_id: 2e84d54f-9e93-4559-8214-8cb21567fa04
+  properties:
+  - kvikkleireStabilitetVurdering
+  - kvikkleiremektighet
+  - kvikkleiremektighetScore
+  - kvikkleiremektighetVekttall
+  - kvikkleiremektighetPoeng
+  themes:
+  - samfunnssikkerhet  

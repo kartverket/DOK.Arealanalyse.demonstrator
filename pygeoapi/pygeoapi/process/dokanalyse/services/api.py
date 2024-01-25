@@ -34,13 +34,18 @@ async def query_arcgis(dataset, layer_id, type_filter, geometry, epsg):
             'returnGeometry': True,
             'f': 'geojson'
         }
-
+        
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=data) as response:
                 if response.status != 200:
                     return None
 
-                return await response.json()
+                json = await response.json()
+
+                if 'error' in json:
+                    return None
+
+                return json
     except:
         return None
 
