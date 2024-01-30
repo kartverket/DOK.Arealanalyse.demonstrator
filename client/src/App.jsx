@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Accordion, AccordionSummary, AccordionDetails, Button, Checkbox, FormControl, FormControlLabel, InputAdornment, InputLabel, LinearProgress, MenuItem, Paper, Select, Snackbar, Alert } from '@mui/material';
-import { isPolygon } from 'geojson-validation';
+import { isPolygon, isMultiPolygon } from 'geojson-validation';
 import axios from 'axios'
 import GeometryDialog from 'features/GeometryDialog';
 import IntegerField from 'components/IntegerField';
@@ -52,8 +52,7 @@ export default function App() {
 
    function resetState() {
       setData(null);
-      /*setState(getDefaultValues());
-      geometryDialogRef.current.reset();*/
+      setExpanded('');
    }
 
    function getAccordionTitle(result) {
@@ -95,21 +94,13 @@ export default function App() {
    }
 
    async function start() {
-      const postData = {
-         inputs: {
-            ...state
-         }
-      };
-
-      if (postData.inputs.theme === '') {
-         postData.inputs.theme = null;
-      }
+      const payload = getPayload();
 
       resetState();
 
       try {
          setFetching(true);
-         const response = await axios.post(API_URL, postData);
+         const response = await axios.post(API_URL, payload);
 
          if (response.data?.code) {
             setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.');
@@ -125,10 +116,26 @@ export default function App() {
       }
    }
 
-   function canStart() {
-      return isPolygon(state.inputGeometry);
+   function getPayload() {
+      const inputs = { ...state };
+
+      if (inputs.context === '') {
+         inputs.context = null;
+      }
+
+      if (inputs.theme === '') {
+         inputs.theme = null;
+      }
+
+      return { 
+         inputs
+      };
    }
 
+   function isValidGeometry() {
+      return isPolygon(state.inputGeometry) || isMultiPolygon(state.inputGeometry);
+   }
+   
    return (
       <div className={styles.app}>
          <div className={styles.heading}>
@@ -150,7 +157,7 @@ export default function App() {
                            <CheckCircleIcon
                               color="success"
                               sx={{
-                                 display: isPolygon(state.inputGeometry) ? 'block !important' : 'none'
+                                 display: isValidGeometry() ? 'block !important' : 'none'
                               }}
                            />
                         </div>
@@ -231,7 +238,7 @@ export default function App() {
                      <div>
                         <Button
                            onClick={start}
-                           disabled={!canStart()}
+                           disabled={!isValidGeometry()}
                            variant="contained"
                         >
                            Start DOK-analyse

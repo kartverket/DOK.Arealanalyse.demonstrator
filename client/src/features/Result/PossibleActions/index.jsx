@@ -11,7 +11,7 @@ export default function PossibleActions({ result }) {
          case 'NO-HIT-GREEN':
             return <Alert icon={false} severity="success">Ingen tiltak trenger å utføres</Alert>
          case 'NO-HIT-YELLOW':
-            return <Alert icon={false} severity="warning">Faresonekartet har ikke dekning i området og ytterligere kartlegging bør gjøres</Alert>
+            return <Alert icon={false} severity="warning">Det finnes ikke dekning i området og ytterligere kartlegging bør vurderes</Alert>
          case 'HIT-YELLOW':
             return (
                <Alert icon={false} severity="warning">
