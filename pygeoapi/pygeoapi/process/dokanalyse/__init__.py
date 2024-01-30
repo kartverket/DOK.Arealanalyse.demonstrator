@@ -158,7 +158,7 @@ class DokanalyseProcessor(BaseProcessor):
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
 
-    async def query_dataset(self, dataset, epsg, geom, buffer, include_guidance, include_quality_measurement):
+    async def query_dataset(self, dataset, epsg, geom, buffer, include_guidance, include_quality_measurement, context):
         data_output = {
             'runAlgorithm': ['set input_geometry'],
             'resultStatus': 'NO-HIT-GREEN'
@@ -216,7 +216,7 @@ class DokanalyseProcessor(BaseProcessor):
             dataset_info = await common.get_kartkatalog_metadata(metadata_id)
             result['runOnDataset'] = dataset_info
 
-        if distance_to_object >= 20000:
+        if distance_to_object >= 20000 and context != 'byggesak':
             result['resultStatus'] = 'NO-HIT-YELLOW'
 
         result['title'] = data_output['geolett']['tittel']
@@ -233,6 +233,8 @@ class DokanalyseProcessor(BaseProcessor):
         geo_json = data.get('inputGeometry')
         geom = ogr.CreateGeometryFromJson(str(geo_json))
         epsg = common.get_epsg(geo_json)
+
+        context = data.get('context', None)
 
         buffer = data.get('requestedBuffer', 0)
         include_guidance = data.get('includeGuidance', False)
@@ -253,7 +255,7 @@ class DokanalyseProcessor(BaseProcessor):
         async with asyncio.TaskGroup() as tg:
             for dataset in datasets:
                 tasks.append(tg.create_task(self.query_dataset(
-                    dataset, epsg, geom, buffer, include_guidance, include_quality_measurement)))
+                    dataset, epsg, geom, buffer, include_guidance, include_quality_measurement, context)))
 
         for task in tasks:
             response['resultList'].append(task.result())
