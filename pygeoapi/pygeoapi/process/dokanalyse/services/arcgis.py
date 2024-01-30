@@ -26,8 +26,12 @@ async def run_queries(dataset, arcgis_geom, epsg, data_output):
     for layer in CONFIG[dataset]['layers']:
         layer_id = layer['arcgis']
         type_filter = layer.get('type_filter', None)
+        
+        if type_filter is not None:
+            data_output['runAlgorithm'].append(f'query {type_filter}')
+        
         arcgis_response = await query_arcgis(dataset, layer_id, type_filter, arcgis_geom, epsg)
-        data_output['runAlgorithm'].append(f'intersect {layer_id}')
+        data_output['runAlgorithm'].append(f'intersect layer {layer_id}')
 
         if arcgis_response is not None:
             response = parse_response(dataset, arcgis_response, layer)

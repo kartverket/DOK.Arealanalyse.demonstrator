@@ -61,7 +61,7 @@ def get_epsg(geo_json):
     if matches:
         return int(matches.group('epsg'))
 
-    return None
+    return 4326
 
 
 def transform_geometry(geom, src_epsg, dest_epsg):
