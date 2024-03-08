@@ -178,7 +178,7 @@ export default function App() {
       <div className={styles.app}>
          <div className={styles.heading}>
             <img src={logo} alt="Kartverket logo" />
-            <h1>Arealanalyse av DOK-datasett</h1>
+            <h1>Arealanalyse av DOK-datasett - Demonstrator</h1>
          </div>
 
          <div className={styles.content}>
