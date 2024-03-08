@@ -1,8 +1,8 @@
 const baseMap = {
-   wmsUrl: 'https://opencache.statkart.no/gatekeeper/gk/gk.open?',
-   layer: 'topo4graatone',
+   wmtsUrl: 'https://cache.kartverket.no/capabilities/topograatone/WMTSCapabilities.xml?request=GetCapabilities',
+   layer: 'topograatone',
    minZoom: 5,
-   maxZoom: 18,
+   maxZoom: 18
 };
 
 export default baseMap;

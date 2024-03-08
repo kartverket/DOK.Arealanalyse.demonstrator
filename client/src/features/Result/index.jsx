@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { getMapImage } from 'utils/map';
 import { CircularProgress } from '@mui/material';
 import { marked } from 'marked';
+import { useMap } from 'context/MapContext';
 import AboutDataset from './AboutDataset';
 import AboutAnalysis from './AboutAnalysis';
 import GuidanceLinks from './GuidanceLinks';
@@ -15,6 +16,7 @@ import styles from './Result.module.scss';
 export default function Result({ inputGeometry, result }) {
    const [mapBase64, setMapBase64] = useState(null);
    const [showInteractiveMap, setShowInteractiveMap] = useState(false);
+   const { wmtsOptions } = useMap();
 
    const shouldShowMap = useCallback(
       () => {
@@ -31,11 +33,11 @@ export default function Result({ inputGeometry, result }) {
          }
 
          (async () => {
-            const base64 = await getMapImage(inputGeometry, result);
+            const base64 = await getMapImage(inputGeometry, result, wmtsOptions);
             setMapBase64(base64);
          })();
       },
-      [shouldShowMap, inputGeometry, result]
+      [shouldShowMap, inputGeometry, result, wmtsOptions]
    );
 
    return (

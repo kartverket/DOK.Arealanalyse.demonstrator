@@ -10,12 +10,12 @@ import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
 import { isUndefined } from 'lodash';
 import { getEpsgCode } from './helpers';
-import baseMap from 'config/baseMap.config';
+import { createBaseMapLayer } from './baseMap';
 
 const MAP_WIDTH = 640;
 const MAP_HEIGHT = 480;
 
-export async function createMap(inputGeometry, result) {
+export async function createMap(inputGeometry, result, wmtsOptions) {
    const featuresLayer = createFeaturesLayer(inputGeometry, result);
 
    featuresLayer.set('id', 'features');
@@ -24,7 +24,7 @@ export async function createMap(inputGeometry, result) {
       controls: defaultControls().extend([new FullScreen()]),
       interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
       layers: [
-         createBaseMapLayer(),
+         await createBaseMapLayer(wmtsOptions),
          createWmsLayer(result.rasterResult),
          featuresLayer
       ]
@@ -32,16 +32,16 @@ export async function createMap(inputGeometry, result) {
 
    map.setView(new View({
       padding: [50, 50, 50, 50],
-      projection: getProjection(inputGeometry)
+      projection: 'EPSG:3857'
    }));
 
    return map;
 }
 
-export async function getMapImage(inputGeometry, result) {
-   return new Promise((resolve) => {
-      const [map, mapElement] = createTempMap(inputGeometry, result);
+export async function getMapImage(inputGeometry, result, wmtsOptions) {
+   const [map, mapElement] = await createTempMap(inputGeometry, result, wmtsOptions);
 
+   return new Promise((resolve) => {
       map.once('rendercomplete', () => {
          const base64 = exportToPngImage(map);
          map.dispose();
@@ -57,12 +57,12 @@ export function getLayer(map, id) {
       .find(layer => layer.get('id') === id);
 }
 
-function createTempMap(inputGeometry, result) {
+async function createTempMap(inputGeometry, result, wmtsOptions) {
    const featuresLayer = createFeaturesLayer(inputGeometry, result);
 
    const map = new Map({
       layers: [
-         createBaseMapLayer(),
+         await createBaseMapLayer(wmtsOptions),
          createWmsLayer(result.rasterResult),
          featuresLayer
       ]
@@ -70,7 +70,7 @@ function createTempMap(inputGeometry, result) {
 
    map.setView(new View({
       padding: [50, 50, 50, 50],
-      projection: getProjection(inputGeometry)
+      projection: 'EPSG:3857'
    }));
 
    const mapElement = document.createElement('div');
@@ -86,20 +86,21 @@ function createTempMap(inputGeometry, result) {
 }
 
 function createFeaturesLayer(inputGeometry, result) {
+   const projection = getProjection(inputGeometry);
    const source = new VectorSource();
 
    if (result.buffer > 0) {
-      source.addFeature(createFeature(result.runOnInputGeometry));
+      source.addFeature(createFeature(result.runOnInputGeometry, projection));
    }
 
-   source.addFeature(createFeature(inputGeometry));
+   source.addFeature(createFeature(inputGeometry, projection));
 
    return new VectorLayer({ source });
 }
 
-function createFeature(geoJson) {
+function createFeature(geoJson, projection) {
    const reader = new GeoJSON();
-   const geometry = reader.readGeometry(geoJson);
+   const geometry = reader.readGeometry(geoJson, { dataProjection: projection, featureProjection: 'EPSG:3857' });
    const feature = new Feature(geometry);
 
    feature.setStyle(new Style({
@@ -111,20 +112,6 @@ function createFeature(geoJson) {
    }));
 
    return feature;
-}
-
-function createBaseMapLayer() {
-   return new TileLayer({
-      source: new TileWMS({
-         url: baseMap.wmsUrl,
-         params: {
-            LAYERS: baseMap.layer,
-            VERSION: '1.1.1',
-         },
-         crossOrigin: 'anonymous'
-      }),
-      maxZoom: baseMap.maxZoom
-   });
 }
 
 function createWmsLayer(url) {

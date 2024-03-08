@@ -1,12 +1,14 @@
 import { useRef, useState, useEffect } from 'react';
 import { ZoomToExtent } from 'ol/control';
 import { createMap, getLayer } from 'utils/map';
+import { useMap } from 'context/MapContext';
 import baseMap from 'config/baseMap.config';
 import styles from './MapView.module.scss';
 
 export default function MapView({ inputGeometry, result }) {
    const [map, setMap] = useState(null);
    const mapElementRef = useRef(null);
+   const { wmtsOptions } = useMap();
 
    useEffect(
       () => {
@@ -15,11 +17,11 @@ export default function MapView({ inputGeometry, result }) {
          }
 
          (async () => {
-            const olMap = await createMap(inputGeometry, result);
+            const olMap = await createMap(inputGeometry, result, wmtsOptions);
             setMap(olMap);
          })();
       },
-      [inputGeometry, result]
+      [inputGeometry, result, wmtsOptions]
    );
 
    useEffect(

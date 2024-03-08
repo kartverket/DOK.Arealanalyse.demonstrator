@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Accordion, AccordionSummary, AccordionDetails, Button, Checkbox, FormControl, FormControlLabel, InputAdornment, InputLabel, LinearProgress, MenuItem, Paper, Select, Snackbar, Alert } from '@mui/material';
 import { isPolygon, isMultiPolygon } from 'geojson-validation';
+import { groupBy } from 'lodash';
 import axios from 'axios'
 import GeometryDialog from 'features/GeometryDialog';
 import IntegerField from 'components/IntegerField';
@@ -106,7 +107,10 @@ export default function App() {
             setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.');
             console.error(response.data.code);
          } else {
-            setData(response.data);
+            const { inputGeometry, resultList } = response.data;
+            const grouped = groupBy(resultList, result => result.resultStatus);
+
+            setData({ inputGeometry, resultList: grouped });
          }
       } catch (error) {
          setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.');
@@ -127,7 +131,7 @@ export default function App() {
          inputs.theme = null;
       }
 
-      return { 
+      return {
          inputs
       };
    }
@@ -135,7 +139,41 @@ export default function App() {
    function isValidGeometry() {
       return isPolygon(state.inputGeometry) || isMultiPolygon(state.inputGeometry);
    }
-   
+
+   function renderAccordions(resultStatus) {
+      const resultList = data.resultList[resultStatus];
+
+      if (resultList === undefined) {
+         return null;
+      }
+
+      return (
+         <div className={styles.resultGroup}>
+            {
+               resultList.map((result, index) => (
+                  <Accordion
+                     key={result.runOnDataset.datasetId + result.title}
+                     expanded={expanded === `panel-${resultStatus}-${index}`}
+                     onChange={handleAccordionChange(`panel-${resultStatus}-${index}`)}
+                  >
+                     <AccordionSummary sx={{ padding: '0 24px', '& .MuiAccordionSummary-content': { margin: '20px 0' } }}>
+                        <span className={getAccordionClassNames(result)}>
+                           <span className={styles.accordionTitle}>{getAccordionTitle(result)}</span>
+                        </span>
+                     </AccordionSummary>
+                     <AccordionDetails sx={{ padding: '6px 24px' }}>
+                        <Result
+                           inputGeometry={data.inputGeometry}
+                           result={result}
+                        />
+                     </AccordionDetails>
+                  </Accordion>
+               ))
+            }
+         </div>
+      );
+   }
+
    return (
       <div className={styles.app}>
          <div className={styles.heading}>
@@ -255,28 +293,10 @@ export default function App() {
             {
                data !== null ?
                   <div>
-                     {
-
-                        data.resultList.map((result, index) => (
-                           <Accordion
-                              key={result.runOnDataset.datasetId + result.title}
-                              expanded={expanded === `panel-${index}`}
-                              onChange={handleAccordionChange(`panel-${index}`)}
-                           >
-                              <AccordionSummary sx={{ padding: '0 24px', '& .MuiAccordionSummary-content': { margin: '20px 0' } }}>
-                                 <span className={getAccordionClassNames(result)}>
-                                    <span className={styles.accordionTitle}>{getAccordionTitle(result)}</span>
-                                 </span>
-                              </AccordionSummary>
-                              <AccordionDetails sx={{ padding: '6px 24px' }}>
-                                 <Result
-                                    inputGeometry={data.inputGeometry}
-                                    result={result}
-                                 />
-                              </AccordionDetails>
-                           </Accordion>
-                        ))
-                     }
+                     {renderAccordions('HIT-RED')}
+                     {renderAccordions('HIT-YELLOW')}
+                     {renderAccordions('NO-HIT-YELLOW')}
+                     {renderAccordions('NO-HIT-GREEN')}
                   </div> :
                   null
             }
