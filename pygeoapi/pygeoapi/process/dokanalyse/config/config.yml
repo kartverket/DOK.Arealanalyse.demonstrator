@@ -124,7 +124,24 @@ faresone_fjellskred:
   - skredType
   - skredStatSannsynlighet
   themes:
-  - samfunnssikkerhet    
+  - samfunnssikkerhet
+
+faresone_kvikkleireskred:
+  arcgis: https://nve.geodataonline.no/arcgis/rest/services/SkredKvikkleire2/MapServer
+  wms: https://nve.geodataonline.no/arcgis/services/SkredKvikkleire2/MapServer/WMSServer?
+  layers:
+  - arcgis: 1
+    wms: KvikkleireRisiko
+    result_status: HIT-RED
+    geolett_id: 2e84d54f-9e93-4559-8214-8cb21567fa04
+  properties:
+  - skredOmrNavn
+  - faregrad
+  - konsekvens
+  - risiko
+  - rapportURL
+  themes:
+  - samfunnssikkerhet  
 
 faresone_skred_bratt_terreng:
   arcgis: https://nve.geodataonline.no/arcgis/rest/services/Skredfaresoner1/MapServer
@@ -171,6 +188,8 @@ naturtyper_utvalgte_slåttemark:
   - Områdenavn
   - UtvalgtNaturtype
   - Nøyaktighetsklasse
+  - Registreringsdato
+  - Faktaark  
   themes:
   - natur
 
@@ -187,6 +206,8 @@ naturtyper_utvalgte_slåttemyr:
   - Områdenavn
   - UtvalgtNaturtype
   - Nøyaktighetsklasse
+  - Registreringsdato
+  - Faktaark  
   themes:
   - natur  
 
@@ -203,6 +224,8 @@ naturtyper_utvalgte_hul_eik:
   - Områdenavn
   - UtvalgtNaturtype
   - Nøyaktighetsklasse
+  - Registreringsdato
+  - Faktaark  
   themes:
   - natur
 
@@ -219,6 +242,8 @@ naturtyper_utvalgte_kalklindeskog:
   - Områdenavn
   - UtvalgtNaturtype
   - Nøyaktighetsklasse
+  - Registreringsdato
+  - Faktaark  
   themes:
   - natur  
 
@@ -235,6 +260,8 @@ naturtyper_utvalgte_kalksjøer:
   - Områdenavn
   - UtvalgtNaturtype
   - Nøyaktighetsklasse
+  - Registreringsdato
+  - Faktaark  
   themes:
   - natur
 
@@ -251,6 +278,8 @@ naturtyper_utvalgte_kystlynghei:
   - Områdenavn
   - UtvalgtNaturtype
   - Nøyaktighetsklasse
+  - Registreringsdato
+  - Faktaark
   themes:
   - natur
 
@@ -267,22 +296,7 @@ naturtyper_utvalgte_kalkmark_boreonemoral:
   - Områdenavn
   - UtvalgtNaturtype
   - Nøyaktighetsklasse
+  - Registreringsdato
+  - Faktaark
   themes:
   - natur
-
-faresone_kvikkleireskred:
-  arcgis: https://nve.geodataonline.no/arcgis/rest/services/SkredKvikkleire2/MapServer
-  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
-  layers:
-  - arcgis: 2
-    wms: Skredanalyseomraade
-    result_status: HIT-RED
-    geolett_id: 2e84d54f-9e93-4559-8214-8cb21567fa04
-  properties:
-  - kvikkleireStabilitetVurdering
-  - kvikkleiremektighet
-  - kvikkleiremektighetScore
-  - kvikkleiremektighetVekttall
-  - kvikkleiremektighetPoeng
-  themes:
-  - samfunnssikkerhet  
