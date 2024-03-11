@@ -13,6 +13,14 @@ export default defineConfig(({ mode }) => {
          react(),
          jsconfigPaths()
       ],
+      server: {
+         proxy: {
+            '/api/': {
+               target: 'http://localhost:3000',
+               rewrite: path => path.replace(/^\/api/, '')
+            }
+         }
+      },
       build: {
          outDir: 'build',
          assetsDir: 'assets',

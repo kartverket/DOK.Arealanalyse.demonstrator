@@ -101,7 +101,7 @@ export default function App() {
 
       try {
          setFetching(true);
-         const response = await axios.post(API_URL, payload);
+         const response = await axios.post('/api/', payload);
 
          if (response.data?.code) {
             setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.');
@@ -132,7 +132,10 @@ export default function App() {
       }
 
       return {
-         inputs
+         url: API_URL,
+         payload: {
+            inputs
+         }
       };
    }
 

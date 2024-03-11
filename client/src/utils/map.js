@@ -11,6 +11,7 @@ import Stroke from 'ol/style/Stroke';
 import { isUndefined } from 'lodash';
 import { getEpsgCode } from './helpers';
 import { createBaseMapLayer } from './baseMap';
+import baseMap from 'config/baseMap.config';
 
 const MAP_WIDTH = 640;
 const MAP_HEIGHT = 480;
@@ -32,7 +33,8 @@ export async function createMap(inputGeometry, result, wmtsOptions) {
 
    map.setView(new View({
       padding: [50, 50, 50, 50],
-      projection: 'EPSG:3857'
+      projection: 'EPSG:3857',
+      maxZoom: baseMap.maxZoom
    }));
 
    return map;
@@ -43,11 +45,11 @@ export async function getMapImage(inputGeometry, result, wmtsOptions) {
 
    return new Promise((resolve) => {
       map.once('rendercomplete', () => {
-         const base64 = exportToPngImage(map);
-         map.dispose();
-         mapElement.remove();
+        const base64 = exportToPngImage(map);
+        map.dispose();
+        mapElement.remove();
 
-         resolve(base64);
+        resolve(base64);
       })
    });
 }
@@ -70,7 +72,8 @@ async function createTempMap(inputGeometry, result, wmtsOptions) {
 
    map.setView(new View({
       padding: [50, 50, 50, 50],
-      projection: 'EPSG:3857'
+      projection: 'EPSG:3857',
+      maxZoom: baseMap.maxZoom
    }));
 
    const mapElement = document.createElement('div');

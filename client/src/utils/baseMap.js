@@ -7,7 +7,7 @@ import baseMap from 'config/baseMap.config';
 export async function createBaseMapLayer(wmtsOptions) {
    const tileLayer = new TileLayer({
       source: new WMTS(wmtsOptions),
-      maxZoom: baseMap.maxZoom,      
+      maxZoom: baseMap.maxZoom
    });
 
    return tileLayer;

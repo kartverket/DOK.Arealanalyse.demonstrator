@@ -5,9 +5,19 @@ RUN yarn --frozen-lockfile
 COPY . .
 RUN yarn build
 
-FROM nginx:stable-alpine
+WORKDIR /proxy
+COPY ./proxy/package.json ./proxy/yarn.lock ./
+RUN yarn --frozen-lockfile
+COPY ./proxy .
+
+FROM nginx:1.25.4
+RUN apt update \
+   && apt install -y nodejs supervisor
 COPY --from=builder /app/build /usr/share/nginx/html
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /proxy /proxy
+COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+COPY deploy/supervisor.conf /etc/supervisor.conf
 
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+CMD ["supervisord", "-c", "/etc/supervisor.conf"]
