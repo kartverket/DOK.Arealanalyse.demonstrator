@@ -1,5 +1,6 @@
 import logging
 import json
+import time
 from osgeo import ogr
 import asyncio
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
@@ -159,6 +160,8 @@ class DokanalyseProcessor(BaseProcessor):
         super().__init__(processor_def, PROCESS_METADATA)
 
     async def query_dataset(self, dataset, epsg, geom, buffer, include_guidance, include_quality_measurement, context):
+        start = time.time()
+        
         data_output = {
             'runAlgorithm': ['set input_geometry'],
             'resultStatus': 'NO-HIT-GREEN'
@@ -226,6 +229,10 @@ class DokanalyseProcessor(BaseProcessor):
 
         if include_quality_measurement:
             common.set_quality_measurement(result)
+
+        end = time.time()
+
+        print(f'"{dataset}": {round(end - start, 2)} sek.')
 
         return result
 

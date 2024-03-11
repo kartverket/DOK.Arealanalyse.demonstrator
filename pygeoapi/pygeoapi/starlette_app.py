@@ -578,7 +578,7 @@ if API_RULES.strict_slashes:
 # CORS: optionally enable from config.
 if CONFIG['server'].get('cors', False):
     from starlette.middleware.cors import CORSMiddleware
-    APP.add_middleware(CORSMiddleware, allow_methods=["*"], allow_origins=['*'])
+    APP.add_middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 try:
     OGC_SCHEMAS_LOCATION = Path(CONFIG['server']['ogc_schemas_location'])

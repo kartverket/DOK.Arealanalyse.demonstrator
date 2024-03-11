@@ -158,22 +158,22 @@ faresone_skred_bratt_terreng:
   themes:
   - samfunnssikkerhet   
 
-hensynssone_energianlegg:
-  wfs: https://wfs.geonorge.no/skwms1/wfs.nettanlegg?service=WFS
-  wms: https://nve.geodataonline.no/arcgis/services/Nettanlegg2/MapServer/WMSServer?
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Nettanlegg/1.0
-  layers:
-  - wfs: app:EL_Luftlinje
-    wms: Distribusjonsnett,Regionalnett
-    result_status: HIT-RED
-    geolett_id: cc04ba06-1ad4-40cc-b961-389786a269ad
-  geom_element_name: app:linje
-  properties:
-  - app:navn
-  - app:nettnivå
-  - app:spenning
-  themes:
-  - samfunnssikkerhet    
+# hensynssone_energianlegg:
+#   wfs: https://wfs.geonorge.no/skwms1/wfs.nettanlegg?service=WFS
+#   wms: https://nve.geodataonline.no/arcgis/services/Nettanlegg2/MapServer/WMSServer?
+#   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Nettanlegg/1.0
+#   layers:
+#   - wfs: app:EL_Luftlinje
+#     wms: Distribusjonsnett,Regionalnett
+#     result_status: HIT-RED
+#     geolett_id: cc04ba06-1ad4-40cc-b961-389786a269ad
+#   geom_element_name: app:linje
+#   properties:
+#   - app:navn
+#   - app:nettnivå
+#   - app:spenning
+#   themes:
+#   - samfunnssikkerhet    
  
 naturtyper_utvalgte_slåttemark:
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
