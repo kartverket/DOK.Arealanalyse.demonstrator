@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { addCrsName, getCrsName, getEpsgCode, parseJson } from 'utils/helpers';
 import { isPolygon, isMultiPolygon } from 'geojson-validation';
 import { isUndefined } from 'lodash';
@@ -7,12 +7,22 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import styles from './GeometryDialog.module.scss';
 import HiddenInput from 'components/HiddenInput';
+import axios from 'axios';
+
+const GEOJSON_FILE_MAPPINGS = {
+   'Drammen': 'drammen.geojson',
+   'Eidanger': 'eidanger.geojson',
+   'His allé': 'his-alle.geojson',
+   'Skien havnelager': 'skien-havnelager.geojson',
+   'Ullevål': 'ullevål.geojson'
+};
 
 const GeometryDialog = forwardRef(({ onOk }, ref) => {
    const [open, setOpen] = useState(false);
    const [geoJson, setGeoJson] = useState('');
    const [polygon, setPolygon] = useState(null);
    const [epsg, setEpsg] = useState('');
+   const [selectedFile, setSelectedFile] = useState('');
 
    useImperativeHandle(ref, () => ({
       reset: () => {
@@ -62,11 +72,23 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
       setEpsg(event.target.value);
    }
 
+   async function handleFileSelect(event) {
+      setSelectedFile(event.target.value);
+
+      const url = `/geojson/${event.target.value}`;
+      const response = await axios.get(url);
+      const json = JSON.stringify(response.data, null, 3);
+
+      setGeoJson(json);
+   }
+
    async function handleAddFileChange(event) {
       const file = [...event.target.files][0];
 
       if (file) {
          const text = await file.text();
+
+         setSelectedFile('');
          setGeoJson(text);
       }
    }
@@ -82,19 +104,41 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
 
          <Dialog open={open} onClose={handleClose} >
             <DialogTitle>Analyseområde</DialogTitle>
+
             <DialogContent>
                <div className={styles.dialogContent}>
-                  <Button
-                     component="label"
-                     variant="contained"
-                     sx={{
-                        width: 200,
-                        marginBottom: '18px'
-                     }}
-                  >
-                     Legg til fil
-                     <HiddenInput type="file" onChange={handleAddFileChange} accept=".json, .geojson" />
-                  </Button>
+                  <div className={styles.contentTop}>
+                     <div className={styles.uploadButton}>
+                        <Button
+                           component="label"
+                           variant="contained"
+                           sx={{
+                              width: 200
+                           }}
+                        >
+                           Legg til fil
+                           <HiddenInput type="file" onChange={handleAddFileChange} accept=".json, .geojson" />
+                        </Button>
+                     </div>
+
+                     <div className={styles.fileSelect}>
+                        <FormControl fullWidth>
+                           <InputLabel id="select-file-label">Velg fil</InputLabel>
+                           <Select
+                              labelId="select-file-label"
+                              value={selectedFile}
+                              label="Velg fil"
+                              onChange={handleFileSelect}
+                           >
+                              {
+                                 Object.entries(GEOJSON_FILE_MAPPINGS).map(entry => (
+                                    <MenuItem key={entry[1]} value={entry[1]}>{entry[0]}</MenuItem>
+                                 ))
+                              }
+                           </Select>
+                        </FormControl>
+                     </div>
+                  </div>
 
                   <div className={styles.geoJson}>
                      <TextField

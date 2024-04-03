@@ -2,8 +2,15 @@
    display: flex;
    flex-direction: column;
 
-   .upload {
-      margin-bottom: 18px;
+   .contentTop {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 12px 0 18px 0;
+
+      .fileSelect {
+         width: 200px;
+      }
    }
    
    .geoJson {
