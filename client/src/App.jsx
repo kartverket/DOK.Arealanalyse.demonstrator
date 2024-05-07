@@ -248,6 +248,7 @@ export default function App() {
                            >
                               <MenuItem value="">Velg...</MenuItem>
                               <MenuItem value="natur">Natur</MenuItem>
+                              <MenuItem value="samferdsel">Samferdsel</MenuItem>
                               <MenuItem value="samfunnssikkerhet">Samfunnssikkerhet</MenuItem>
                            </Select>
                         </FormControl>

@@ -1,3 +1,4 @@
+import styles from '../Result.module.scss';
 
 export default function GuidanceLinks({ result }) {
    if (!result.guidanceUri?.length) {
@@ -7,7 +8,7 @@ export default function GuidanceLinks({ result }) {
    return (
       <div className="paper">
          <h3>Veiledningslenker</h3>
-         <ul>
+         <ul className={styles.guidanceLinks}>
             {
                result.guidanceUri.map(uri => {
                   return (

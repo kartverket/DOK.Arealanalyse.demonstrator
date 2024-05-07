@@ -13,6 +13,7 @@ const GEOJSON_FILE_MAPPINGS = {
    'Drammen': 'drammen.geojson',
    'Eidanger': 'eidanger.geojson',
    'His allé': 'his-alle.geojson',
+   'Laupsnipa': 'laupsnipa.geojson',
    'Skien havnelager': 'skien-havnelager.geojson',
    'Ullevål': 'ullevål.geojson'
 };
