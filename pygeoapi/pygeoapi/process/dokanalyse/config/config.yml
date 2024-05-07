@@ -300,3 +300,18 @@ naturtyper_utvalgte_kalkmark_boreonemoral:
   - Faktaark
   themes:
   - natur
+
+farled:
+  wfs: https://wfs.geonorge.no/skwms1/wfs.farled?service=WFS
+  wms: https://services.kystverket.no/wms.ashx?
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Farled/20210101
+  layers:
+  - wfs: app:HovedledOgBiledAreal
+    wms: group_4
+    result_status: HIT-RED
+    geolett_id: 0c5dc043-e5b3-4349-8587-9b464d013aaa
+  geom_element_name: app:lokalisering
+  properties:
+  - app:datauttaksdato
+  themes:
+  - samferdsel

@@ -5,11 +5,12 @@ from osgeo import ogr, osr
 from os import path
 import math
 import json
-from .api import fetch_geolett_data, fetch_kartkatalog_metadata
+from .api import fetch_geolett_data, fetch_local_geolett_data, fetch_kartkatalog_metadata
 from ..config import CONFIG
 
 EARTH_RADIUS = 6371008.8
 DIR_PATH = path.dirname(path.realpath(__file__))
+LOCAL_GEOLETT_IDS = ['0c5dc043-e5b3-4349-8587-9b464d013aaa']
 
 
 def request_is_valid(data):
@@ -53,7 +54,7 @@ def get_epsg(geo_json):
     crs = geo_json.get('crs', {}).get('properties', {}).get('name')
 
     if crs is None:
-        return None
+        return 4326
 
     regex = r'^(http:\/\/www\.opengis\.net\/def\/crs\/EPSG\/0\/|^urn:ogc:def:crs:EPSG::|^EPSG:)(?P<epsg>\d+)$'
     matches = re.search(regex, crs)
@@ -92,7 +93,7 @@ def get_buffered_geometry(geom, distance, epsg):
 
 def get_cartography_url(wms_url, layer):
     first_layer = layer.split(',')[0]
-    
+
     return f'{wms_url}service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&layer={first_layer}&format=image/png&STYLE=default'
 
 
@@ -128,7 +129,11 @@ def set_geometry_areas(data_output):
 
 
 async def get_geolett_data(id):
-    geolett = await fetch_geolett_data()
+    if id in LOCAL_GEOLETT_IDS:
+        geolett = fetch_local_geolett_data()
+    else:
+        geolett = await fetch_geolett_data()
+
     result = list(filter(lambda item: item['id'] == id, geolett))
 
     return result[0] if len(result) > 0 else None
