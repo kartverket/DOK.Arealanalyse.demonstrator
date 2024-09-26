@@ -9,6 +9,7 @@ import Result from 'features/Result';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import logo from 'assets/gfx/logo-kartverket.svg';
 import styles from './App.module.scss';
+import { Toaster } from 'components';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -35,10 +36,6 @@ export default function App() {
    const handleAccordionChange = (panel) => (_, isExpanded) => {
       setExpanded(isExpanded ? panel : false);
    };
-
-   function handleCloseError() {
-      setErrorMessage(null);
-   }
 
    function getDefaultValues() {
       return {
@@ -101,7 +98,8 @@ export default function App() {
 
       try {
          setFetching(true);
-         const response = await axios.post('/api/', payload);
+         const response = await axios.post('http://localhost:5001/api/pygeoapi', payload);
+         //const response = await axios.post('/api/', payload);
 
          if (response.data?.code) {
             setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.');
@@ -132,10 +130,7 @@ export default function App() {
       }
 
       return {
-         url: API_URL,
-         payload: {
-            inputs
-         }
+         inputs
       };
    }
 
@@ -304,21 +299,9 @@ export default function App() {
                   </div> :
                   null
             }
-            <Snackbar
-               open={errorMessage !== null}
-               autoHideDuration={5000}
-               onClose={handleCloseError}
-               anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            >
-               <Alert
-                  onClose={handleCloseError}
-                  severity="error"
-                  sx={{ width: '100%', '& .MuiAlert-message': { fontWeight: 400, fontFamily: 'Roboto-Regular' } }}
-               >
-                  {errorMessage}
-               </Alert>
-            </Snackbar>
+
+            <Toaster />
          </div>
       </div>
-   )
+   );
 }

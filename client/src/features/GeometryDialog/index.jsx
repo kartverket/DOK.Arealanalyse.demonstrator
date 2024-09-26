@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Tab, Tabs, TextField } from '@mui/material';
 import { addCrsName, getCrsName, getEpsgCode, parseJson } from 'utils/helpers';
 import { isPolygon, isMultiPolygon } from 'geojson-validation';
 import { isUndefined } from 'lodash';
@@ -8,45 +8,30 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import styles from './GeometryDialog.module.scss';
 import HiddenInput from 'components/HiddenInput';
 import axios from 'axios';
-
-const GEOJSON_FILE_MAPPINGS = {
-   'Drammen': 'drammen.geojson',
-   'Eidanger': 'eidanger.geojson',
-   'His allé': 'his-alle.geojson',
-   'Laupsnipa': 'laupsnipa.geojson',
-   'Skien havnelager': 'skien-havnelager.geojson',
-   'Ullevål': 'ullevål.geojson'
-};
+import { getFileContents, getFileType, parseJsonFile } from './helpers';
+import MapView from './MapView';
+import { TabPanel } from 'components';
+import GeoJson from './GeoJson';
+import useSamples from 'hooks/useSamples';
+import { convert, validate } from 'utils/api';
+import { useDispatch } from 'react-redux';
+import { setErrorMessage } from 'store/slices/appSlice';
 
 const GeometryDialog = forwardRef(({ onOk }, ref) => {
    const [open, setOpen] = useState(false);
-   const [geoJson, setGeoJson] = useState('');
-   const [polygon, setPolygon] = useState(null);
-   const [epsg, setEpsg] = useState('');
+   const [geometry, setGeometry] = useState(null);
    const [selectedFile, setSelectedFile] = useState('');
+   const [selectedTab, setSelectedTab] = useState(0);
+   const { samples = [] } = useSamples();
+   const dispatch = useDispatch();
 
    useImperativeHandle(ref, () => ({
       reset: () => {
-         setGeoJson('');
+         setGeometry(null);
       }
    }));
 
-   const hasCrsName = useCallback(() => !isUndefined(getCrsName(polygon)), [polygon]);
-
-   useEffect(
-      () => {
-         const obj = parseJson(geoJson);
-
-         if (isPolygon(obj) || isMultiPolygon(obj)) {
-            setPolygon(obj);
-            setEpsg(getEpsgCode(getCrsName(obj)) || '4326');
-         } else {
-            setPolygon(null);
-            setEpsg('');
-         }
-      },
-      [geoJson]
-   );
+   const hasCrsName = useCallback(() => !isUndefined(getCrsName(geometry)), [geometry]);
 
    function handleClickOpen() {
       setOpen(true);
@@ -57,41 +42,52 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
    }
 
    function handleOk() {
-      if (!hasCrsName() && epsg !== '4326') {
-         addCrsName(polygon, epsg);
-      }
+      // if (!hasCrsName() && epsg !== '4326') {
+      //    addCrsName(polygon, epsg);
+      // }
 
-      onOk(polygon);
+      onOk(geometry);
       setOpen(false);
    }
 
-   function handleGeoJsonChange(event) {
-      setGeoJson(event.target.value);
-   }
-
-   function handleEpsgChange(event) {
-      setEpsg(event.target.value);
+   function handleTabChange(event, newValue) {
+      setSelectedTab(newValue);
    }
 
    async function handleFileSelect(event) {
-      setSelectedFile(event.target.value);
+      const value = event.target.value;
+      setSelectedFile(value);
 
-      const url = `/geojson/${event.target.value}`;
-      const response = await axios.get(url);
-      const json = JSON.stringify(response.data, null, 3);
-
-      setGeoJson(json);
+      const sample = samples.find(sample => sample.fileName === value);
+      setGeometry(sample.geoJson);
    }
 
    async function handleAddFileChange(event) {
       const file = [...event.target.files][0];
 
-      if (file) {
-         const text = await file.text();
-
+      if (!file) {
          setSelectedFile('');
-         setGeoJson(text);
+         return;
       }
+
+      const fileType = getFileType(file);
+      let geoJson;
+
+      if (fileType !== 'geojson') {
+         geoJson = await convert(file, fileType);
+      } else {
+         geoJson = await parseJsonFile(file);
+      }
+
+      const isValid = geoJson !== null && await validate(geoJson);
+
+      if (!isValid) {
+         dispatch(setErrorMessage(`Geometrien i «${file.name}» er ugyldig`));
+         geoJson = null;
+      }
+      
+      setSelectedFile('');
+      setGeometry(geoJson);      
    }
 
    return (
@@ -103,7 +99,18 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
             Analyseområde
          </Button>
 
-         <Dialog open={open} onClose={handleClose} >
+         <Dialog
+            open={open}
+            onClose={handleClose}
+            sx={{
+               "& .MuiDialog-container": {
+                  "& .MuiPaper-root": {
+                     width: "100%",
+                     maxWidth: '720px',
+                  },
+               }
+            }}
+         >
             <DialogTitle>Analyseområde</DialogTitle>
 
             <DialogContent>
@@ -118,7 +125,7 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
                            }}
                         >
                            Legg til fil
-                           <HiddenInput type="file" onChange={handleAddFileChange} accept=".json, .geojson" />
+                           <HiddenInput type="file" onChange={handleAddFileChange} accept=".json, .geojson, .sos, .sosi, .gml" />
                         </Button>
                      </div>
 
@@ -132,8 +139,8 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
                               onChange={handleFileSelect}
                            >
                               {
-                                 Object.entries(GEOJSON_FILE_MAPPINGS).map(entry => (
-                                    <MenuItem key={entry[1]} value={entry[1]}>{entry[0]}</MenuItem>
+                                 samples.map(sample => (
+                                    <MenuItem key={sample.fileName} value={sample.fileName}>{sample.name}</MenuItem>
                                  ))
                               }
                            </Select>
@@ -141,50 +148,26 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
                      </div>
                   </div>
 
-                  <div className={styles.geoJson}>
-                     <TextField
-                        value={geoJson}
-                        onChange={handleGeoJsonChange}
-                        label="GeoJSON"
-                        autoFocus
-                        multiline={true}
-                        rows={20}
-                        sx={{
-                           width: 500
-                        }}
-                     />
+                  <Box className={styles.tabs}>
+                     <Tabs value={selectedTab} onChange={handleTabChange}>
+                        <Tab label="Kart" disabled={geometry === null} />
+                        <Tab label="GeoJSON" disabled={geometry === null} />
+                     </Tabs>
+                  </Box>
 
-                     <div className={styles.icons}>
-                        <CheckCircleIcon
-                           color="success"
-                           sx={{
-                              display: geoJson !== '' && polygon !== null ? 'block !important' : 'none'
-                           }}
-                        />
+                  <TabPanel value={selectedTab} index={0} className={styles.tabPanel}>
+                     <MapView geometry={geometry} />
+                  </TabPanel>
 
-                        <CancelIcon
-                           sx={{
-                              color: '#d53838',
-                              display: geoJson !== '' && polygon === null ? 'block !important' : 'none'
-                           }}
-                        />
-                     </div>
-                  </div>
-
-                  <TextField
-                     value={epsg}
-                     onChange={handleEpsgChange}
-                     label="EPSG"
-                     disabled={hasCrsName()}
-                     sx={{
-                        width: 150
-                     }}
-                  />
+                  <TabPanel value={selectedTab} index={1} className={styles.tabPanel}>
+                     <GeoJson data={geometry} />
+                  </TabPanel>
                </div>
             </DialogContent>
+
             <DialogActions>
                <Button onClick={handleClose}>Avbryt</Button>
-               <Button onClick={handleOk} disabled={polygon === null}>OK</Button>
+               <Button onClick={handleOk} disabled={geometry === null}>OK</Button>
             </DialogActions>
          </Dialog>
       </div>

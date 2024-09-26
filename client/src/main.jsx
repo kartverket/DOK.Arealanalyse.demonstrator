@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
 import { ThemeProvider } from '@mui/material';
 import MapProvider from 'context/MapContext';
 import App from './App.jsx';
+import store from 'store';
 import theme from 'config/theme.config.js';
 import 'config/projections.config';
 import 'config/extents.config';
@@ -12,11 +14,13 @@ const root = document.getElementById('root');
 
 ReactDOM.createRoot(root).render(
    <React.StrictMode>
-      <ThemeProvider theme={theme}>
-         <MapProvider>
-            <App />
-         </MapProvider>
-      </ThemeProvider>
+      <Provider store={store}>
+         <ThemeProvider theme={theme}>
+            <MapProvider>
+               <App />
+            </MapProvider>
+         </ThemeProvider>
+      </Provider>
    </React.StrictMode>
 );
 

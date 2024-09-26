@@ -1,0 +1,30 @@
+.copy-button {
+   position: absolute;
+   right: var(--fds-spacing-13);
+   background-color: #ffffff;
+}
+
+.json-print-container {
+   box-sizing: border-box;
+
+   .json-print {    
+      pre {
+         background-color: #ffffff;
+         white-space: pre-wrap;
+         margin: 0;
+         font: 400 1rem / 1.5 monospace;
+      }
+      
+      .json-key {
+         color: brown;
+      }
+      
+      .json-value {
+         color: navy;
+      }
+      
+      .json-string {
+         color: olive;
+      }
+   }
+}

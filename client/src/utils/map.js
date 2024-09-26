@@ -40,6 +40,28 @@ export async function createMap(inputGeometry, result, wmtsOptions) {
    return map;
 }
 
+export async function createOutlineMap(geometry, wmtsOptions) {
+   const featuresLayer = createOutlineFeaturesLayer(geometry);
+
+   featuresLayer.set('id', 'features');
+
+   const map = new Map({
+      interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
+      layers: [
+         await createBaseMapLayer(wmtsOptions),
+         featuresLayer
+      ]
+   });
+
+   map.setView(new View({
+      padding: [50, 50, 50, 50],
+      projection: 'EPSG:3857',
+      maxZoom: baseMap.maxZoom
+   }));
+
+   return map;
+}
+
 export async function getMapImage(inputGeometry, result, wmtsOptions) {
    const [map, mapElement] = await createTempMap(inputGeometry, result, wmtsOptions);
 
@@ -91,12 +113,21 @@ async function createTempMap(inputGeometry, result, wmtsOptions) {
 function createFeaturesLayer(inputGeometry, result) {
    const projection = getProjection(inputGeometry);
    const source = new VectorSource();
-
+   
    if (result.buffer > 0) {
       source.addFeature(createFeature(result.runOnInputGeometry, projection));
    }
 
    source.addFeature(createFeature(inputGeometry, projection));
+
+   return new VectorLayer({ source });
+}
+
+function createOutlineFeaturesLayer(geometry) {
+   const projection = getProjection(geometry);
+   const source = new VectorSource();
+
+   source.addFeature(createFeature(geometry, projection));
 
    return new VectorLayer({ source });
 }
