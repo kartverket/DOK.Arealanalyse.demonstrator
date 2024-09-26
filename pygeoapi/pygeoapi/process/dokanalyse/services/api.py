@@ -1,6 +1,10 @@
+from os import path
+import json
 import aiohttp
 from async_lru import alru_cache
 from ..config import CONFIG
+
+DIR_PATH = path.dirname(path.realpath(__file__))
 
 
 async def query_wfs(dataset, xml):
@@ -34,7 +38,7 @@ async def query_arcgis(dataset, layer_id, type_filter, geometry, epsg):
             'returnGeometry': True,
             'f': 'geojson'
         }
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.post(url, data=data) as response:
                 if response.status != 200:
@@ -63,6 +67,14 @@ async def fetch_geolett_data():
                 return await response.json()
     except:
         return None
+
+
+def fetch_local_geolett_data():
+    file_path = path.join(
+        path.dirname(DIR_PATH), 'resources/geolett.local.json')
+
+    with open(file_path, 'r') as file:
+        return json.load(file)
 
 
 @alru_cache(maxsize=32, ttl=86400*7)

@@ -31,6 +31,7 @@ async def run_queries(dataset, gml, epsg, data_output):
         layer_name = layer['wfs']
         request_xml = create_request_xml(
             layer_name, epsg, geom_element_name, gml)
+        
         wfs_response = await query_wfs(dataset, request_xml)
 
         data_output['runAlgorithm'].append(f'intersect {layer_name}')
