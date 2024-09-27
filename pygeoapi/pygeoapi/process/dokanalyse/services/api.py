@@ -54,6 +54,23 @@ async def query_arcgis(dataset, layer_id, type_filter, geometry, epsg):
         return None
 
 
+async def query_ogc_api(dataset, layer_id, wkt_geom, epsg):
+    try:
+        base_url = CONFIG[dataset]['ogc_api']
+        geom_element_name = CONFIG[dataset]['geom_element_name']
+        filter_crs = f'&filter-crs=http://www.opengis.net/def/crs/EPSG/0/{epsg}' if epsg is not 4326 else ''                   
+        url = f'{base_url}/{layer_id}/items?filter-lang=cql2-text{filter_crs}&filter=S_INTERSECTS({geom_element_name},{wkt_geom})'
+
+        async with aiohttp.ClientSession() as session:            
+            async with session.get(url) as response:
+                if response.status != 200:
+                    return None
+
+                return await response.json()
+    except:
+        return None
+
+
 @alru_cache(maxsize=32, ttl=86400*7)
 async def fetch_geolett_data():
     try:

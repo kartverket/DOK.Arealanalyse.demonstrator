@@ -33,6 +33,8 @@ def get_dataset_type(dataset):
         return 'wfs'
     elif 'arcgis' in CONFIG[dataset]:
         return 'arcgis'
+    elif 'ogc_api' in CONFIG[dataset]:
+        return 'ogc_api'
 
     return None
 
@@ -94,7 +96,7 @@ def get_buffered_geometry(geom, distance, epsg):
 def get_cartography_url(wms_url, layer):
     first_layer = layer.split(',')[0]
 
-    return f'{wms_url}service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&layer={first_layer}&format=image/png&STYLE=default'
+    return f'{wms_url}service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&layer={first_layer}&format=image/png'
 
 
 def add_geojson_crs(geojson, epsg):
@@ -124,11 +126,14 @@ def set_geometry_areas(data_output):
     intersection = data_output['runOnInputGeometry'].Intersection(
         geom_collection)
 
-    if intersection is not None:
+    if intersection is not None and not intersection.IsEmpty():
         data_output['hitArea'] = round(intersection.GetArea(), 2)
 
 
 async def get_geolett_data(id):
+    if id is None:
+        return None
+
     if id in LOCAL_GEOLETT_IDS:
         geolett = fetch_local_geolett_data()
     else:
@@ -155,6 +160,15 @@ async def get_kartkatalog_metadata(id):
         'datasetDescriptionUri': 'https://kartkatalog.geonorge.no/metadata/' + id,
         'updated': updated
     }
+
+
+def get_dataset_title(data_output, dataset):
+    config = CONFIG[dataset]
+
+    if data_output['geolett'] is not None:
+        return data_output['geolett']['tittel']
+
+    return config.get('title', '<Mangler tittel>')
 
 
 def set_guidance_data(geolett, result):

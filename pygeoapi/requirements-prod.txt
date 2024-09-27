@@ -27,3 +27,4 @@ async-lru
 gunicorn
 uvicorn
 starlette
+pydash

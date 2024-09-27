@@ -7,6 +7,7 @@ from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 from .services import common
 from .services import wfs
 from .services import arcgis
+from .services import ogc_api
 
 LOGGER = logging.getLogger(__name__)
 
@@ -161,7 +162,7 @@ class DokanalyseProcessor(BaseProcessor):
 
     async def query_dataset(self, dataset, epsg, geom, buffer, include_guidance, include_quality_measurement, context):
         start = time.time()
-        
+
         data_output = {
             'runAlgorithm': ['set input_geometry'],
             'resultStatus': 'NO-HIT-GREEN'
@@ -179,6 +180,11 @@ class DokanalyseProcessor(BaseProcessor):
                 geom, epsg, buffer, data_output)
             await arcgis.run_queries(dataset, arcgis_geom, epsg, data_output)
 
+        elif dataset_type == 'ogc_api':
+            wkt_geom = ogc_api.get_input_geometry(
+                geom, epsg, buffer, data_output)
+            await ogc_api.run_queries(dataset, wkt_geom, epsg, data_output)
+
         common.set_geometry_areas(data_output)
 
         distance_to_object = 0
@@ -189,12 +195,15 @@ class DokanalyseProcessor(BaseProcessor):
                     dataset, geom, epsg, data_output)
             elif dataset_type == 'arcgis':
                 distance_to_object = await arcgis.get_shortest_distance(
-                    dataset, geom, epsg, data_output)     
+                    dataset, geom, epsg, data_output)
+            elif dataset_type == 'ogc_api':
+                distance_to_object = await ogc_api.get_shortest_distance(
+                    dataset, geom, epsg, data_output)                
 
         data_output['runAlgorithm'].append('deliver result')
 
         coord_precision = 6 if epsg == 4326 else 2
-        
+
         run_on_input_geometry = json.loads(
             data_output['runOnInputGeometry'].ExportToJson([f'COORDINATE_PRECISION={coord_precision}']))
 
@@ -222,9 +231,9 @@ class DokanalyseProcessor(BaseProcessor):
         if distance_to_object >= 20000 and context != 'byggesak':
             result['resultStatus'] = 'NO-HIT-YELLOW'
 
-        result['title'] = data_output['geolett']['tittel']
+        result['title'] = common.get_dataset_title(data_output, dataset)
 
-        if include_guidance:
+        if include_guidance and data_output['geolett'] is not None:
             common.set_guidance_data(data_output['geolett'], result)
 
         if include_quality_measurement:

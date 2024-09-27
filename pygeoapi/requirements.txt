@@ -27,3 +27,4 @@ aiohttp
 async-lru
 gunicorn
 uvicorn
+pydash
