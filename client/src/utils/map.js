@@ -8,7 +8,6 @@ import { defaults as defaultControls, FullScreen } from 'ol/control';
 import { defaults as defaultInteractions, DragRotateAndZoom } from 'ol/interaction';
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
-import { isUndefined } from 'lodash';
 import { getEpsgCode } from './helpers';
 import { createBaseMapLayer } from './baseMap';
 import baseMap from 'config/baseMap.config';
@@ -161,7 +160,7 @@ function getProjection(geometry) {
    const crsName = geometry?.crs?.properties?.name;
    let epsgCode = 4326;
 
-   if (!isUndefined(crsName)) {
+   if (crsName !== undefined) {
       epsgCode = getEpsgCode(crsName) || 4326;
    }
 

@@ -1,26 +1,20 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Tab, Tabs, TextField } from '@mui/material';
-import { addCrsName, getCrsName, getEpsgCode, parseJson } from 'utils/helpers';
-import { isPolygon, isMultiPolygon } from 'geojson-validation';
-import { isUndefined } from 'lodash';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import styles from './GeometryDialog.module.scss';
-import HiddenInput from 'components/HiddenInput';
-import axios from 'axios';
-import { getFileContents, getFileType, parseJsonFile } from './helpers';
-import MapView from './MapView';
-import { TabPanel } from 'components';
-import GeoJson from './GeoJson';
-import useSamples from 'hooks/useSamples';
-import { convert, validate } from 'utils/api';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setErrorMessage } from 'store/slices/appSlice';
+import { convert, validate } from 'utils/api';
+import { getFileType, parseJsonFile } from './helpers';
+import useSamples from 'hooks/useSamples';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Tab, Tabs } from '@mui/material';
+import { HiddenInput, TabPanel } from 'components';
+import MapView from './MapView';
+import GeoJson from './GeoJson';
+import styles from './GeometryDialog.module.scss';
 
 const GeometryDialog = forwardRef(({ onOk }, ref) => {
    const [open, setOpen] = useState(false);
    const [geometry, setGeometry] = useState(null);
-   const [selectedFile, setSelectedFile] = useState('');
+   const [selectedSample, setSelectedSample] = useState('');
+   const [selectedFileName, setSelectedFileName] = useState('');
    const [selectedTab, setSelectedTab] = useState(0);
    const { samples = [] } = useSamples();
    const dispatch = useDispatch();
@@ -31,21 +25,19 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
       }
    }));
 
-   const hasCrsName = useCallback(() => !isUndefined(getCrsName(geometry)), [geometry]);
-
    function handleClickOpen() {
       setOpen(true);
    }
 
-   function handleClose() {
+   function handleClose(event, reason) {
+      if (reason && reason === 'backdropClick') {
+         return;
+      }
+
       setOpen(false);
    }
 
    function handleOk() {
-      // if (!hasCrsName() && epsg !== '4326') {
-      //    addCrsName(polygon, epsg);
-      // }
-
       onOk(geometry);
       setOpen(false);
    }
@@ -54,19 +46,19 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
       setSelectedTab(newValue);
    }
 
-   async function handleFileSelect(event) {
+   async function handleSampleSelect(event) {
       const value = event.target.value;
-      setSelectedFile(value);
+      setSelectedSample(value);
 
       const sample = samples.find(sample => sample.fileName === value);
       setGeometry(sample.geoJson);
+      setSelectedFileName(sample.fileName);
    }
 
    async function handleAddFileChange(event) {
       const file = [...event.target.files][0];
 
       if (!file) {
-         setSelectedFile('');
          return;
       }
 
@@ -83,11 +75,11 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
 
       if (!isValid) {
          dispatch(setErrorMessage(`Geometrien i «${file.name}» er ugyldig`));
-         geoJson = null;
+      } else {
+         setSelectedSample('');
+         setSelectedFileName(file.name);
+         setGeometry(geoJson);
       }
-      
-      setSelectedFile('');
-      setGeometry(geoJson);      
    }
 
    return (
@@ -103,15 +95,15 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
             open={open}
             onClose={handleClose}
             sx={{
-               "& .MuiDialog-container": {
-                  "& .MuiPaper-root": {
-                     width: "100%",
+               '& .MuiDialog-container': {
+                  '& .MuiPaper-root': {
+                     width: '100%',
                      maxWidth: '720px',
                   },
                }
             }}
          >
-            <DialogTitle>Analyseområde</DialogTitle>
+            <DialogTitle>Analyseområde {selectedFileName !== '' ? `- ${selectedFileName}` : ''}</DialogTitle>
 
             <DialogContent>
                <div className={styles.dialogContent}>
@@ -134,9 +126,9 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
                            <InputLabel id="select-file-label">Velg fil</InputLabel>
                            <Select
                               labelId="select-file-label"
-                              value={selectedFile}
+                              value={selectedSample}
                               label="Velg fil"
-                              onChange={handleFileSelect}
+                              onChange={handleSampleSelect}
                            >
                               {
                                  samples.map(sample => (

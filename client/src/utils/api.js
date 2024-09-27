@@ -33,3 +33,10 @@ export async function validate(geoJson) {
       return false;
    }
 }
+
+export async function analyze(payload) {
+   const url = `${API_BASE_URL}/pygeoapi`;
+   const response = await axios.post(url, payload);
+
+   return response.data;
+}
