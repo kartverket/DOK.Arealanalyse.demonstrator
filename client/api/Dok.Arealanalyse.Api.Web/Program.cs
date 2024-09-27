@@ -46,9 +46,9 @@ var app = builder.Build();
 
 GdalBase.ConfigureAll();
 
-app.UseResponseCaching();
-
 app.UseCors("Development");
+
+app.UseResponseCaching();
 
 app.Use(async (context, next) =>
 {
