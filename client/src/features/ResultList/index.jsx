@@ -11,7 +11,9 @@ export default function ResultList({ data }) {
    };
 
    function getAccordionTitle(result) {
-      const datasetTitle = `«${result.runOnDataset.title}» (${result.title})`;
+      const datasetTitle = result.runOnDataset ? 
+        `«${result.runOnDataset.title}» (${result.title})` :
+        `«${result.title}»`
 
       switch (result.resultStatus) {
          case 'NO-HIT-GREEN':
@@ -60,7 +62,7 @@ export default function ResultList({ data }) {
             {
                resultList.map((result, index) => (
                   <Accordion
-                     key={result.runOnDataset.datasetId + result.title}
+                     key={result.title}
                      expanded={expanded === `panel-${resultStatus}-${index}`}
                      onChange={handleAccordionChange(`panel-${resultStatus}-${index}`)}
                   >

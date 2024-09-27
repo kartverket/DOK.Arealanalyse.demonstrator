@@ -4,6 +4,7 @@
    > div {
       display: flex;
       flex-direction: column;
+      flex: 1;
 
       &:first-child {
          flex: 0 0 600px;

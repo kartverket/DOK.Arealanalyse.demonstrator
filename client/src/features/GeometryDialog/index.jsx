@@ -123,11 +123,11 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
 
                      <div className={styles.fileSelect}>
                         <FormControl fullWidth>
-                           <InputLabel id="select-file-label">Velg fil</InputLabel>
+                           <InputLabel id="select-file-label">Velg eksempel</InputLabel>
                            <Select
                               labelId="select-file-label"
                               value={selectedSample}
-                              label="Velg fil"
+                              label="Velg eksempel"
                               onChange={handleSampleSelect}
                            >
                               {

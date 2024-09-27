@@ -116,6 +116,7 @@ export default function Form({ onSubmit }) {
                         onChange={handleChange}
                      >
                         <MenuItem value="">Velg...</MenuItem>
+                        <MenuItem value="geologi">Geologi</MenuItem>
                         <MenuItem value="natur">Natur</MenuItem>
                         <MenuItem value="samferdsel">Samferdsel</MenuItem>
                         <MenuItem value="samfunnssikkerhet">Samfunnssikkerhet</MenuItem>

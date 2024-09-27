@@ -73,7 +73,9 @@ export default function Result({ inputGeometry, result }) {
                      null
                }
                <div className={styles.expandables}>
-                  <AboutDataset result={result} />
+                  {
+                     result.runOnDataset && <AboutDataset result={result} />
+                  }
                   <QualityMeasurement result={result} />
                   <AboutAnalysis result={result} />
                </div>
