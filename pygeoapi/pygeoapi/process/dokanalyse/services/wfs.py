@@ -25,7 +25,7 @@ def get_input_geometry(geom, epsg, buffer, data_output):
 async def run_queries(dataset, gml, epsg, data_output):
     first_layer = CONFIG[dataset]['layers'][0]
     geom_element_name = CONFIG[dataset]['geom_element_name']
-    geolett_data = await get_geolett_data(first_layer['geolett_id'])
+    geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
 
     for layer in CONFIG[dataset]['layers']:
         layer_name = layer['wfs']
@@ -40,7 +40,7 @@ async def run_queries(dataset, gml, epsg, data_output):
             response = parse_response(dataset, wfs_response, layer)
 
             if len(response['properties']) > 0:
-                geolett_data = await get_geolett_data(layer['geolett_id'])
+                geolett_data = await get_geolett_data(layer.get('geolett_id', None))
                 data_output['data'] = response['properties']
                 data_output['geometries'] = response['geometries']
                 data_output['rasterResult'] = f'{CONFIG[dataset]["wms"]}&layers={layer["wms"]}'

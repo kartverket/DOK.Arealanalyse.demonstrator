@@ -126,7 +126,12 @@ def set_geometry_areas(data_output):
     intersection = data_output['runOnInputGeometry'].Intersection(
         geom_collection)
 
-    if intersection is not None and not intersection.IsEmpty():
+    if intersection is None:
+        return
+    
+    geom_type = intersection.GetGeometryType()
+
+    if geom_type == ogr.wkbPolygon or geom_type == ogr.wkbMultiPolygon:
         data_output['hitArea'] = round(intersection.GetArea(), 2)
 
 

@@ -322,7 +322,7 @@ geoteknisk_borehull:
   wms: https://geo.ngu.no/geoserver/nadag/ows?
   layers:
   - ogc_api: geotekniskborehull
-    wms: GBU_clustered_50px_nolimit
+    wms: GB_filter_komplette_data
     result_status: HIT-RED
   geom_element_name: posisjon
   properties:
@@ -332,3 +332,21 @@ geoteknisk_borehull:
   - maksBoretLengde
   themes:
   - geologi
+
+tilfluktsrom_offentlige:
+  title: 'Tilfluktsrom - Offentlige'
+  wfs: https://wfs.geonorge.no/skwms1/wfs.tilfluktsrom_offentlige?service=WFS
+  wms: https://ogc.dsb.no/wms.ashx?
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/TilfluktsromOffentlige/20191001
+  layers:
+  - wfs: app:Tilfluktsrom
+    wms: layer_340
+    result_status: HIT-RED
+  geom_element_name: app:posisjon
+  properties:
+  - app:romnr
+  - app:plasser
+  - app:adresse    
+  themes:
+  - samfunnssikkerhet  
+
