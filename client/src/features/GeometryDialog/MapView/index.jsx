@@ -4,6 +4,7 @@ import { createOutlineMap, getLayer } from 'utils/map';
 import { ZoomToExtent } from 'ol/control';
 import baseMap from 'config/baseMap.config';
 import styles from './MapView.module.scss';
+import Editor from './Editor';
 
 export default function MapView({ geometry }) {
    const [map, setMap] = useState(null);
@@ -56,6 +57,12 @@ export default function MapView({ geometry }) {
    );
 
    return (
-      <div ref={mapElementRef} className={styles.map}></div>
+      <div className={styles.mapContainer}>
+         <div ref={mapElementRef} className={styles.map}></div>
+
+         <div className={styles.editor}>
+            <Editor />
+         </div>
+      </div>
    );
 }
