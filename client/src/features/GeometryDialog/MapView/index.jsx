@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useMap } from 'context/MapContext';
 import { createOutlineMap, getLayer } from 'utils/map';
 import { ZoomToExtent } from 'ol/control';
+import { addInteractions } from './Editor/helpers';
 import baseMap from 'config/baseMap.config';
-import styles from './MapView.module.scss';
 import Editor from './Editor';
+import styles from './MapView.module.scss';
 
 export default function MapView({ geometry }) {
    const [map, setMap] = useState(null);
@@ -19,6 +20,8 @@ export default function MapView({ geometry }) {
 
          (async () => {
             const olMap = await createOutlineMap(geometry, wmtsOptions);
+
+            addInteractions(olMap);
             setMap(olMap);
          })();
       },
@@ -61,7 +64,7 @@ export default function MapView({ geometry }) {
          <div ref={mapElementRef} className={styles.map}></div>
 
          <div className={styles.editor}>
-            <Editor />
+            <Editor map={map} />
          </div>
       </div>
    );

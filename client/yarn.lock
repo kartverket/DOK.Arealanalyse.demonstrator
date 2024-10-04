@@ -744,6 +744,11 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
 
+"@types/ol-ext@npm:@siedlerchr/types-ol-ext":
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/@siedlerchr/types-ol-ext/-/types-ol-ext-3.5.0.tgz#8d21f8e3dec8eb771b7664ae709d8d193a3b547b"
+  integrity sha512-qC6hvHtLBqHSEGxqCkHlc/e0ZhMZNy9MlcY80i6yH8cwSJydOsmVK0BaCZ4WY/s4goFwx5hoZ7CkRy/P4KHLCg==
+
 "@types/parse-json@^4.0.0":
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.2.tgz#5950e50960793055845e956c427fc2b0d70c5239"
@@ -2253,6 +2258,11 @@ object.values@^1.1.6, object.values@^1.2.0:
     define-properties "^1.2.1"
     es-object-atoms "^1.0.0"
 
+ol-ext@^4.0.23:
+  version "4.0.23"
+  resolved "https://registry.yarnpkg.com/ol-ext/-/ol-ext-4.0.23.tgz#13b405451f7696ce4d0a6bd466ce5b6b69786c1b"
+  integrity sha512-g1TBIEC9je2SoPx0qz8w4emCIRcOhz87eYxeszoLSWm6HMAbCQcymjmEIqpOHxL+R9BVKs4ar5KJShobv6510g==
+
 ol@^10.2.1:
   version "10.2.1"
   resolved "https://registry.yarnpkg.com/ol/-/ol-10.2.1.tgz#05143d0bbc0d8761385e0acae4ec9074a570bf64"
@@ -2860,6 +2870,7 @@ source-map@^0.5.7:
   integrity sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==
 
 "string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0:
+  name string-width-cjs
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==

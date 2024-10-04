@@ -8,6 +8,8 @@ import { defaults as defaultControls, FullScreen } from 'ol/control';
 import { defaults as defaultInteractions, DragRotateAndZoom } from 'ol/interaction';
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
+import Fill from 'ol/style/Fill';
+import Circle from 'ol/style/Circle';
 import { getEpsgCode } from './helpers';
 import { createBaseMapLayer } from './baseMap';
 import baseMap from 'config/baseMap.config';
@@ -80,6 +82,31 @@ export function getLayer(map, id) {
       .find(layer => layer.get('id') === id);
 }
 
+export function getPolygonStyle() {
+   return new Style({      
+      stroke: new Stroke({
+         color: '#d33333',
+         lineDash: [8, 8],
+         width: 2
+      })
+   });
+}
+
+export function getPointStyle() {
+   return new Style({
+      image: new Circle({
+         fill: new Fill({
+            color: '#d33333c9',
+         }),
+         stroke: new Stroke({
+            color: '#d33333',
+            width: 1.25,
+         }),
+         radius: 5,
+      })
+   });
+}
+
 async function createTempMap(inputGeometry, result, wmtsOptions) {
    const featuresLayer = createFeaturesLayer(inputGeometry, result);
 
@@ -119,7 +146,10 @@ function createFeaturesLayer(inputGeometry, result) {
 
    source.addFeature(createFeature(inputGeometry, projection));
 
-   return new VectorLayer({ source });
+   return new VectorLayer({ 
+      source,
+      style: getPolygonStyle()
+   });
 }
 
 function createOutlineFeaturesLayer(geometry) {
@@ -128,21 +158,22 @@ function createOutlineFeaturesLayer(geometry) {
 
    source.addFeature(createFeature(geometry, projection));
 
-   return new VectorLayer({ source });
+   const vectorLayer = new VectorLayer({ 
+      source
+   });
+
+   const style = vectorLayer.getStyleFunction();
+
+   vectorLayer.setStyle(getPolygonStyle());
+   vectorLayer.set('_savedStyle', style);
+
+   return vectorLayer;
 }
 
 function createFeature(geoJson, projection) {
    const reader = new GeoJSON();
    const geometry = reader.readGeometry(geoJson, { dataProjection: projection, featureProjection: 'EPSG:3857' });
    const feature = new Feature(geometry);
-
-   feature.setStyle(new Style({
-      stroke: new Stroke({
-         color: '#d33333',
-         lineDash: [8, 8],
-         width: 2
-      })
-   }));
 
    return feature;
 }
