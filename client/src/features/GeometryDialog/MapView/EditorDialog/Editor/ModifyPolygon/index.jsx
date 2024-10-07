@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getInteraction } from '../helpers';
+import { getLayer } from 'utils/map';
+import ModifyFeature from 'ol-ext/interaction/ModifyFeature';
 import styles from '../Editor.module.scss';
 
 export default function ModifyPolygon({ map, active, onClick }) {
-   const name = 'modifyPolygon';
+   const name = ModifyPolygon.interactionName;
    const [_active, setActive] = useState(false);
-   const featuresSelected = useSelector(state => state.app.featuresSelected);
+   const featuresSelected = useSelector(state => state.map.editor.featuresSelected);
 
    useEffect(
       () => {
@@ -31,3 +33,22 @@ export default function ModifyPolygon({ map, active, onClick }) {
       ></button>
    );
 }
+
+ModifyPolygon.interactionName = 'modifyPolygon';
+
+ModifyPolygon.addInteraction = map => {
+   if (getInteraction(map, ModifyPolygon.interactionName) !== null) {
+      return;
+   }
+
+   const vectorLayer = getLayer(map, 'features');
+
+   const interaction = new ModifyFeature({
+      source: vectorLayer.getSource()
+   });
+
+   interaction.set('_name', ModifyPolygon.interactionName);
+   interaction.setActive(false);
+
+   map.addInteraction(interaction);
+};

@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useMap } from 'context/MapContext';
 import { createOutlineMap, getLayer } from 'utils/map';
-import { ZoomToExtent } from 'ol/control';
-import { addInteractions } from './Editor/helpers';
+import { Zoom, ZoomToExtent } from 'components/Map';
 import baseMap from 'config/baseMap.config';
-import Editor from './Editor';
+import EditorDialog from './EditorDialog';
 import styles from './MapView.module.scss';
 
 export default function MapView({ geometry }) {
    const [map, setMap] = useState(null);
+   const [editorOpen, setEditorOpen] = useState(false);
    const mapElementRef = useRef(null);
    const { wmtsOptions } = useMap();
 
@@ -21,7 +21,6 @@ export default function MapView({ geometry }) {
          (async () => {
             const olMap = await createOutlineMap(geometry, wmtsOptions);
 
-            addInteractions(olMap);
             setMap(olMap);
          })();
       },
@@ -50,8 +49,6 @@ export default function MapView({ geometry }) {
             view.setZoom(baseMap.maxZoom);
          }
 
-         map.addControl(new ZoomToExtent({ extent }));
-
          return () => {
             map.dispose();
          }
@@ -59,13 +56,31 @@ export default function MapView({ geometry }) {
       [map]
    );
 
-   return (
-      <div className={styles.mapContainer}>
-         <div ref={mapElementRef} className={styles.map}></div>
+   function openEditor() {
+      setEditorOpen(true);
+   }
 
-         <div className={styles.editor}>
-            <Editor map={map} />
+   return (
+      <>
+         <div className={styles.mapContainer}>
+            <div ref={mapElementRef} className={styles.map}></div>
+
+            {
+               map !== null && (
+                  <div className={styles.buttons}>
+                     <Zoom map={map} />
+                     <ZoomToExtent map={map} layerName="features" />
+                     <button onClick={openEditor} className={styles.editorButton} title="Rediger analyseområde"></button>
+                  </div>
+               )
+            }
          </div>
-      </div>
+
+         <EditorDialog
+            geometry={geometry}
+            open={editorOpen}
+            onClose={() => setEditorOpen(false)}
+         />
+      </>
    );
 }

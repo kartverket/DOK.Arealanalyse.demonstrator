@@ -16,3 +16,33 @@
    bottom: 0;
    z-index: 1;
 }
+
+.buttons {
+   display: flex;
+   flex-direction: column;
+   gap: 6px;
+   position: absolute;
+   top: 6px;
+   left: 6px;
+}
+
+.editorButton {
+   padding: 0;
+   border: 1px solid #c4c4c4;
+   border-radius: 4px;
+   width: 36px;
+   height: 36px;
+   background: url('../../../assets/gfx/icon-edit.svg') no-repeat center;
+   background-size: 20px;
+   background-color: #ffffff;
+   cursor: pointer;
+   transition: 0.2s;
+
+   &:not(:disabled):hover {
+      background-color: #f1f1f1 !important;
+   }
+
+   &:not(:disabled):active {
+      background-color: #dbdbdb !important;
+   }
+}

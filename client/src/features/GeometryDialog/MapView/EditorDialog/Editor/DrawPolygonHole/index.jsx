@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { getInteraction } from '../helpers';
+import { getLayer } from 'utils/map';
+import DrawHole from 'ol-ext/interaction/DrawHole';
 import styles from '../Editor.module.scss';
 
 export default function DrawPolygonHole({ map, active, onClick }) {
-   const name = 'drawPolygonHole';
+   const name = DrawPolygonHole.interactionName;
    const [_active, setActive] = useState(false);
-   const featuresSelected = useSelector(state => state.app.featuresSelected);
+   const featuresSelected = useSelector(state => state.map.editor.featuresSelected);
 
    useEffect(
       () => {
@@ -31,3 +33,22 @@ export default function DrawPolygonHole({ map, active, onClick }) {
       ></button>
    );
 }
+
+DrawPolygonHole.interactionName = 'drawPolygonHole';
+
+DrawPolygonHole.addInteraction = map => {
+   if (getInteraction(map, DrawPolygonHole.interactionName) !== null) {
+      return;
+   }
+
+   const vectorLayer = getLayer(map, 'features');
+
+   const interaction = new DrawHole({
+      layers: [vectorLayer]
+   });
+
+   interaction.set('_name', DrawPolygonHole.interactionName);
+   interaction.setActive(false);
+
+   map.addInteraction(interaction);
+};

@@ -41,8 +41,8 @@ export async function createMap(inputGeometry, result, wmtsOptions) {
    return map;
 }
 
-export async function createOutlineMap(geometry, wmtsOptions) {
-   const featuresLayer = createOutlineFeaturesLayer(geometry);
+export async function createOutlineMap(geometry, wmtsOptions, styled = true) {
+   const featuresLayer = createOutlineFeaturesLayer(geometry, styled);
 
    featuresLayer.set('id', 'features');
 
@@ -152,7 +152,7 @@ function createFeaturesLayer(inputGeometry, result) {
    });
 }
 
-function createOutlineFeaturesLayer(geometry) {
+function createOutlineFeaturesLayer(geometry, styled) {
    const projection = getProjection(geometry);
    const source = new VectorSource();
 
@@ -162,10 +162,9 @@ function createOutlineFeaturesLayer(geometry) {
       source
    });
 
-   const style = vectorLayer.getStyleFunction();
-
-   vectorLayer.setStyle(getPolygonStyle());
-   vectorLayer.set('_savedStyle', style);
+   if (styled) {
+      vectorLayer.setStyle(getPolygonStyle());
+   }
 
    return vectorLayer;
 }
