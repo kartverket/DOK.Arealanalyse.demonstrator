@@ -50,6 +50,12 @@ export default function ResultList({ data }) {
       return classNames.join(' ');
    }
 
+   function renderThemeName(result) {
+      return (
+         <strong className={styles.themeName}>{result.themes[0]}</strong>
+      );
+   }
+
    function renderAccordions(resultStatus) {
       const resultList = data.resultList[resultStatus];
 
@@ -68,7 +74,7 @@ export default function ResultList({ data }) {
                   >
                      <AccordionSummary sx={{ padding: '0 24px', '& .MuiAccordionSummary-content': { margin: '20px 0' } }}>
                         <span className={getAccordionClassNames(result)}>
-                           <span className={styles.accordionTitle}>{getAccordionTitle(result)}</span>
+                           <span className={styles.accordionTitle}>{renderThemeName(result)}: {getAccordionTitle(result)}</span>
                         </span>
                      </AccordionSummary>
                      <AccordionDetails sx={{ padding: '6px 24px' }}>
