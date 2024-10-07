@@ -128,7 +128,7 @@ def set_geometry_areas(data_output):
 
     if intersection is None:
         return
-    
+
     geom_type = intersection.GetGeometryType()
 
     if geom_type == ogr.wkbPolygon or geom_type == ogr.wkbMultiPolygon:
@@ -174,6 +174,12 @@ def get_dataset_title(data_output, dataset):
         return data_output['geolett']['tittel']
 
     return config.get('title', '<Mangler tittel>')
+
+
+def get_dataset_themes(dataset):
+    config = CONFIG[dataset]
+
+    return config.get('themes', [])
 
 
 def set_guidance_data(geolett, result):

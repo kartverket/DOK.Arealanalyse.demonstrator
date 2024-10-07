@@ -219,7 +219,8 @@ class DokanalyseProcessor(BaseProcessor):
             'distanceToObject': distance_to_object,
             'rasterResult': data_output.get('rasterResult'),
             'cartography': data_output.get('cartography'),
-            'data': data_output.get('data')
+            'data': data_output.get('data'),
+            'themes': common.get_dataset_themes(dataset)
         }
 
         if data_output['geolett'] is not None:
