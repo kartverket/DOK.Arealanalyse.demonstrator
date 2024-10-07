@@ -740,6 +740,16 @@
     "@turf/helpers" "^7.1.0"
     "@types/geojson" "^7946.0.10"
 
+"@turf/truncate@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@turf/truncate/-/truncate-7.1.0.tgz#12331be95d3c6aca3588c73c51e252c1e9afc363"
+  integrity sha512-rrF3AML9PGZw2i5wmt53ESI+Ln9cZyCXgJ7QrEvkT8NbE4OFgmw6p8/1xT8+VEWFSpD4gHz+hmM+5FaFxXvtNg==
+  dependencies:
+    "@turf/helpers" "^7.1.0"
+    "@turf/meta" "^7.1.0"
+    "@types/geojson" "^7946.0.10"
+    tslib "^2.6.2"
+
 "@turf/union@^7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@turf/union/-/union-7.1.0.tgz#7b8f0cc7fd24c1269224eaa5f76946458bbb9c01"

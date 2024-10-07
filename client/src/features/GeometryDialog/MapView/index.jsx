@@ -5,7 +5,7 @@ import { Zoom, ZoomToExtent } from 'components/Map';
 import EditorDialog from './EditorDialog';
 import styles from './MapView.module.scss';
 
-export default function MapView({ geometry }) {
+export default function MapView({ geometry, onEditDone }) {
    const [map, setMap] = useState(null);
    const [geoJson, setGeoJson] = useState(null);
    const [editorOpen, setEditorOpen] = useState(false);
@@ -53,13 +53,14 @@ export default function MapView({ geometry }) {
 
       if (geoJson !== null) {
          setGeoJson(geoJson);
-         
+         onEditDone(geoJson);
+
          const feature = readFeature(geoJson);
          const vectorLayer = getLayer(map, 'features');
          const vectorSource = vectorLayer.getSource();
 
          vectorSource.clear();
-         vectorSource.addFeature(feature);         
+         vectorSource.addFeature(feature);
       }
    }
 

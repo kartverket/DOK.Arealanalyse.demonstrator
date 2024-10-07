@@ -148,7 +148,7 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
                   </Box>
 
                   <TabPanel value={selectedTab} index={0} className={styles.tabPanel}>
-                     <MapView geometry={geometry} />
+                     <MapView geometry={geometry} onEditDone={geometry => setGeometry(geometry)} />
                   </TabPanel>
 
                   <TabPanel value={selectedTab} index={1} className={styles.tabPanel}>

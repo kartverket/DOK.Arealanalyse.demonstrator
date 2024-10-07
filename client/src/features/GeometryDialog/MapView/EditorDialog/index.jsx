@@ -9,6 +9,7 @@ import { createOutlineMap, getLayer, setupMap, writeGeometryObject } from 'utils
 import { Zoom, ZoomToExtent } from 'components/Map';
 import Editor from './Editor';
 import styles from './EditorDialog.module.scss';
+import truncate from '@turf/truncate';
 
 export default function EditorDialog({ geometry, open, onClose }) {
    const [map, setMap] = useState(null);
@@ -52,12 +53,13 @@ export default function EditorDialog({ geometry, open, onClose }) {
       const vectorSource = vectorLayer.getSource();
       const features = vectorSource.getFeatures();
       const geoJson = writeGeometryObject(features[0].getGeometry());
-      const isValid = await validate(geoJson);
+      const truncated = truncate(geoJson, { precision: 6 });
+      const isValid = await validate(truncated);
 
       if (!isValid) {
          dispatch(setErrorMessage('Geometrien i analyseområdet er ugyldig'));
       } else {
-         onClose(geoJson);
+         onClose(truncated);
       }
    }
 
