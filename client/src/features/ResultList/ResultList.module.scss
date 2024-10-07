@@ -16,6 +16,10 @@
       margin-top: 1px;
    }
 
+   .themeName {
+      text-transform: capitalize;
+   }
+
    &::before {
       display: flex;
       content: '';
