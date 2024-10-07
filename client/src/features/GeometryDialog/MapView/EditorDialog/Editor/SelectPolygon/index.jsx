@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getInteraction } from '../helpers';
 import { Select } from 'ol/interaction';
-import { getLayer } from 'utils/map';
+import { getInteraction, getLayer } from 'utils/map';
 import { setFeaturesSelected } from 'store/slices/mapSlice';
 import store from 'store';
 import styles from '../Editor.module.scss';

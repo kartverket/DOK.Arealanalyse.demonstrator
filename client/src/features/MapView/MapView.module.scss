@@ -1,4 +1,17 @@
+.mapContainer {
+   position: relative;
+}
+
 .map {
    width: 550px;
    height: 412.5px;
+}
+
+.buttons {
+   display: flex;
+   flex-direction: column;
+   gap: 6px;
+   position: absolute;
+   top: 6px;
+   left: 6px;
 }

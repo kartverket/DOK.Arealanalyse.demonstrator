@@ -1,8 +1,6 @@
+import { getLayer, readGeometry, getInteraction, getFeature } from 'utils/map';
 import _UndoRedo from 'ol-ext/interaction/UndoRedo';
 import styles from '../Editor.module.scss';
-import { getLayer } from 'utils/map';
-import { useEffect } from 'react';
-import { getInteraction } from '../helpers';
 
 export default function UndoRedo({ map }) {
    const name = UndoRedo.interactionName;
@@ -12,7 +10,7 @@ export default function UndoRedo({ map }) {
       interaction.undo();
    }
 
-   function redo() {
+   function redo() {      
       const interaction = getInteraction(map, name);
       interaction.redo();
    }
@@ -35,16 +33,31 @@ UndoRedo.addInteraction = map => {
    const vectorLayer = getLayer(map, 'features');
    const interaction = new _UndoRedo({ layers: [vectorLayer] });
 
-   interaction.on('undo', event => {
-      console.log(event);
-   });
-
-   interaction.on('redo', event => {
-      console.log(event);
-   });
+   addCustomUndoRedo(interaction, vectorLayer);
 
    interaction.set('_name', UndoRedo.interactionName);
    interaction.setActive(true);
 
    map.addInteraction(interaction);
 };
+
+function addCustomUndoRedo(interaction, vectorLayer) {
+   let _geometry;
+
+   interaction.define(
+      'replaceGeometry',
+      event => {
+         _geometry = event.before;
+      },
+      event => {
+         _geometry = event.after;
+      }
+   );
+
+   interaction.on(['undo', 'redo'], event => {
+      if (event.action.type === 'replaceGeometry') {
+         const feature = getFeature(vectorLayer);
+         feature.setGeometry(readGeometry(_geometry));
+      }
+   });
+}

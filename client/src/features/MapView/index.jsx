@@ -1,8 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
-import { ZoomToExtent } from 'ol/control';
-import { createMap, getLayer } from 'utils/map';
+import { createMap, setupMap } from 'utils/map';
 import { useMap } from 'context/MapContext';
-import baseMap from 'config/baseMap.config';
+import { Zoom, ZoomToExtent } from 'components/Map';
 import styles from './MapView.module.scss';
 
 export default function MapView({ inputGeometry, result }) {
@@ -30,23 +29,7 @@ export default function MapView({ inputGeometry, result }) {
             return;
          }
 
-         map.setTarget(mapElementRef.current);
-
-         const vectorLayer = getLayer(map, 'features');
-         const extent = vectorLayer.getSource().getExtent();
-         const view = map.getView();
-
-         view.fit(extent, map.getSize());
-         view.setMinZoom(baseMap.minZoom);
-         view.setMaxZoom(baseMap.maxZoom);
-
-         const currentZoom = view.getZoom();
-
-         if (currentZoom > baseMap.maxZoom) {
-            view.setZoom(baseMap.maxZoom);
-         }
-
-         map.addControl(new ZoomToExtent({ extent }));
+         setupMap(map, mapElementRef);
 
          return () => {
             map.dispose();
@@ -56,6 +39,13 @@ export default function MapView({ inputGeometry, result }) {
    );
 
    return (
-      <div ref={mapElementRef} className={styles.map}></div>
+      <div className={styles.mapContainer}>
+         <div ref={mapElementRef} className={styles.map}></div>
+
+         <div className={styles.buttons}>
+            <Zoom map={map} />
+            <ZoomToExtent map={map} layerName="features" />
+         </div>
+      </div>
    );
 }

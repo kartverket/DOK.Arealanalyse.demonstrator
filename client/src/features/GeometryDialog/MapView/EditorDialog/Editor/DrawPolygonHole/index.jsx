@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getInteraction } from '../helpers';
-import { getLayer } from 'utils/map';
+import { getInteraction, getLayer } from 'utils/map';
 import DrawHole from 'ol-ext/interaction/DrawHole';
 import styles from '../Editor.module.scss';
 

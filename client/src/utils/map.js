@@ -4,18 +4,18 @@ import TileLayer from 'ol/layer/Tile';
 import TileWMS from 'ol/source/TileWMS';
 import VectorSource from 'ol/source/Vector';
 import { Vector as VectorLayer } from 'ol/layer';
-import { defaults as defaultControls, FullScreen } from 'ol/control';
 import { defaults as defaultInteractions, DragRotateAndZoom } from 'ol/interaction';
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
 import Fill from 'ol/style/Fill';
 import Circle from 'ol/style/Circle';
-import { getEpsgCode } from './helpers';
+import { getEpsgCode, isNil } from './helpers';
 import { createBaseMapLayer } from './baseMap';
 import baseMap from 'config/baseMap.config';
 
 const MAP_WIDTH = 640;
 const MAP_HEIGHT = 480;
+const GEOJSON_OPTIONS = { dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857' };
 
 export async function createMap(inputGeometry, result, wmtsOptions) {
    const featuresLayer = createFeaturesLayer(inputGeometry, result);
@@ -23,7 +23,6 @@ export async function createMap(inputGeometry, result, wmtsOptions) {
    featuresLayer.set('id', 'features');
 
    const map = new Map({
-      controls: defaultControls().extend([new FullScreen()]),
       interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
       layers: [
          await createBaseMapLayer(wmtsOptions),
@@ -63,16 +62,34 @@ export async function createOutlineMap(geometry, wmtsOptions, styled = true) {
    return map;
 }
 
+export async function setupMap(map, mapElementRef) {
+   map.setTarget(mapElementRef.current);
+
+   const vectorLayer = getLayer(map, 'features');
+   const extent = vectorLayer.getSource().getExtent();
+   const view = map.getView();
+
+   view.fit(extent, map.getSize());
+   view.setMinZoom(baseMap.minZoom);
+   view.setMaxZoom(baseMap.maxZoom);
+
+   const currentZoom = view.getZoom();
+
+   if (currentZoom > baseMap.maxZoom) {
+      view.setZoom(baseMap.maxZoom);
+   }
+}
+
 export async function getMapImage(inputGeometry, result, wmtsOptions) {
    const [map, mapElement] = await createTempMap(inputGeometry, result, wmtsOptions);
 
    return new Promise((resolve) => {
       map.once('rendercomplete', () => {
-        const base64 = exportToPngImage(map);
-        map.dispose();
-        mapElement.remove();
+         const base64 = exportToPngImage(map);
+         map.dispose();
+         mapElement.remove();
 
-        resolve(base64);
+         resolve(base64);
       })
    });
 }
@@ -83,7 +100,7 @@ export function getLayer(map, id) {
 }
 
 export function getPolygonStyle() {
-   return new Style({      
+   return new Style({
       stroke: new Stroke({
          color: '#d33333',
          lineDash: [8, 8],
@@ -105,6 +122,49 @@ export function getPointStyle() {
          radius: 5,
       })
    });
+}
+
+export function getInteraction(map, name) {
+   return map
+      .getInteractions()
+      .getArray()
+      .find(interaction => interaction.get('_name') === name) || null;
+}
+
+export function getFeature(vectorLayer) {
+   const vectorSource = vectorLayer.getSource();
+
+   return vectorSource.getFeatures()[0] || null;
+}
+
+export function readFeature(feature) {
+   return !isNil(feature) ?
+      new GeoJSON().readFeature(feature, GEOJSON_OPTIONS) :
+      null;
+}
+
+export function readGeometry(geometry) {
+   return !isNil(geometry) ?
+      new GeoJSON().readGeometry(geometry, GEOJSON_OPTIONS) :
+      null;
+}
+
+export function writeGeometryObject(olGeometry) {
+   return !isNil(olGeometry) ?
+      new GeoJSON().writeGeometryObject(olGeometry, GEOJSON_OPTIONS) :
+      null;
+}
+
+export function writeFeatureObject(olFeature) {
+   return !isNil(olFeature) ?
+      new GeoJSON().writeFeatureObject(olFeature, GEOJSON_OPTIONS) :
+      null;
+}
+
+export function writeFeaturesObject(olFeatures) {
+   return !isNil(olFeatures) ?
+      new GeoJSON().writeFeaturesObject(olFeatures, GEOJSON_OPTIONS) :
+      null;
 }
 
 async function createTempMap(inputGeometry, result, wmtsOptions) {
@@ -139,14 +199,14 @@ async function createTempMap(inputGeometry, result, wmtsOptions) {
 function createFeaturesLayer(inputGeometry, result) {
    const projection = getProjection(inputGeometry);
    const source = new VectorSource();
-   
+
    if (result.buffer > 0) {
       source.addFeature(createFeature(result.runOnInputGeometry, projection));
    }
 
    source.addFeature(createFeature(inputGeometry, projection));
 
-   return new VectorLayer({ 
+   return new VectorLayer({
       source,
       style: getPolygonStyle()
    });
@@ -158,7 +218,7 @@ function createOutlineFeaturesLayer(geometry, styled) {
 
    source.addFeature(createFeature(geometry, projection));
 
-   const vectorLayer = new VectorLayer({ 
+   const vectorLayer = new VectorLayer({
       source
    });
 

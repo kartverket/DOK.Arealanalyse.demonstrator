@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { setFeaturesSelected } from 'store/slices/mapSlice';
-import { getInteraction } from '../helpers';
-import { getLayer } from 'utils/map';
+import { getInteraction, getLayer } from 'utils/map';
 import Delete from 'ol-ext/interaction/Delete';
 import SelectPolygon from '../SelectPolygon';
 import styles from '../Editor.module.scss';

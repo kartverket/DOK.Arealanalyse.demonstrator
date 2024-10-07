@@ -1,22 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { useMap } from 'context/MapContext';
-import { createOutlineMap, getLayer } from 'utils/map';
+import { createOutlineMap, getLayer, readFeature, setupMap } from 'utils/map';
 import { Zoom, ZoomToExtent } from 'components/Map';
-import baseMap from 'config/baseMap.config';
 import EditorDialog from './EditorDialog';
 import styles from './MapView.module.scss';
 
 export default function MapView({ geometry }) {
    const [map, setMap] = useState(null);
+   const [geoJson, setGeoJson] = useState(null);
    const [editorOpen, setEditorOpen] = useState(false);
    const mapElementRef = useRef(null);
    const { wmtsOptions } = useMap();
 
    useEffect(
       () => {
-         if (!geometry) {
+         if (geometry === null) {
             return;
          }
+
+         setGeoJson(geometry);
 
          (async () => {
             const olMap = await createOutlineMap(geometry, wmtsOptions);
@@ -29,25 +31,11 @@ export default function MapView({ geometry }) {
 
    useEffect(
       () => {
-         if (!map) {
+         if (map === null) {
             return;
          }
 
-         map.setTarget(mapElementRef.current);
-
-         const vectorLayer = getLayer(map, 'features');
-         const extent = vectorLayer.getSource().getExtent();
-         const view = map.getView();
-
-         view.fit(extent, map.getSize());
-         view.setMinZoom(baseMap.minZoom);
-         view.setMaxZoom(baseMap.maxZoom);
-
-         const currentZoom = view.getZoom();
-
-         if (currentZoom > baseMap.maxZoom) {
-            view.setZoom(baseMap.maxZoom);
-         }
+         setupMap(map, mapElementRef);
 
          return () => {
             map.dispose();
@@ -60,11 +48,25 @@ export default function MapView({ geometry }) {
       setEditorOpen(true);
    }
 
+   function handleClose(geoJson) {
+      setEditorOpen(false);
+
+      if (geoJson !== null) {
+         setGeoJson(geoJson);
+         
+         const feature = readFeature(geoJson);
+         const vectorLayer = getLayer(map, 'features');
+         const vectorSource = vectorLayer.getSource();
+
+         vectorSource.clear();
+         vectorSource.addFeature(feature);         
+      }
+   }
+
    return (
       <>
          <div className={styles.mapContainer}>
             <div ref={mapElementRef} className={styles.map}></div>
-
             {
                map !== null && (
                   <div className={styles.buttons}>
@@ -77,9 +79,9 @@ export default function MapView({ geometry }) {
          </div>
 
          <EditorDialog
-            geometry={geometry}
+            geometry={geoJson}
             open={editorOpen}
-            onClose={() => setEditorOpen(false)}
+            onClose={handleClose}
          />
       </>
    );

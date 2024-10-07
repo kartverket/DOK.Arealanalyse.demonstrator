@@ -1,17 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setErrorMessage } from 'store/slices/appSlice';
 import { useMap } from 'context/MapContext';
 import { addInteractions } from './Editor/helpers';
+import { validate } from 'utils/api';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import { createOutlineMap, getLayer } from 'utils/map';
-import baseMap from 'config/baseMap.config';
-import styles from './EditorDialog.module.scss';
-import Editor from './Editor';
+import { createOutlineMap, getLayer, setupMap, writeGeometryObject } from 'utils/map';
 import { Zoom, ZoomToExtent } from 'components/Map';
+import Editor from './Editor';
+import styles from './EditorDialog.module.scss';
 
 export default function EditorDialog({ geometry, open, onClose }) {
    const [map, setMap] = useState(null);
    const mapElementRef = useRef(null);
    const { wmtsOptions } = useMap();
+   const dispatch = useDispatch();
 
    useEffect(
       () => {
@@ -21,7 +24,7 @@ export default function EditorDialog({ geometry, open, onClose }) {
 
          (async () => {
             const olMap = await createOutlineMap(geometry, wmtsOptions, false);
-            
+
             addInteractions(olMap);
             setMap(olMap);
          })();
@@ -35,21 +38,7 @@ export default function EditorDialog({ geometry, open, onClose }) {
             return;
          }
 
-         map.setTarget(mapElementRef.current);
-
-         const vectorLayer = getLayer(map, 'features');
-         const extent = vectorLayer.getSource().getExtent();
-         const view = map.getView();
-
-         view.fit(extent, map.getSize());
-         view.setMinZoom(baseMap.minZoom);
-         view.setMaxZoom(baseMap.maxZoom);
-
-         const currentZoom = view.getZoom();
-
-         if (currentZoom > baseMap.maxZoom) {
-            view.setZoom(baseMap.maxZoom);
-         }
+         setupMap(map, mapElementRef);
 
          return () => {
             map.dispose();
@@ -58,8 +47,18 @@ export default function EditorDialog({ geometry, open, onClose }) {
       [map]
    );
 
-   function handleOk() {
-      onClose();
+   async function handleOk() {
+      const vectorLayer = getLayer(map, 'features');
+      const vectorSource = vectorLayer.getSource();
+      const features = vectorSource.getFeatures();
+      const geoJson = writeGeometryObject(features[0].getGeometry());
+      const isValid = await validate(geoJson);
+
+      if (!isValid) {
+         dispatch(setErrorMessage('Geometrien i analyseområdet er ugyldig'));
+      } else {
+         onClose(geoJson);
+      }
    }
 
    function handleClose(event, reason) {
@@ -67,7 +66,7 @@ export default function EditorDialog({ geometry, open, onClose }) {
          return;
       }
 
-      onClose();
+      onClose(null);
    }
 
    return (
@@ -105,8 +104,8 @@ export default function EditorDialog({ geometry, open, onClose }) {
 
          <DialogActions>
             <Button onClick={handleClose}>Avbryt</Button>
-            <Button onClick={handleOk}>OK</Button>
+            <Button onClick={handleOk}>Lagre</Button>
          </DialogActions>
       </Dialog>
-   )
+   );
 }

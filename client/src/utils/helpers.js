@@ -32,3 +32,7 @@ export function parseJson(json) {
       return null;
    }
 }
+
+export function isNil(value) {
+   return value === null || value === undefined;
+}

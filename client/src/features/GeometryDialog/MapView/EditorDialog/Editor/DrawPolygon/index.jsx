@@ -1,16 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getInteraction } from '../helpers';
+import { Feature } from 'ol';
 import { Draw } from 'ol/interaction';
-import { getLayer } from 'utils/map';
-import GeoJSON from 'ol/format/GeoJSON';
+import { getLayer, readGeometry, writeFeatureObject, writeFeaturesObject, writeGeometryObject, getInteraction } from 'utils/map';
 import union from '@turf/union';
 import styles from '../Editor.module.scss';
+import UndoRedo from '../UndoRedo';
 
-const GEOJSON_OPTIONS = { 
-   dataProjection: 'EPSG:4326', 
-   featureProjection: 'EPSG:3857' 
-};
 
 export default function DrawPolygon({ map, active, onClick }) {
    const name = DrawPolygon.interactionName;
@@ -57,22 +53,31 @@ DrawPolygon.addInteraction = map => {
    interaction.on('drawend', event => {
       const source = vectorLayer.getSource();
       const features = source.getFeatures();
-      let newFeature;
+      let newGeometry;
 
       if (features.length === 0) {
-         newFeature = event.feature;
+         newGeometry = event.feature.getGeometry();
       } else {
-         const geoJson = new GeoJSON();
-         const featureCollection = geoJson.writeFeaturesObject(features, GEOJSON_OPTIONS);
-         const feature = geoJson.writeFeatureObject(event.feature, GEOJSON_OPTIONS);
-         
+         const featureCollection = writeFeaturesObject(features);
+         const feature = writeFeatureObject(event.feature);
+
          featureCollection.features.push(feature);
          const unionized = union(featureCollection);
-         newFeature = geoJson.readFeature(unionized, GEOJSON_OPTIONS);
+         newGeometry = readGeometry(unionized.geometry);
       }
 
-      source.clear();
-      source.addFeature(newFeature);
+      const existing = features[0];
+      const existingGeometry = writeGeometryObject(existing?.getGeometry());
+
+      if (features.length === 0) {
+         const newFeature = new Feature({ geometry: newGeometry });
+         source.addFeature(newFeature);
+      } else {
+         existing.setGeometry(newGeometry);
+      }
+
+      const undoRedoInteraction = getInteraction(map, UndoRedo.interactionName);
+      undoRedoInteraction.push('replaceGeometry', { before: existingGeometry, after: writeGeometryObject(newGeometry) });  
    });
 
    interaction.set('_name', DrawPolygon.interactionName);
