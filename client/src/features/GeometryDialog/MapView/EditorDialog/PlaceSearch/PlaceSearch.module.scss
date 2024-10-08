@@ -1,0 +1,14 @@
+.result {
+   display: flex;
+   align-items: center;
+
+   .icon {
+      display: flex;
+      width: 44px;
+   }
+
+   .place {
+      flex: 1;
+      word-wrap: break-word;
+   }
+}

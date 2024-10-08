@@ -3,9 +3,9 @@ import { useDispatch } from 'react-redux';
 import { setErrorMessage } from 'store/slices/appSlice';
 import { convert, validate } from 'utils/api';
 import { getFileType, parseJsonFile } from './helpers';
-import useSamples from 'hooks/useSamples';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, Tab, Tabs } from '@mui/material';
 import { HiddenInput, TabPanel } from 'components';
+import useSamples from 'hooks/useSamples';
 import MapView from './MapView';
 import GeoJson from './GeoJson';
 import styles from './GeometryDialog.module.scss';
@@ -26,6 +26,7 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
    }));
 
    function handleClickOpen() {
+      setSelectedTab(0);
       setOpen(true);
    }
 
@@ -71,10 +72,10 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
          geoJson = await parseJsonFile(file);
       }
 
-      const isValid = geoJson !== null && await validate(geoJson);
+      const { valid, message } = await validate(geoJson);
 
-      if (!isValid) {
-         dispatch(setErrorMessage(`Geometrien i «${file.name}» er ugyldig`));
+      if (!valid) {
+         dispatch(setErrorMessage(message));
       } else {
          setSelectedSample('');
          setSelectedFileName(file.name);

@@ -19,9 +19,6 @@ public class ValidateController(
         {
             using var payload = await multipartRequestService.ReadFromMultipartAsync<ValidatePayload>();
 
-            if (payload.File == null)
-                return BadRequest();
-
             var result = await validationService.ValidateAsync(payload.File);
             
             return Ok(result);

@@ -12,6 +12,8 @@ import Circle from 'ol/style/Circle';
 import { getEpsgCode, isNil } from './helpers';
 import { createBaseMapLayer } from './baseMap';
 import baseMap from 'config/baseMap.config';
+import { fromLonLat } from 'ol/proj';
+import { Point } from 'ol/geom';
 
 const MAP_WIDTH = 640;
 const MAP_HEIGHT = 480;
@@ -66,10 +68,15 @@ export async function setupMap(map, mapElementRef) {
    map.setTarget(mapElementRef.current);
 
    const vectorLayer = getLayer(map, 'features');
-   const extent = vectorLayer.getSource().getExtent();
+   const vectorSource = vectorLayer.getSource();
+   const features = vectorSource.getFeatures();
    const view = map.getView();
 
-   view.fit(extent, map.getSize());
+   if (features.length > 0) {
+      const extent = vectorLayer.getSource().getExtent();  
+      view.fit(extent, map.getSize());
+   }
+
    view.setMinZoom(baseMap.minZoom);
    view.setMaxZoom(baseMap.maxZoom);
 
@@ -167,6 +174,23 @@ export function writeFeaturesObject(olFeatures) {
       null;
 }
 
+export async function getCurrentPosition() {
+   try {
+      return await _getCurrentPosition();
+   } catch {
+      return null;
+   }
+}
+
+export function zoomToPoint(map, coordinates, zoom = 17) {
+   const view = map.getView();
+   const transformed = fromLonLat(coordinates, 'EPSG:3857');
+   const point = new Point(transformed);
+
+   view.fit(point, { padding: [50, 50, 50, 50] });
+   view.setZoom(zoom);
+}
+
 async function createTempMap(inputGeometry, result, wmtsOptions) {
    const featuresLayer = createFeaturesLayer(inputGeometry, result);
 
@@ -216,7 +240,9 @@ function createOutlineFeaturesLayer(geometry, styled) {
    const projection = getProjection(geometry);
    const source = new VectorSource();
 
-   source.addFeature(createFeature(geometry, projection));
+   if (geometry !== null) {
+      source.addFeature(createFeature(geometry, projection));
+   }
 
    const vectorLayer = new VectorLayer({
       source
@@ -300,4 +326,22 @@ function exportToPngImage(map) {
    mapContext.setTransform(1, 0, 0, 1, 0, 0);
 
    return mapCanvas.toDataURL();
+}
+
+async function _getCurrentPosition() {
+   if (!navigator.geolocation) {
+      return null;
+   }
+
+   return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+         position => {
+            const { latitude: lat, longitude: lon } = position.coords;
+            resolve({ lat, lon });
+         },
+         error => {
+            reject(error);
+         }
+      );
+   });
 }

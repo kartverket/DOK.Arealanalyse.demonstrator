@@ -4,10 +4,15 @@ import styles from './ZoomToExtent.module.scss';
 export default function ZoomToExtent({ map, layerName }) {
    function zoomToExtent() {
       const vectorLayer = getLayer(map, layerName);
-      const extent = vectorLayer.getSource().getExtent();
-      const view = map.getView();
+      const vectorSource = vectorLayer.getSource();
+      const features = vectorSource.getFeatures();
 
-      view.fit(extent, map.getSize());
+      if (features.length > 0) {
+         const extent = vectorLayer.getSource().getExtent();
+         const view = map.getView();
+   
+         view.fit(extent, map.getSize());
+      }
    }
 
    return (

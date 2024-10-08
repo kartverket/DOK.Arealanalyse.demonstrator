@@ -1,1 +1,2 @@
-//declare module 'ol-ext/interaction/DrawHole';
+declare module 'lodash.debounce';
+declare module 'file-saver';

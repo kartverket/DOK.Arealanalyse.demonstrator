@@ -36,6 +36,16 @@
          cursor: not-allowed;
       }
 
+      &.save {
+         background: url('../../../../../assets/gfx/icon-save.svg') no-repeat center;
+         background-size: 20px;         
+      }
+
+      &.clearAll {
+         background: url('../../../../../assets/gfx/icon-new-document.svg') no-repeat center;
+         background-size: 18px;         
+      }
+
       &.select {
          background: url('../../../../../assets/gfx/icon-mouse-arrow.svg') no-repeat center;
          background-size: 18px;

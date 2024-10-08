@@ -13,11 +13,14 @@ services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
+services.AddMemoryCache();
+
 services.AddResponseCaching();
 
 services.AddHttpContextAccessor();
 
 services.Configure<PygeoapiSettings>(configuration.GetSection(PygeoapiSettings.SectionName));
+services.Configure<PlaceSearchSettings>(configuration.GetSection(PlaceSearchSettings.SectionName));
 
 services.AddTransient<IMultipartRequestService, MultipartRequestService>();
 services.AddTransient<ISosiConvertService, SosiConvertService>();
@@ -26,6 +29,7 @@ services.AddTransient<IGeoJsonSampleService, GeoJsonSampleService>();
 services.AddTransient<IValidationService, ValidationService>();
 
 services.AddHttpClient<IPygeoapiService, PygeoapiService>();
+services.AddHttpClient<IPlaceSearchHttpClient, PlaceSearchHttpClient>();
 
 services.AddCors(options =>
 {

@@ -22,7 +22,6 @@ export default function MapView({ geometry, onEditDone }) {
 
          (async () => {
             const olMap = await createOutlineMap(geometry, wmtsOptions);
-
             setMap(olMap);
          })();
       },
@@ -55,12 +54,14 @@ export default function MapView({ geometry, onEditDone }) {
          setGeoJson(geoJson);
          onEditDone(geoJson);
 
-         const feature = readFeature(geoJson);
-         const vectorLayer = getLayer(map, 'features');
-         const vectorSource = vectorLayer.getSource();
-
-         vectorSource.clear();
-         vectorSource.addFeature(feature);
+         if (map !== null) {
+            const feature = readFeature(geoJson);
+            const vectorLayer = getLayer(map, 'features');
+            const vectorSource = vectorLayer.getSource();
+   
+            vectorSource.clear();
+            vectorSource.addFeature(feature);
+         }
       }
    }
 
@@ -69,13 +70,17 @@ export default function MapView({ geometry, onEditDone }) {
          <div className={styles.mapContainer}>
             <div ref={mapElementRef} className={styles.map}></div>
             {
-               map !== null && (
-                  <div className={styles.buttons}>
-                     <Zoom map={map} />
-                     <ZoomToExtent map={map} layerName="features" />
-                     <button onClick={openEditor} className={styles.editorButton} title="Rediger analyseområde"></button>
-                  </div>
-               )
+               <div className={styles.buttons}>
+                  {
+                     map !== null && (
+                        <>
+                           <Zoom map={map} />
+                           <ZoomToExtent map={map} layerName="features" />
+                        </>
+                     )
+                  }
+                  <button onClick={openEditor} className={styles.editorButton} title="Rediger analyseområde"></button>
+               </div>
             }
          </div>
 

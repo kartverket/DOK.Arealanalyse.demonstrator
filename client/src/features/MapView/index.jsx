@@ -16,7 +16,7 @@ export default function MapView({ inputGeometry, result }) {
          }
 
          (async () => {
-            const olMap = await createMap(inputGeometry, result, wmtsOptions);
+            const olMap = await createMap(inputGeometry, result, wmtsOptions);            
             setMap(olMap);
          })();
       },

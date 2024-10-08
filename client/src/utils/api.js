@@ -34,6 +34,18 @@ export async function validate(geoJson) {
    }
 }
 
+export async function placeSearch(str) {
+   const url = `${API_BASE_URL}/placesearch/${str}`;
+
+   try {
+      const response = await axios.get(url);
+      return response.data;
+   } catch (error) {
+      console.error(error);
+      return false;
+   }
+}
+
 export async function analyze(payload) {
    const url = `${API_BASE_URL}/pygeoapi`;
    const response = await axios.post(url, payload);

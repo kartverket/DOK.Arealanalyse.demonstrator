@@ -5,11 +5,12 @@ import { useMap } from 'context/MapContext';
 import { addInteractions } from './Editor/helpers';
 import { validate } from 'utils/api';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import { createOutlineMap, getLayer, setupMap, writeGeometryObject } from 'utils/map';
+import { createOutlineMap, getLayer, setupMap, writeGeometryObject, zoomToPoint } from 'utils/map';
 import { Zoom, ZoomToExtent } from 'components/Map';
-import Editor from './Editor';
-import styles from './EditorDialog.module.scss';
 import truncate from '@turf/truncate';
+import Editor from './Editor';
+import PlaceSearch from './PlaceSearch';
+import styles from './EditorDialog.module.scss';
 
 export default function EditorDialog({ geometry, open, onClose }) {
    const [map, setMap] = useState(null);
@@ -19,7 +20,7 @@ export default function EditorDialog({ geometry, open, onClose }) {
 
    useEffect(
       () => {
-         if (geometry === null || !open) {
+         if (!open) {
             return;
          }
 
@@ -52,12 +53,18 @@ export default function EditorDialog({ geometry, open, onClose }) {
       const vectorLayer = getLayer(map, 'features');
       const vectorSource = vectorLayer.getSource();
       const features = vectorSource.getFeatures();
+
+      if (features.length === 0) {
+         dispatch(setErrorMessage('Analyseområdet må ha minst én geometri'));
+         return;
+      }
+
       const geoJson = writeGeometryObject(features[0].getGeometry());
       const truncated = truncate(geoJson, { precision: 6 });
-      const isValid = await validate(truncated);
+      const { valid, message } = await validate(truncated);
 
-      if (!isValid) {
-         dispatch(setErrorMessage('Geometrien i analyseområdet er ugyldig'));
+      if (!valid) {
+         dispatch(setErrorMessage(message));
       } else {
          onClose(truncated);
       }
@@ -69,6 +76,12 @@ export default function EditorDialog({ geometry, open, onClose }) {
       }
 
       onClose(null);
+   }
+
+   function handlePlaceSearchChange(value) {
+      if (value !== null) {
+         zoomToPoint(map, value.geometry.coordinates);
+      }
    }
 
    return (
@@ -99,6 +112,10 @@ export default function EditorDialog({ geometry, open, onClose }) {
 
                   <div className={styles.editorButtons}>
                      <Editor map={map} />
+                  </div>
+
+                  <div className={styles.placeSearch}>
+                     <PlaceSearch onChange={handlePlaceSearchChange} />
                   </div>
                </div>
             </div>
