@@ -10,6 +10,12 @@ export default function AboutAnalysis({ result }) {
          `> 20 000 m`;
    }
 
+   function getHitAreaPercent() {
+      const percent = (result.hitArea / result.inputGeometryArea) * 100;
+
+      return Math.round((percent + Number.EPSILON) * 100) / 100;
+   }
+
    return (
       <div className={`expandable ${isExpanded ? 'expanded' : ''}`}>
          <div className="trigger" role="button" {...getToggleProps()}>
@@ -30,19 +36,19 @@ export default function AboutAnalysis({ result }) {
                   Buffer brukt: {result.buffer.toLocaleString('nb-NO')} m
                </li>
                {
-                  result.distanceToObject > 0 ?
-                     <li>Avstand til nærmeste objekt: {getDistanceToObject()}</li> :
-                     null
+                  result.distanceToObject > 0 && (
+                     <li>Avstand til nærmeste objekt: {getDistanceToObject()}</li>
+                  )
                }
                {
-                  result.inputGeometryArea ?
-                     <li>Områdeareal: {result.inputGeometryArea.toLocaleString('nb-NO')} m²</li> :
-                     null
+                  result.inputGeometryArea && (
+                     <li>Områdeareal: {result.inputGeometryArea.toLocaleString('nb-NO')} m²</li>
+                  )
                }
                {
-                  result.hitArea ?
-                     <li>Treffareal: {result.hitArea.toLocaleString('nb-NO')} m²</li> :
-                     null
+                  result.hitArea && (
+                     <li>Treffareal: {result.hitArea.toLocaleString('nb-NO')} m² ({getHitAreaPercent().toLocaleString('nb-NO')} %)</li>
+                  )
                }
             </ul>
          </section>

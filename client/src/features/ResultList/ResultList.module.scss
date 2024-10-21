@@ -6,6 +6,19 @@
    margin-bottom: 18px;
 }
 
+.accordionSummary {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   flex: 1;
+
+   .hitArea {
+      font-family: 'Roboto-Medium';
+      font-size: 16px;
+      color: #d32f2f;
+   }
+}
+
 .accordion {
    display: flex;
    align-items: center;

@@ -11,9 +11,9 @@ export default function ResultList({ data }) {
    };
 
    function getAccordionTitle(result) {
-      const datasetTitle = result.runOnDataset ? 
-        `«${result.runOnDataset.title}» (${result.title})` :
-        `«${result.title}»`
+      const datasetTitle = result.runOnDataset ?
+         `«${result.runOnDataset.title}» (${result.title})` :
+         `«${result.title}»`
 
       switch (result.resultStatus) {
          case 'NO-HIT-GREEN':
@@ -50,6 +50,12 @@ export default function ResultList({ data }) {
       return classNames.join(' ');
    }
 
+   function getHitAreaPercent(result) {
+      const percent = (result.hitArea / result.inputGeometryArea) * 100;
+
+      return Math.round((percent + Number.EPSILON) * 100) / 100;
+   }
+
    function renderThemeName(result) {
       return (
          <strong className={styles.themeName}>{result.themes[0]}</strong>
@@ -73,9 +79,16 @@ export default function ResultList({ data }) {
                      onChange={handleAccordionChange(`panel-${resultStatus}-${index}`)}
                   >
                      <AccordionSummary sx={{ padding: '0 24px', '& .MuiAccordionSummary-content': { margin: '20px 0' } }}>
+                        <div className={styles.accordionSummary}>
                         <span className={getAccordionClassNames(result)}>
                            <span className={styles.accordionTitle}>{renderThemeName(result)}: {getAccordionTitle(result)}</span>
                         </span>
+                        {
+                           result.hitArea && (
+                              <span className={styles.hitArea}>{getHitAreaPercent(result).toLocaleString('nb-NO')} %</span>
+                           )
+                        }
+                        </div>
                      </AccordionSummary>
                      <AccordionDetails sx={{ padding: '6px 24px' }}>
                         <Result

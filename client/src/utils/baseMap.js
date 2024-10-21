@@ -1,6 +1,7 @@
 import TileLayer from 'ol/layer/Tile';
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS';
 import { WMTSCapabilities } from 'ol/format';
+import { get } from 'ol/proj';
 import axios from 'axios';
 import baseMap from 'config/baseMap.config';
 
@@ -26,7 +27,8 @@ export async function fetchWmtsOptions() {
 
    const options = optionsFromCapabilities(capabilities, {
       layer: baseMap.layer,
-      matrixSet: 'EPSG:3857',
+      projection: get('EPSG:3857'),
+      matrixSet: 'EPSG:3857'
    });
 
    const wmtsOptions = { 
