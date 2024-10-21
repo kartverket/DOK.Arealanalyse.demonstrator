@@ -47,6 +47,7 @@ export default function App() {
          <div className={styles.heading}>
             <img src={logo} alt="Kartverket logo" />
             <h1>Arealanalyse av DOK-datasett - Demonstrator</h1>
+            <a href="https://dok-arealanalyse-api.azurewebsites.net/" target="_blank" rel="noopener noreferrer" className={styles.apiLink}>API</a>
          </div>
 
          <div className={styles.content}>

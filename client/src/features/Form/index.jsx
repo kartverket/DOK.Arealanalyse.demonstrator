@@ -15,8 +15,8 @@ export default function Form({ onSubmit }) {
          requestedBuffer: 0,
          context: '',
          theme: '',
-         includeGuidance: false,
-         includeQualityMeasurement: false
+         includeGuidance: true,
+         includeQualityMeasurement: true
       };
    }
 
