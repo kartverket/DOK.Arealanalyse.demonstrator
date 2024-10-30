@@ -5,7 +5,7 @@ public class Payload : IDisposable
     private bool _disposed = false;
 
     public MemoryStream File { get; set; }
-    public bool Transform { get; set; }
+    public int? DestEpsg { get; set; }
 
     public void Dispose()
     {

@@ -7,13 +7,13 @@ export async function convert(file, fileType) {
    const formData = new FormData();
 
    formData.append('file', file);
-   formData.append('transform', true);
+   formData.append('destEpsg', 25833);
 
    try {
       const response = await axios.post(url, formData);
       return response.data;
    } catch (error) {
-      console.error(error);
+      console.log(error);
       return null;
    }
 }
@@ -29,7 +29,7 @@ export async function validate(geoJson) {
       const response = await axios.post(url, formData);
       return response.data;
    } catch (error) {
-      console.error(error);
+      console.log(error);
       return false;
    }
 }

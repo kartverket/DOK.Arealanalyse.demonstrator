@@ -24,11 +24,10 @@ public class SosiConvertService : ISosiConvertService
         kurveObjects.AddRange(buer);
 
         var features = new List<Feature>();
-        int? epsg = payload.Transform ? hode.EPSG : null;
 
         foreach (var kurve in kurver)
         {
-            var geometry = kurve.ToGeoJson(epsg);
+            var geometry = kurve.ToGeoJson(hode.EPSG, payload.DestEpsg);
             var feature = new Feature(geometry);
 
             features.Add(feature);
@@ -36,7 +35,7 @@ public class SosiConvertService : ISosiConvertService
 
         foreach (var bue in buer)
         {
-            var geometry = bue.ToGeoJson(epsg);
+            var geometry = bue.ToGeoJson(hode.EPSG, payload.DestEpsg);
             var feature = new Feature(geometry);
 
             features.Add(feature);
@@ -44,7 +43,7 @@ public class SosiConvertService : ISosiConvertService
 
         foreach (var flate in flater)
         {
-            var geometry = flate.ToGeoJson(kurveObjects, epsg);
+            var geometry = flate.ToGeoJson(kurveObjects, hode.EPSG, payload.DestEpsg);
             var feature = new Feature(geometry);
 
             features.Add(feature);
@@ -52,7 +51,7 @@ public class SosiConvertService : ISosiConvertService
 
         var featureCollection = new FeatureCollection(features);
 
-        if (!payload.Transform)
+        if (!payload.DestEpsg.HasValue)
             GeoJsonHelpers.SetCrsName(featureCollection, hode.EPSG);
 
         return featureCollection;
@@ -65,8 +64,6 @@ public class SosiConvertService : ISosiConvertService
         var kurver = SosiHelpers.GetKurver(sosiObjects, hode.DecimalPlaces);
         var buer = SosiHelpers.GetBuer(sosiObjects, hode.DecimalPlaces);
         var flater = SosiHelpers.GetFlater(sosiObjects);
-        
-        int? epsg = payload.Transform ? hode.EPSG : null;
 
         var kurveObjects = new List<IKurve>();
         kurveObjects.AddRange(kurver);
@@ -76,31 +73,32 @@ public class SosiConvertService : ISosiConvertService
 
         foreach (var flate in flater)
         {
-            using var geometry = flate.GetGeometry(kurveObjects, epsg);
+            using var geometry = flate.GetGeometry(kurveObjects, hode.EPSG, payload.DestEpsg);
             using var linearGeometry = geometry.GetLinearGeometry(0, []);
 
             multiPolygon.AddGeometry(linearGeometry);
         }
 
         using var union = multiPolygon.UnionCascaded();
-        var coordPrecision = epsg.HasValue && payload.Transform ? 6 : 2;
+        var outEpsg = payload.DestEpsg ?? hode.EPSG;
+        var coordPrecision = GeoJsonHelpers.GetCoordinatePrecision(outEpsg);
         var json = union.ExportToJson([$"COORDINATE_PRECISION={coordPrecision}"]);
         var geometryType = union.GetGeometryType();
         var updatedJson = GeoJsonHelpers.RemoveDuplicatePoints(json, geometryType);
 
-        if (!payload.Transform)
+        if (outEpsg != 4326)
         {
             if (geometryType == wkbGeometryType.wkbPolygon)
             {
                 var geoJson = JsonSerializer.Deserialize<Polygon>(updatedJson);
-                GeoJsonHelpers.SetCrsName(geoJson, hode.EPSG);
+                GeoJsonHelpers.SetCrsName(geoJson, outEpsg);
 
                 return geoJson;
             }
             else if (geometryType == wkbGeometryType.wkbMultiPolygon)
             {
                 var geoJson = JsonSerializer.Deserialize<MultiPolygon>(updatedJson);
-                GeoJsonHelpers.SetCrsName(geoJson, hode.EPSG);
+                GeoJsonHelpers.SetCrsName(geoJson, outEpsg);
 
                 return geoJson;
             }

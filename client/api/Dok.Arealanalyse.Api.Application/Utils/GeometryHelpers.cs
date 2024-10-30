@@ -32,17 +32,17 @@ public class GeometryHelpers
         }
     }
 
-    public static Geometry CreateFlatePolygon(List<List<int>> Refs, IEnumerable<IKurve> kurveObjects, int? srcEpsg)
+    public static Geometry CreateFlatePolygon(List<List<int>> Refs, IEnumerable<IKurve> kurveObjects, int srcEpsg, int? destEpsg)
     {
         var exterior = Refs.First();
         var polygon = new Geometry(wkbGeometryType.wkbCurvePolygon);
-        using var exteriorRing = CreateRing(kurveObjects, exterior, srcEpsg);
+        using var exteriorRing = CreateRing(kurveObjects, exterior, srcEpsg, destEpsg);
 
         polygon.AddGeometry(exteriorRing);
 
         foreach (var refs in Refs.Skip(1))
         {
-            using var interiorRing = CreateRing(kurveObjects, refs, srcEpsg);
+            using var interiorRing = CreateRing(kurveObjects, refs, srcEpsg, destEpsg);
 
             polygon.AddGeometry(interiorRing);
         }
@@ -50,7 +50,7 @@ public class GeometryHelpers
         return polygon;
     }
 
-    private static Geometry CreateRing(IEnumerable<IKurve> kurveObjects, List<int> refs, int? srcEpsg)
+    private static Geometry CreateRing(IEnumerable<IKurve> kurveObjects, List<int> refs, int srcEpsg, int? destEpsg)
     {
         var ring = new Geometry(wkbGeometryType.wkbCompoundCurve);
 
@@ -68,7 +68,7 @@ public class GeometryHelpers
             var kurveObject = kurveObjects
                 .Single(sosiObject => sosiObject.SequenceNumber == sn);
 
-            using var kurveGeometry = kurveObject.GetGeometry(srcEpsg, reverse);
+            using var kurveGeometry = kurveObject.GetGeometry(srcEpsg, destEpsg, reverse);
 
             ring.AddGeometry(kurveGeometry);
         }
