@@ -1,4 +1,4 @@
-import re
+from re import sub, search
 import json
 from jsonschema import validate
 from osgeo import ogr, osr
@@ -6,6 +6,7 @@ from os import path
 import math
 import json
 from .api import fetch_geolett_data, fetch_local_geolett_data, fetch_kartkatalog_metadata
+from .legend import create_legend
 from ..config import CONFIG
 
 EARTH_RADIUS = 6371008.8
@@ -59,12 +60,37 @@ def get_epsg(geo_json):
         return 4326
 
     regex = r'^(http:\/\/www\.opengis\.net\/def\/crs\/EPSG\/0\/|^urn:ogc:def:crs:EPSG::|^EPSG:)(?P<epsg>\d+)$'
-    matches = re.search(regex, crs)
+    matches = search(regex, crs)
 
     if matches:
         return int(matches.group('epsg'))
 
     return 4326
+
+
+def create_input_geometry(geo_json):
+    epsg = get_epsg(geo_json)
+    geom = ogr.CreateGeometryFromJson(str(geo_json))
+
+    if epsg == 4326:
+        transd = transform_geometry(geom, 4326, 25833)
+        return transd, 25833
+
+    return geom, epsg
+
+
+def create_run_on_input_geometry(geom, epsg, orig_epsg):
+    geometry = geom
+
+    if epsg != orig_epsg:
+        geometry = transform_geometry(geom, epsg, orig_epsg)
+
+    coord_precision = 6 if orig_epsg == 4326 else 2
+    geo_json = json.loads(geometry.ExportToJson(
+        [f'COORDINATE_PRECISION={coord_precision}']))
+    add_geojson_crs(geo_json, epsg)
+
+    return geo_json
 
 
 def transform_geometry(geom, src_epsg, dest_epsg):
@@ -76,7 +102,10 @@ def transform_geometry(geom, src_epsg, dest_epsg):
     target.ImportFromEPSG(dest_epsg)
 
     transform = osr.CoordinateTransformation(source, target)
-    geom.Transform(transform)
+    clone = geom.Clone()
+    clone.Transform(transform)
+
+    return clone
 
 
 def length_to_degrees(distance):
@@ -93,10 +122,25 @@ def get_buffered_geometry(geom, distance, epsg):
     return geom.Buffer(computed_buffer, 10)
 
 
-def get_cartography_url(wms_url, layer):
-    first_layer = layer.split(',')[0]
+def get_raster_result(wms_url, wms_layers):
+    layers = ','.join(wms_layers)
 
-    return f'{wms_url}service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&layer={first_layer}&format=image/png'
+    return f'{wms_url}&layers={layers}'
+
+
+async def get_cartography_url(wms_url, wms_layers):
+    urls = []
+
+    for wms_layer in wms_layers:
+        url = f'{wms_url}service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&layer={wms_layer.strip()}&format=image/png'
+        urls.append(url)
+
+    if len(urls) == 1:
+        return urls[0]
+
+    data_url = await create_legend(urls)
+
+    return data_url
 
 
 def add_geojson_crs(geojson, epsg):
@@ -135,6 +179,12 @@ def set_geometry_areas(data_output):
         data_output['hitArea'] = round(intersection.GetArea(), 2)
 
 
+def camel_case(string):
+    string = sub(r'(_|-)+', ' ', string).title().replace(' ', '')
+
+    return ''.join([string[0].lower(), string[1:]])
+
+
 async def get_geolett_data(id):
     if id is None:
         return None
@@ -149,8 +199,13 @@ async def get_geolett_data(id):
     return result[0] if len(result) > 0 else None
 
 
-async def get_kartkatalog_metadata(id):
-    metadata = await fetch_kartkatalog_metadata(id)
+async def get_kartkatalog_metadata(dataset):
+    dataset_id = CONFIG[dataset].get('dataset_id')
+
+    if dataset_id is None:
+        return None
+
+    metadata = await fetch_kartkatalog_metadata(dataset_id)
 
     if metadata is None:
         return None
@@ -159,10 +214,10 @@ async def get_kartkatalog_metadata(id):
         'DateUpdated', metadata.get('DateMetadataUpdated', None))
 
     return {
-        'datasetId': id,
+        'datasetId': dataset_id,
         'title': metadata['NorwegianTitle'],
         'description': metadata['Abstract'],
-        'datasetDescriptionUri': 'https://kartkatalog.geonorge.no/metadata/' + id,
+        'datasetDescriptionUri': 'https://kartkatalog.geonorge.no/metadata/' + dataset_id,
         'updated': updated
     }
 

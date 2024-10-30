@@ -2,7 +2,7 @@ from sys import maxsize
 from osgeo import ogr
 import json
 from .api import query_arcgis
-from .common import get_geolett_data, get_buffered_geometry, get_cartography_url
+from .common import get_geolett_data, get_buffered_geometry, get_raster_result, get_cartography_url, camel_case
 from ..config import CONFIG
 
 
@@ -21,15 +21,15 @@ def get_input_geometry(geom, epsg, buffer, data_output):
 
 async def run_queries(dataset, arcgis_geom, epsg, data_output):
     first_layer = CONFIG[dataset]['layers'][0]
-    geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))    
+    geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
 
     for layer in CONFIG[dataset]['layers']:
         layer_id = layer['arcgis']
         type_filter = layer.get('type_filter', None)
-        
+
         if type_filter is not None:
             data_output['runAlgorithm'].append(f'query {type_filter}')
-        
+
         arcgis_response = await query_arcgis(dataset, layer_id, type_filter, arcgis_geom, epsg)
         data_output['runAlgorithm'].append(f'intersect layer {layer_id}')
 
@@ -40,8 +40,9 @@ async def run_queries(dataset, arcgis_geom, epsg, data_output):
                 geolett_data = await get_geolett_data(layer.get('geolett_id', None))
                 data_output['data'] = response['properties']
                 data_output['geometries'] = response['geometries']
-                data_output['rasterResult'] = f'{CONFIG[dataset]["wms"]}&layers={layer["wms"]}'
-                data_output['cartography'] = get_cartography_url(
+                data_output['rasterResult'] = get_raster_result(
+                    CONFIG[dataset]['wms'], layer['wms'])
+                data_output['cartography'] = await get_cartography_url(
                     CONFIG[dataset]['wms'], layer['wms'])
                 data_output['resultStatus'] = layer['result_status']
                 break
@@ -96,7 +97,8 @@ def map_properties(feature, mappings):
     properties = {}
 
     for mapping in mappings:
-        properties[mapping] = feature['properties'].get(mapping, None)
+        properties[camel_case(mapping)] = feature['properties'].get(
+            mapping, None)
 
     return properties
 
