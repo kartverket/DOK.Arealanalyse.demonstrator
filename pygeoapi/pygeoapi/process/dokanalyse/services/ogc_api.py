@@ -5,7 +5,7 @@ from shapely import wkt
 from shapely.wkt import dumps
 import json
 from .api import query_ogc_api
-from .common import get_geolett_data, get_buffered_geometry, get_cartography_url
+from .common import get_geolett_data, get_buffered_geometry, get_raster_result, get_cartography_url
 from ..config import CONFIG
 
 
@@ -38,8 +38,9 @@ async def run_queries(dataset, wkt_geom, epsg, data_output):
                 geolett_data = await get_geolett_data(layer.get('geolett_id', None))
                 data_output['data'] = response['properties']
                 data_output['geometries'] = response['geometries']
-                data_output['rasterResult'] = f'{CONFIG[dataset]["wms"]}&layers={layer["wms"]}'
-                data_output['cartography'] = get_cartography_url(
+                data_output['rasterResult'] = get_raster_result(
+                    CONFIG[dataset]['wms'], layer['wms'])
+                data_output['cartography'] = await get_cartography_url(
                     CONFIG[dataset]['wms'], layer['wms'])
                 data_output['resultStatus'] = layer['result_status']
                 break

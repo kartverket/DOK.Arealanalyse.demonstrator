@@ -28,3 +28,4 @@ async-lru
 gunicorn
 uvicorn
 pydash
+pillow
