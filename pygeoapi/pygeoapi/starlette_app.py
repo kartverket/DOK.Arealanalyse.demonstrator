@@ -483,6 +483,7 @@ class ApiRulesMiddleware:
     """ Custom middleware to properly deal with trailing slashes.
     See https://github.com/encode/starlette/issues/869.
     """
+
     def __init__(
             self,
             app: ASGIApp
@@ -550,12 +551,15 @@ api_routes = [
     Route('/collections', collections),
     Route('/collections/{collection_id:path}', collections),
     Route('/stac', stac_catalog_root),
-    Route('/stac/{path:path}', stac_catalog_path),
+    Route('/stac/{path:path}', stac_catalog_path)
 ]
 
+from .socket_io import sio_app
 url_prefix = API_RULES.get_url_prefix('starlette')
+
 APP = Starlette(
     routes=[
+        Mount('/ws', sio_app),
         Mount(f'{url_prefix}/static', StaticFiles(directory=STATIC_DIR)),
         Mount(url_prefix or '/', routes=api_routes)
     ]
@@ -578,7 +582,8 @@ if API_RULES.strict_slashes:
 # CORS: optionally enable from config.
 if CONFIG['server'].get('cors', False):
     from starlette.middleware.cors import CORSMiddleware
-    APP.add_middleware(CORSMiddleware, allow_origins=['*'], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+    APP.add_middleware(CORSMiddleware, allow_origins=[
+                       '*'], allow_methods=['*'], allow_headers=['*'], allow_credentials=True)
 
 try:
     OGC_SCHEMAS_LOCATION = Path(CONFIG['server']['ogc_schemas_location'])

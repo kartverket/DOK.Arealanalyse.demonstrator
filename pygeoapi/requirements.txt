@@ -29,3 +29,4 @@ gunicorn
 uvicorn
 pydash
 pillow
+python-socketio

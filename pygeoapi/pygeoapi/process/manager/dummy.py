@@ -72,7 +72,8 @@ class DummyManager(BaseManager):
             self,
             process_id: str,
             data_dict: dict,
-            execution_mode: Optional[RequestedProcessExecutionMode] = None
+            execution_mode: Optional[RequestedProcessExecutionMode] = None,
+            correlation_id: str = None
     ) -> Tuple[str, str, Any, JobStatus, Optional[Dict[str, str]]]:
         """
         Default process execution handler
@@ -98,7 +99,7 @@ class DummyManager(BaseManager):
 
         processor = self.get_processor(process_id)
         try:
-            jfmt, outputs = await processor.execute(data_dict)
+            jfmt, outputs = await processor.execute(data_dict, correlation_id)
             current_status = JobStatus.successful
         except Exception as err:
             outputs = {
@@ -109,7 +110,7 @@ class DummyManager(BaseManager):
             tb = traceback.format_exc()
             LOGGER.error(tb)
         job_id = str(uuid.uuid1())
-        
+
         return job_id, jfmt, outputs, current_status, response_headers
 
     def __repr__(self):
