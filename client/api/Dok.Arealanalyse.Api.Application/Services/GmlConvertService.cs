@@ -4,6 +4,7 @@ using Dok.Arealanalyse.Api.Application.Utils;
 using System.Text.Json;
 using System.Xml.Linq;
 using Dok.Arealanalyse.Api.Application.Models.Api;
+using Dok.Arealanalyse.Api.Application.Models;
 
 namespace Dok.Arealanalyse.Api.Application.Services;
 
@@ -21,6 +22,10 @@ public partial class GmlConvertService : IGmlConvertService
     {
         var document = await XDocument.LoadAsync(payload.File, LoadOptions.None, default);
         var epsg = GmlHelpers.GetEpsgFromEnvelope(document);
+
+        if (!epsg.HasValue)
+            throw new ConvertException("Kunne ikke konvertere GML-filen");
+
         var featureMembers = GetFeatureMembers(document);
 
         var geometries = featureMembers
@@ -38,30 +43,31 @@ public partial class GmlConvertService : IGmlConvertService
 
         using var union = multiPolygon.UnionCascaded();
         
-        if (epsg.HasValue && payload.Transform)
+        if (payload.DestEpsg.HasValue && payload.DestEpsg.Value != epsg.Value)
         {
-            using var coordTrans = GeometryHelpers.GetCoordinateTransformation(epsg.Value, 4326);
+            using var coordTrans = GeometryHelpers.GetCoordinateTransformation(epsg.Value, payload.DestEpsg.Value);
             union.Transform(coordTrans);
         }
 
-        var coordPrecision = epsg.HasValue && payload.Transform ? 6 : 2;
+        var outEpsg = payload.DestEpsg ?? epsg.Value;
+        var coordPrecision = GeoJsonHelpers.GetCoordinatePrecision(outEpsg);
         var json = union.ExportToJson([$"COORDINATE_PRECISION={coordPrecision}"]);
         var geometryType = union.GetGeometryType();
         var updatedJson = GeoJsonHelpers.RemoveDuplicatePoints(json, geometryType);
 
-        if (epsg.HasValue && !payload.Transform)
+        if (outEpsg != 4326)
         {
             if (geometryType == wkbGeometryType.wkbPolygon)
             {
                 var geoJson = JsonSerializer.Deserialize<Polygon>(updatedJson);
-                GeoJsonHelpers.SetCrsName(geoJson, epsg.Value);
+                GeoJsonHelpers.SetCrsName(geoJson, outEpsg);
 
                 return geoJson;
             }
             else if (geometryType == wkbGeometryType.wkbMultiPolygon)
             {
                 var geoJson = JsonSerializer.Deserialize<MultiPolygon>(updatedJson);
-                GeoJsonHelpers.SetCrsName(geoJson, epsg.Value);
+                GeoJsonHelpers.SetCrsName(geoJson, outEpsg);
 
                 return geoJson;
             }

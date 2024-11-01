@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dok.Arealanalyse.Api.Application.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Dok.Arealanalyse.Api.Controllers;
 
@@ -11,6 +12,7 @@ public abstract class BaseController(
 
         return exception switch
         {
+            ConvertException => BadRequest(),
             Exception => StatusCode(StatusCodes.Status500InternalServerError),
             _ => null,
         };

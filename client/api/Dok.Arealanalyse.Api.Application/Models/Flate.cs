@@ -16,16 +16,16 @@ public class Flate
     public int SequenceNumber { get; private set; }
     public List<List<int>> Refs { get; private set; }
 
-    public Geometry GetGeometry(IEnumerable<IKurve> kurveObjects, int? srcEpsg)
+    public Geometry GetGeometry(IEnumerable<IKurve> kurveObjects, int srcEpsg, int? destEpsg)
     {
-        return GeometryHelpers.CreateFlatePolygon(Refs, kurveObjects, srcEpsg);
+        return GeometryHelpers.CreateFlatePolygon(Refs, kurveObjects, srcEpsg, destEpsg);
     }
 
-    public Polygon ToGeoJson(IEnumerable<IKurve> kurveObjects, int? srcEpsg)
+    public Polygon ToGeoJson(IEnumerable<IKurve> kurveObjects, int srcEpsg, int? destEpsg)
     {
-        using var geometry = GetGeometry(kurveObjects, srcEpsg);
+        using var geometry = GetGeometry(kurveObjects, srcEpsg, destEpsg);
         using var linearGeometry = geometry.GetLinearGeometry(0, []);
-        var coordPrecision = srcEpsg.HasValue ? 6 : 2;
+        var coordPrecision = GeoJsonHelpers.GetCoordinatePrecision(destEpsg ?? srcEpsg);
         var json = linearGeometry.ExportToJson([$"COORDINATE_PRECISION={coordPrecision}"]);
 
         return JsonSerializer.Deserialize<Polygon>(json);

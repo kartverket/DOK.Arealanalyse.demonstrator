@@ -16,7 +16,7 @@ public class Kurve : IKurve
     public int SequenceNumber { get; set; }
     public List<SosiPoint> Points { get; private set; }
 
-    public Geometry GetGeometry(int? srcEpsg, bool reverse = false)
+    public Geometry GetGeometry(int srcEpsg, int? destEpsg, bool reverse = false)
     {
         var points = reverse ?
             Enumerable.Reverse(Points).ToList() :
@@ -27,19 +27,19 @@ public class Kurve : IKurve
         foreach (var point in points)
             lineString.AddPoint_2D(point.X, point.Y);
 
-        if (srcEpsg.HasValue)
+        if (destEpsg.HasValue && destEpsg.Value != srcEpsg)
         {
-            using var coordTrans = GeometryHelpers.GetCoordinateTransformation(srcEpsg.Value, 4326);
+            using var coordTrans = GeometryHelpers.GetCoordinateTransformation(srcEpsg, destEpsg.Value);
             lineString.Transform(coordTrans);
         }
 
         return lineString;
     }
 
-    public LineString ToGeoJson(int? srcEpsg)
+    public LineString ToGeoJson(int srcEpsg, int? destEpsg)
     {
-        using var geometry = GetGeometry(srcEpsg, false);
-        var coordPrecision = srcEpsg.HasValue ? 6 : 2;
+        using var geometry = GetGeometry(srcEpsg, destEpsg, false);
+        var coordPrecision = GeoJsonHelpers.GetCoordinatePrecision(destEpsg ?? srcEpsg);
         var json = geometry.ExportToJson([$"COORDINATE_PRECISION={coordPrecision}"]);
 
         return JsonSerializer.Deserialize<LineString>(json);

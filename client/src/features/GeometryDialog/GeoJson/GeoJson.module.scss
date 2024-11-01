@@ -8,6 +8,7 @@
    display: flex;
    flex-grow: 1;
    flex-direction: column;
+   position: relative;
    border: 1px solid #c4c4c4;
    border-radius: 4px;
    overflow: hidden;
@@ -27,4 +28,10 @@
       font-size: 1rem;
       font-family: menlo, consolas, monospace;
    }
+}
+
+.copyButton {
+    position: absolute !important;
+    right: 29px;
+    top: 12px;
 }

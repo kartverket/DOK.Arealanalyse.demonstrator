@@ -1,62 +1,62 @@
 .result {
-   margin-bottom: 24px;
+    margin-bottom: 24px;
 }
 
 .resultGroup {
-   margin-bottom: 18px;
+    margin-bottom: 18px;
 }
 
 .accordionSummary {
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
-   flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
 
-   .hitArea {
-      font-family: 'Roboto-Medium';
-      font-size: 16px;
-      color: #d32f2f;
-   }
+    .hitAndDistance {
+        display: flex;
+        gap: 24px;
+        font-size: 16px;
+    }
 }
 
 .accordion {
-   display: flex;
-   align-items: center;
+    display: flex;
+    align-items: center;
 
-   .accordionTitle {
-      display: flex;
-      font-size: 16px;
-      margin-top: 1px;
-   }
+    .accordionTitle {
+        display: flex;
+        font-size: 16px;
+        margin-top: 1px;
+    }
 
-   .themeName {
-      text-transform: capitalize;
-   }
+    .themeName {
+        text-transform: capitalize;
+    }
 
-   &::before {
-      display: flex;
-      content: '';
-      background-repeat: no-repeat;
-      background-position: center;
-      width: 27.5px;
-      height: 25px;
-      background-size: 27.5px;
-      margin-right: 10px;
-   }
+    &::before {
+        display: flex;
+        content: '';
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 27.5px;
+        height: 25px;
+        background-size: 27.5px;
+        margin-right: 10px;
+    }
 
-   &.success::before {
-      background-image: url('../../assets/gfx/icon-success.svg');
-   }
+    &.success::before {
+        background-image: url('../../assets/gfx/icon-success.svg');
+    }
 
-   &.warning::before {
-      background-image: url('../../assets/gfx/icon-warning.svg');
-   }
+    &.warning::before {
+        background-image: url('../../assets/gfx/icon-warning.svg');
+    }
 
-   &.error::before {
-      background-image: url('../../assets/gfx/icon-error.svg');
-   }
+    &.error::before {
+        background-image: url('../../assets/gfx/icon-error.svg');
+    }
 
-   &.noStatus::before {
-      content: none;
-   }
+    &.noStatus::before {
+        content: none;
+    }
 }

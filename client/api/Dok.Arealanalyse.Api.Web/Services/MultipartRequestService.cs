@@ -92,10 +92,10 @@ public class MultipartRequestService(
 
     private static object ParseFormValue(dynamic value, Type type)
     {
-        if (type == typeof(int))
+        if (type == typeof(int) || type == typeof(int?))
             return int.TryParse(value, out int result) ? result : null;
 
-        if (type == typeof(double))
+        if (type == typeof(double) || type == typeof(double?))
             return double.TryParse(value, out double result) ? result : null;
 
         if (type == typeof(bool))

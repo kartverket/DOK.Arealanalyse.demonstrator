@@ -23,6 +23,11 @@ public class GeoJsonHelpers
         return jsonNode.ToJsonString();
     }
 
+    public static int GetCoordinatePrecision(int epsg)
+    {
+        return epsg == 4326 ? 6 : 2;
+    }
+
     public static void SetCrsName(GeoJSONObject geoJson, int epsg)
     {
         geoJson.CRS = new NamedCRS($"urn:ogc:def:crs:EPSG::{epsg}");
