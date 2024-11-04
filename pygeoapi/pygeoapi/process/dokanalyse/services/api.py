@@ -2,14 +2,13 @@ from os import path
 import json
 import aiohttp
 from async_lru import alru_cache
-from ..config import CONFIG
 
 DIR_PATH = path.dirname(path.realpath(__file__))
 
 
-async def query_wfs(dataset, xml):
+async def query_wfs(config, xml):
     try:
-        url = CONFIG[dataset]['wfs']
+        url = config['wfs']
         headers = {'Content-Type': 'application/xml'}
 
         async with aiohttp.ClientSession() as session:
@@ -21,13 +20,12 @@ async def query_wfs(dataset, xml):
 
                 return await response.text()
     except:
-        print('timeout: ' + dataset)
         return None
 
 
-async def query_arcgis(dataset, layer_id, type_filter, geometry, epsg):
+async def query_arcgis(config, layer_id, type_filter, geometry, epsg):
     try:
-        url = f'{CONFIG[dataset]["arcgis"]}/{layer_id}/query'
+        url = f'{config["arcgis"]}/{layer_id}/query'
 
         data = {
             'geometry': geometry,
@@ -56,14 +54,13 @@ async def query_arcgis(dataset, layer_id, type_filter, geometry, epsg):
 
                 return json
     except:
-        print('timeout: ' + dataset)
         return None
 
 
-async def query_ogc_api(dataset, layer_id, wkt_geom, epsg):
+async def query_ogc_api(config, layer_id, wkt_geom, epsg):
     try:
-        base_url = CONFIG[dataset]['ogc_api']
-        geom_element_name = CONFIG[dataset]['geom_element_name']
+        base_url = config['ogc_api']
+        geom_element_name = config['geom_element_name']
         filter_crs = f'&filter-crs=http://www.opengis.net/def/crs/EPSG/0/{epsg}' if epsg is not 4326 else ''                   
         url = f'{base_url}/{layer_id}/items?filter-lang=cql2-text{filter_crs}&filter=S_INTERSECTS({geom_element_name},{wkt_geom})'
 
@@ -76,7 +73,6 @@ async def query_ogc_api(dataset, layer_id, wkt_geom, epsg):
 
                 return await response.json()
     except:
-        print('timeout: ' + dataset)   
         return None
 
 

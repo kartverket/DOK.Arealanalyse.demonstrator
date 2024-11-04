@@ -51,6 +51,7 @@ import uvicorn
 
 from pygeoapi.api import API
 from pygeoapi.util import yaml_load, get_api_rules
+from .socket_io import sio_app
 
 if 'PYGEOAPI_CONFIG' not in os.environ:
     raise RuntimeError('PYGEOAPI_CONFIG environment variable not set')
@@ -554,7 +555,6 @@ api_routes = [
     Route('/stac/{path:path}', stac_catalog_path)
 ]
 
-from .socket_io import sio_app
 url_prefix = API_RULES.get_url_prefix('starlette')
 
 APP = Starlette(

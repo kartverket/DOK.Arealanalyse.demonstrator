@@ -27,11 +27,11 @@ def merge_images(img_data):
 
     img_merge = Image.new('RGBA', (max_width, total_height), (255, 0, 0, 0))
     y = 0
-    
+
     for img in imgs:
         img_merge.paste(img, (0, y))
         y += img.height
-            
+
     buffered = BytesIO()
     img_merge.save(buffered, format='PNG')
     img_str = base64.b64encode(buffered.getvalue())

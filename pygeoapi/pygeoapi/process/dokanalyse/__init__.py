@@ -1,14 +1,16 @@
 import logging
-import json
 import time
-from osgeo import ogr
 import asyncio
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 from .services import common
 from .services import wfs
 from .services import arcgis
 from .services import ogc_api
+from .result.wfs_analysis import WfsAnalysis
+from .result.arcgis_analysis import ArcGisAnalysis
+from .result.ogc_api_analysis import OgcApiAnalysis
 from ... import socket_io
+from .config import CONFIG
 
 LOGGER = logging.getLogger(__name__)
 
@@ -181,78 +183,27 @@ class DokanalyseProcessor(BaseProcessor):
                 'runOnDataset': await common.get_kartkatalog_metadata(dataset)
             }
 
-        data_output = {
-            'runAlgorithm': ['set input_geometry'],
-            'resultStatus': 'NO-HIT-GREEN'
-        }
 
         dataset_type = common.get_dataset_type(dataset)
+        config = CONFIG[dataset]       
+        result = None
 
         if dataset_type == 'wfs':
-            gml = wfs.get_input_geometry(
-                geom, epsg, buffer, data_output)
-            await wfs.run_queries(dataset, gml, epsg, data_output)
+            analysis = WfsAnalysis(config, geom, epsg, orig_epsg, buffer)
+            await analysis.run(context, include_guidance, include_quality_measurement)
+            result = analysis.to_json()
 
         elif dataset_type == 'arcgis':
-            arcgis_geom = arcgis.get_input_geometry(
-                geom, epsg, buffer, data_output)
-            await arcgis.run_queries(dataset, arcgis_geom, epsg, data_output)
+            analysis = ArcGisAnalysis(config, geom, epsg, orig_epsg, buffer)
+            await analysis.run(context, include_guidance, include_quality_measurement)
+            result = analysis.to_json()
 
         elif dataset_type == 'ogc_api':
-            wkt_geom = ogc_api.get_input_geometry(
-                geom, epsg, buffer, data_output)
-            await ogc_api.run_queries(dataset, wkt_geom, epsg, data_output)
-
-        common.set_geometry_areas(data_output)
-
-        distance_to_object = 0
-
-        if data_output['resultStatus'] == 'NO-HIT-GREEN':
-            if dataset_type == 'wfs':
-                distance_to_object = await wfs.get_shortest_distance(
-                    dataset, geom, epsg, data_output)
-            elif dataset_type == 'arcgis':
-                distance_to_object = await arcgis.get_shortest_distance(
-                    dataset, geom, epsg, data_output)
-            elif dataset_type == 'ogc_api':
-                distance_to_object = await ogc_api.get_shortest_distance(
-                    dataset, geom, epsg, data_output)
-
-        data_output['runAlgorithm'].append('deliver result')
-
-        run_on_input_geometry = common.create_run_on_input_geometry(
-            data_output['runOnInputGeometry'], epsg, orig_epsg)
-
-        result = {
-            'runAlgorithm': data_output['runAlgorithm'],
-            'buffer': buffer,
-            'runOnInputGeometry': run_on_input_geometry,
-            'inputGeometryArea': data_output.get('inputGeometryArea'),
-            'hitArea': data_output.get('hitArea'),
-            'resultStatus': data_output['resultStatus'],
-            'distanceToObject': distance_to_object,
-            'rasterResult': data_output.get('rasterResult'),
-            'cartography': data_output.get('cartography'),
-            'data': data_output.get('data'),
-            'themes': common.get_dataset_themes(dataset)
-        }
-
-        dataset_info = await common.get_kartkatalog_metadata(dataset)
-        result['runOnDataset'] = dataset_info
-
-        if distance_to_object >= 20000 and context != 'byggesak':
-            result['resultStatus'] = 'NO-HIT-YELLOW'
-
-        result['title'] = common.get_dataset_title(data_output, dataset)
-
-        if include_guidance and data_output['geolett'] is not None:
-            common.set_guidance_data(data_output['geolett'], result)
-
-        if include_quality_measurement:
-            common.set_quality_measurement(result)
+            analysis = OgcApiAnalysis(config, geom, epsg, orig_epsg, buffer)
+            await analysis.run(context, include_guidance, include_quality_measurement)
+            result = analysis.to_json()
 
         end = time.time()
-
         print(f'"{dataset}": {round(end - start, 2)} sek.')
 
         if correlation_id:
@@ -281,6 +232,7 @@ class DokanalyseProcessor(BaseProcessor):
         }
 
         datasets = await common.get_dataset_names(data, geom, epsg)
+        #datasets = {'jord_flomskred_aktsomhets_omr': True}
 
         if correlation_id:
             to_analyze = {key: value for (
