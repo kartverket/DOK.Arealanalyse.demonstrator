@@ -1,9 +1,11 @@
+import json
 from sys import maxsize
-from .helpers import parse_response, get_geometry_from_response
-from ..analysis import Analysis
-from ...helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ...helpers.geometry import get_buffered_geometry, geometry_to_wkt
-from ...services.api import query_ogc_api
+from pydash import get
+from osgeo import ogr
+from .analysis import Analysis
+from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
+from ..helpers.geometry import get_buffered_geometry, geometry_to_wkt
+from ..services.api import query_ogc_api
 
 
 class OgcApiAnalysis(Analysis):
@@ -24,7 +26,7 @@ class OgcApiAnalysis(Analysis):
             self.add_run_algorithm(f'intersect layer {layer_id}')
 
             if ogc_api_response is not None:
-                response = parse_response(self.config, ogc_api_response, layer)
+                response = self.__parse_response(ogc_api_response)
 
                 if len(response['properties']) > 0:
                     geolett_data = await get_geolett_data(layer.get('geolett_id', None))
@@ -53,7 +55,7 @@ class OgcApiAnalysis(Analysis):
         distances = []
 
         for feature in response['features']:
-            feature_geom = get_geometry_from_response(feature)
+            feature_geom = self.__get_geometry_from_response(feature)
 
             if feature_geom is not None:
                 distance = round(self.geometry.Distance(feature_geom))
@@ -67,3 +69,33 @@ class OgcApiAnalysis(Analysis):
         else:
             self.distance_to_object = distances[0]
 
+    def __parse_response(self, ogc_api_response):
+        data = {
+            'properties': [],
+            'geometries': []
+        }
+
+        for feature in ogc_api_response['features']:
+            data['properties'].append(self.__map_properties(
+                feature, self.config['properties']))
+            data['geometries'].append(
+                self.__get_geometry_from_response(feature))
+
+        return data
+
+    def __map_properties(self, feature, mappings):
+        properties = {}
+
+        for mapping in mappings:
+            key = mapping.split('.')[-1]
+            value = get(feature['properties'], mapping, None)
+            properties[key] = value
+
+        return properties
+
+    def __get_geometry_from_response(self, feature):
+        try:
+            geojson = json.dumps(feature['geometry'])
+            return ogr.CreateGeometryFromJson(geojson)
+        except:
+            return None

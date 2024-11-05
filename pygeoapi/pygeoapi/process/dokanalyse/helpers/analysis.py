@@ -1,11 +1,10 @@
-from os import path
 from re import sub
-import json
-from ..services.api import fetch_geolett_data, fetch_kartkatalog_metadata
+from ..services.api import fetch_geolett_data, fetch_local_geolett_data, fetch_kartkatalog_metadata
 from ..services.legend import create_legend
 
-DIR_PATH = path.dirname(path.realpath(__file__))
-LOCAL_GEOLETT_IDS = ['0c5dc043-e5b3-4349-8587-9b464d013aaa']
+LOCAL_GEOLETT_IDS = [
+    '0c5dc043-e5b3-4349-8587-9b464d013aaa'
+]
 
 
 def camel_case(string):
@@ -33,6 +32,20 @@ async def get_cartography_url(wms_url, wms_layers):
     data_url = await create_legend(urls)
 
     return data_url
+
+
+async def get_geolett_data(id):
+    if id is None:
+        return None
+
+    if id in LOCAL_GEOLETT_IDS:
+        geolett = fetch_local_geolett_data()
+    else:
+        geolett = await fetch_geolett_data()
+
+    result = list(filter(lambda item: item['id'] == id, geolett))
+
+    return result[0] if len(result) > 0 else None
 
 
 async def get_kartkatalog_metadata(config):
@@ -81,25 +94,3 @@ def get_quality_measurement():
             'comment': 'Godt egnet'
         }
     ]
-
-
-async def get_geolett_data(id):
-    if id is None:
-        return None
-
-    if id in LOCAL_GEOLETT_IDS:
-        geolett = fetch_local_geolett_data()
-    else:
-        geolett = await fetch_geolett_data()
-
-    result = list(filter(lambda item: item['id'] == id, geolett))
-
-    return result[0] if len(result) > 0 else None
-
-
-def fetch_local_geolett_data():
-    file_path = path.join(
-        path.dirname(DIR_PATH), 'resources/geolett.local.json')
-
-    with open(file_path, 'r') as file:
-        return json.load(file)

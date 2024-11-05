@@ -51,6 +51,7 @@ import uvicorn
 
 from pygeoapi.api import API
 from pygeoapi.util import yaml_load, get_api_rules
+from .middleware.correlation_id_middleware import CorrelationIdMiddleware
 from .socket_io import sio_app
 
 if 'PYGEOAPI_CONFIG' not in os.environ:
@@ -493,7 +494,7 @@ class ApiRulesMiddleware:
         self.prefix = API_RULES.get_url_prefix('starlette')
 
     async def __call__(self, scope: Scope,
-                       receive: Receive, send: Send) -> None:
+                       receive: Receive, send: Send) -> None:        
         if scope['type'] == "http" and API_RULES.strict_slashes:
             path = scope['path']
             if path == self.prefix:
@@ -578,6 +579,8 @@ if url_prefix:
 if API_RULES.strict_slashes:
     APP.router.redirect_slashes = False
     APP.add_middleware(ApiRulesMiddleware)
+
+APP.add_middleware(CorrelationIdMiddleware)
 
 # CORS: optionally enable from config.
 if CONFIG['server'].get('cors', False):

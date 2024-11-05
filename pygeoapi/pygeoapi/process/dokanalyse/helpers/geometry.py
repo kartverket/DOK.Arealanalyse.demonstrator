@@ -5,28 +5,28 @@ from re import search
 from shapely import wkt
 from shapely.wkt import dumps
 
-EARTH_RADIUS = 6371008.8
+_EARTH_RADIUS = 6371008.8
 
 
-def create_input_geometry(geo_json):
+def create_input_geometry(geo_json) -> tuple[ogr.Geometry, int]:
     epsg = get_epsg(geo_json)
-    geom = ogr.CreateGeometryFromJson(str(geo_json))
+    geometry = ogr.CreateGeometryFromJson(str(geo_json))
 
     if epsg == 4326:
-        transd = transform_geometry(geom, 4326, 25833)
+        transd = transform_geometry(geometry, 4326, 25833)
         return transd, 25833
 
-    return geom, epsg
+    return geometry, epsg
 
 
-def get_buffered_geometry(geom, distance, epsg):
+def get_buffered_geometry(geometry, distance, epsg):
     computed_buffer = length_to_degrees(
         distance) if epsg is None or epsg == 4326 else distance
 
-    return geom.Buffer(computed_buffer, 10)
+    return geometry.Buffer(computed_buffer, 10)
 
 
-def transform_geometry(geom, src_epsg, dest_epsg):
+def transform_geometry(geometry, src_epsg, dest_epsg):
     source = osr.SpatialReference()
     source.ImportFromEPSG(src_epsg)
     source.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
@@ -35,14 +35,14 @@ def transform_geometry(geom, src_epsg, dest_epsg):
     target.ImportFromEPSG(dest_epsg)
 
     transform = osr.CoordinateTransformation(source, target)
-    clone = geom.Clone()
+    clone = geometry.Clone()
     clone.Transform(transform)
 
     return clone
 
 
 def length_to_degrees(distance):
-    radians = distance / EARTH_RADIUS
+    radians = distance / _EARTH_RADIUS
     degrees = radians % (2 * pi)
 
     return degrees * 180 / pi
@@ -77,14 +77,14 @@ def geometry_to_arcgis_geom(geometry, epsg):
     return json.dumps(arcgis_geom)
 
 
-def create_run_on_input_geometry_json(geom, epsg, orig_epsg):
-    geometry = geom
+def create_run_on_input_geometry_json(geometry, epsg, orig_epsg):
+    geom = geometry
 
     if epsg != orig_epsg:
-        geometry = transform_geometry(geom, epsg, orig_epsg)
+        geom = transform_geometry(geometry, epsg, orig_epsg)
 
     coord_precision = 6 if orig_epsg == 4326 else 2
-    geo_json = json.loads(geometry.ExportToJson(
+    geo_json = json.loads(geom.ExportToJson(
         [f'COORDINATE_PRECISION={coord_precision}']))
     add_geojson_crs(geo_json, epsg)
 

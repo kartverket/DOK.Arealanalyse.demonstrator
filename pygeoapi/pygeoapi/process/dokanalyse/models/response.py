@@ -1,5 +1,8 @@
+from ..helpers.geometry import add_geojson_crs
+
 class Response():
-    def __init__(self, input_geometry):
+    def __init__(self, input_geometry, epsg):
+        add_geojson_crs(input_geometry, epsg)
         self.input_geometry = input_geometry
         self.result_list = []
         self.report = None

@@ -3,7 +3,8 @@ import json
 import aiohttp
 from async_lru import alru_cache
 
-DIR_PATH = path.dirname(path.realpath(__file__))
+_DIR_PATH = path.dirname(path.realpath(__file__))
+_TIMEOUT = 20000
 
 
 async def query_wfs(config, xml):
@@ -12,7 +13,7 @@ async def query_wfs(config, xml):
         headers = {'Content-Type': 'application/xml'}
 
         async with aiohttp.ClientSession() as session:
-            #session.timeout = 10000
+            session.timeout = _TIMEOUT
             
             async with session.post(url, data=xml, headers=headers) as response:
                 if response.status != 200:
@@ -41,7 +42,7 @@ async def query_arcgis(config, layer_id, type_filter, geometry, epsg):
         }
 
         async with aiohttp.ClientSession() as session:
-            #session.timeout = 10000
+            session.timeout = _TIMEOUT
             
             async with session.post(url, data=data) as response:
                 if response.status != 200:
@@ -65,7 +66,7 @@ async def query_ogc_api(config, layer_id, wkt_geom, epsg):
         url = f'{base_url}/{layer_id}/items?filter-lang=cql2-text{filter_crs}&filter=S_INTERSECTS({geom_element_name},{wkt_geom})'
 
         async with aiohttp.ClientSession() as session:
-            #session.timeout = 10000
+            session.timeout = _TIMEOUT
                 
             async with session.get(url) as response:
                 if response.status != 200:
@@ -93,7 +94,7 @@ async def fetch_geolett_data():
 
 def fetch_local_geolett_data():
     file_path = path.join(
-        path.dirname(DIR_PATH), 'resources/geolett.local.json')
+        path.dirname(_DIR_PATH), 'resources/geolett.local.json')
 
     with open(file_path, 'r') as file:
         return json.load(file)

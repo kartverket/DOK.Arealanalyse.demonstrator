@@ -3582,9 +3582,8 @@ class API:
             execution_mode = None
         try:
             LOGGER.debug('Executing process')
-            correlation_id = request.headers.get('x-correlation-id')
             result = await self.manager.execute_process(
-                process_id, data_dict, execution_mode=execution_mode, correlation_id=correlation_id)
+                process_id, data_dict, execution_mode=execution_mode)
             job_id, mime_type, outputs, status, additional_headers = result
             headers.update(additional_headers or {})
             headers['Location'] = f'{self.base_url}/jobs/{job_id}'

@@ -1,16 +1,7 @@
 import logging
-import time
-import asyncio
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
-from .services import common
-from .services import wfs
-from .services import arcgis
-from .services import ogc_api
-from .result.wfs_analysis import WfsAnalysis
-from .result.arcgis_analysis import ArcGisAnalysis
-from .result.ogc_api_analysis import OgcApiAnalysis
-from ... import socket_io
-from .config import CONFIG
+from .helpers.request import request_is_valid
+from .services import analyses
 
 LOGGER = logging.getLogger(__name__)
 
@@ -163,101 +154,13 @@ class DokanalyseProcessor(BaseProcessor):
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
 
-    async def query_dataset(self, dataset, analyze, epsg, orig_epsg, geom, buffer, include_guidance, include_quality_measurement, context, correlation_id):
-        start = time.time()
-
-        if analyze == False:
-            return {
-                'runAlgorithm': None,
-                'buffer': None,
-                'runOnInputGeometry': None,
-                'inputGeometryArea': None,
-                'hitArea': None,
-                'resultStatus': 'NOT-RELEVANT',
-                'distanceToObject': None,
-                'rasterResult': None,
-                'cartography': None,
-                'data': None,
-                'title': None,
-                'themes':  common.get_dataset_themes(dataset),
-                'runOnDataset': await common.get_kartkatalog_metadata(dataset)
-            }
-
-
-        dataset_type = common.get_dataset_type(dataset)
-        config = CONFIG[dataset]       
-        result = None
-
-        if dataset_type == 'wfs':
-            analysis = WfsAnalysis(config, geom, epsg, orig_epsg, buffer)
-            await analysis.run(context, include_guidance, include_quality_measurement)
-            result = analysis.to_json()
-
-        elif dataset_type == 'arcgis':
-            analysis = ArcGisAnalysis(config, geom, epsg, orig_epsg, buffer)
-            await analysis.run(context, include_guidance, include_quality_measurement)
-            result = analysis.to_json()
-
-        elif dataset_type == 'ogc_api':
-            analysis = OgcApiAnalysis(config, geom, epsg, orig_epsg, buffer)
-            await analysis.run(context, include_guidance, include_quality_measurement)
-            result = analysis.to_json()
-
-        end = time.time()
-        print(f'"{dataset}": {round(end - start, 2)} sek.')
-
-        if correlation_id:
-            await socket_io.sio.emit('dataset_analyzed', dataset, correlation_id)
-
-        return result
-
-    async def query(self, data, correlation_id):
-        geo_json = data.get('inputGeometry')
-        geom, epsg = common.create_input_geometry(geo_json)
-        orig_epsg = common.get_epsg(geo_json)
-
-        context = data.get('context', None)
-        buffer = data.get('requestedBuffer', 0)
-        include_guidance = data.get('includeGuidance', False)
-        include_quality_measurement = data.get(
-            'includeQualityMeasurement', False)
-
-        input_geometry = geo_json
-        common.add_geojson_crs(input_geometry, orig_epsg)
-
-        response = {
-            'inputGeometry': input_geometry,
-            'report': None,
-            'resultList': [],
-        }
-
-        datasets = await common.get_dataset_names(data, geom, epsg)
-        #datasets = {'jord_flomskred_aktsomhets_omr': True}
-
-        if correlation_id:
-            to_analyze = {key: value for (
-                key, value) in datasets.items() if value == True}
-            await socket_io.sio.emit('dataset_count', len(to_analyze), correlation_id)
-
-        tasks = []
-
-        async with asyncio.TaskGroup() as tg:
-            for dataset, analyze in datasets.items():
-                tasks.append(tg.create_task(self.query_dataset(
-                    dataset, analyze, epsg, orig_epsg, geom, buffer, include_guidance, include_quality_measurement, context, correlation_id)))
-
-        for task in tasks:
-            response['resultList'].append(task.result())
-
-        return response
-
-    async def execute(self, data, correlation_id):
+    async def execute(self, data):
         mimetype = 'application/json'
 
-        if not common.request_is_valid(data):
+        if not request_is_valid(data):
             raise ProcessorExecuteError('Invalid payload')
 
-        outputs = await self.query(data, correlation_id)
+        outputs = await analyses.run(data)
 
         return mimetype, outputs
 

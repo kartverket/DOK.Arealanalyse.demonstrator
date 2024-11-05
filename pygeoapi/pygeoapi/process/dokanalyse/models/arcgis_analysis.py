@@ -1,9 +1,10 @@
 from sys import maxsize
-from ..analysis import Analysis
-from .helpers import parse_response, get_geometry_from_response
-from ...helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ...helpers.geometry import get_buffered_geometry, geometry_to_arcgis_geom
-from ...services.api import query_arcgis
+import json
+from osgeo import ogr
+from .analysis import Analysis
+from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url, camel_case
+from ..helpers.geometry import get_buffered_geometry, geometry_to_arcgis_geom
+from ..services.api import query_arcgis
 
 
 class ArcGisAnalysis(Analysis):
@@ -29,7 +30,7 @@ class ArcGisAnalysis(Analysis):
             self.add_run_algorithm(f'intersect layer {layer_id}')
 
             if arcgis_response is not None:
-                response = parse_response(self.config, arcgis_response, layer)
+                response = self.__parse_response(arcgis_response)
 
                 if len(response['properties']) > 0:
                     geolett_data = await get_geolett_data(layer.get('geolett_id', None))
@@ -59,7 +60,7 @@ class ArcGisAnalysis(Analysis):
         distances = []
 
         for feature in response['features']:
-            feature_geom = get_geometry_from_response(feature)
+            feature_geom = self.__get_geometry_from_response(feature)
 
             if feature_geom is not None:
                 distance = round(self.geometry.Distance(feature_geom))
@@ -72,3 +73,33 @@ class ArcGisAnalysis(Analysis):
             self.distance_to_object = maxsize
         else:
             self.distance_to_object = distances[0]
+
+    def __parse_response(self, arcgis_response):
+        data = {
+            'properties': [],
+            'geometries': []
+        }
+
+        for feature in arcgis_response['features']:
+            data['properties'].append(
+                self.__map_properties(feature, self.config['properties']))
+            data['geometries'].append(
+                self.__get_geometry_from_response(feature))
+
+        return data
+
+    def __map_properties(self, feature, mappings):
+        properties = {}
+
+        for mapping in mappings:
+            properties[camel_case(mapping)] = feature['properties'].get(
+                mapping, None)
+
+        return properties
+
+    def __get_geometry_from_response(self, feature):
+        try:
+            geojson = json.dumps(feature['geometry'])
+            return ogr.CreateGeometryFromJson(geojson)
+        except:
+            return None
