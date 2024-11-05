@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from osgeo import ogr
+from .result_status import ResultStatus
 from ..helpers.analysis import get_kartkatalog_metadata, get_quality_measurement
 from ..helpers.geometry import get_buffered_geometry, create_run_on_input_geometry_json
 
-
 class Analysis(ABC):
-    def __init__(self, config, geometry, epsg, orig_epsg, buffer):
+    def __init__(self, config, geometry, epsg, orig_epsg, buffer, client):
         self.config = config
         self.geometry = geometry
         self.run_on_input_geometry = None
@@ -30,14 +30,19 @@ class Analysis(ABC):
         self.themes = None
         self.run_on_dataset = None
         self.run_algorithm = []
-        self.result_status = 'NO-HIT-GREEN'
+        self.result_status = ResultStatus.NO_HIT_GREEN
+        self.client = client
 
     async def run(self, context, include_guidance, include_quality_measurement):
         self.__set_input_geometry()
         await self.run_queries()
+        
+        if self.result_status == ResultStatus.TIMEOUT or self.result_status == ResultStatus.ERROR:
+            return
+        
         self.__set_geometry_areas()
 
-        if self.result_status == 'NO-HIT-GREEN':
+        if self.result_status == ResultStatus.NO_HIT_GREEN:
             await self.set_distance_to_object()
 
         self.add_run_algorithm('deliver result')
@@ -52,7 +57,7 @@ class Analysis(ABC):
         self.run_on_dataset = dataset_info
 
         if self.distance_to_object >= 20000 and context != 'byggesak':
-            self.result_status = 'NO-HIT-YELLOW'
+            self.result_status = ResultStatus.NO_HIT_YELLOW
 
         if include_guidance and self.geolett is not None:
             self.__set_guidance_data()
@@ -103,7 +108,7 @@ class Analysis(ABC):
             self.hit_area = round(intersection.GetArea(), 2)
 
     def __set_guidance_data(self):
-        if self.result_status != 'NO-HIT-GREEN':
+        if self.result_status != ResultStatus.NO_HIT_GREEN:
             self.description = self.geolett['forklarendeTekst']
             self.guidance_text = self.geolett['dialogtekst']
 

@@ -3,7 +3,7 @@ import asyncio
 from ..config import CONFIG
 from .dataset import get_dataset_names, get_dataset_type
 from ..helpers.geometry import create_input_geometry, get_epsg
-from ..models import Analysis, ArcGisAnalysis, EmptyAnalysis, OgcApiAnalysis, WfsAnalysis, Response
+from ..models import Analysis, ArcGisAnalysis, EmptyAnalysis, OgcApiAnalysis, WfsAnalysis, Response, ResultStatus
 from .... import socket_io
 from ....middleware.correlation_id_middleware import get_correlation_id
 
@@ -23,14 +23,15 @@ async def run(data) -> Response:
     if correlation_id:
         to_analyze = {key: value for (
             key, value) in datasets.items() if value == True}
-        await socket_io.sio.emit('dataset_count', len(to_analyze), correlation_id)
+        await socket_io.sio.emit('dataset_count', len(datasets.keys()), correlation_id)
 
     tasks = []
 
     async with asyncio.TaskGroup() as tg:
         for dataset, should_analyze in datasets.items():
-            tasks.append(tg.create_task(run_analysis(
-                dataset, should_analyze, geometry, epsg, orig_epsg, buffer, context, include_guidance, include_quality_measurement)))
+            task = tg.create_task(run_analysis(
+                dataset, True, geometry, epsg, orig_epsg, buffer, context, include_guidance, include_quality_measurement))
+            tasks.append(task)
 
     response = Response(geo_json, orig_epsg)
 
@@ -44,17 +45,17 @@ async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffe
     config = CONFIG[dataset]
 
     if not should_analyze:
-        analysis = EmptyAnalysis(config, 'NOT-RELEVANT')
+        analysis = EmptyAnalysis(config, ResultStatus.NOT_RELEVANT)
         await analysis._init()
         return analysis.to_json()
 
     start = time.time()
     correlation_id = get_correlation_id()
 
-    analysis = get_analysis(dataset, config, geometry, epsg, orig_epsg, buffer)
+    analysis = get_analysis(dataset, config, geometry, epsg, orig_epsg, buffer, None)
     await analysis.run(context, include_guidance, include_quality_measurement)
     result = analysis.to_json()
-
+    
     end = time.time()
     print(f'"{dataset}": {round(end - start, 2)} sek.')
 
@@ -64,15 +65,15 @@ async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffe
     return result
 
 
-def get_analysis(dataset, config, geometry, epsg, orig_epsg, buffer) -> Analysis:
+def get_analysis(dataset, config, geometry, epsg, orig_epsg, buffer, client) -> Analysis:
     dataset_type = get_dataset_type(dataset)
 
     match dataset_type:
         case 'arcgis':
-            return ArcGisAnalysis(config, geometry, epsg, orig_epsg, buffer)
+            return ArcGisAnalysis(config, geometry, epsg, orig_epsg, buffer, client)
         case 'ogc_api':
-            return OgcApiAnalysis(config, geometry, epsg, orig_epsg, buffer)
+            return OgcApiAnalysis(config, geometry, epsg, orig_epsg, buffer, client)
         case 'wfs':
-            return WfsAnalysis(config, geometry, epsg, orig_epsg, buffer)
+            return WfsAnalysis(config, geometry, epsg, orig_epsg, buffer, client)
         case _:
             return None

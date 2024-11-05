@@ -2,14 +2,15 @@ from sys import maxsize
 import json
 from osgeo import ogr
 from .analysis import Analysis
+from .result_status import ResultStatus
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url, camel_case
 from ..helpers.geometry import get_buffered_geometry, geometry_to_arcgis_geom
 from ..services.api import query_arcgis
 
 
 class ArcGisAnalysis(Analysis):
-    def __init__(self, config, geometry, epsg, orig_epsg, buffer):
-        super().__init__(config, geometry, epsg, orig_epsg, buffer)
+    def __init__(self, config, geometry, epsg, orig_epsg, buffer, client):
+        super().__init__(config, geometry, epsg, orig_epsg, buffer, client)
 
     def get_input_geometry(self):
         return geometry_to_arcgis_geom(self.run_on_input_geometry, self.epsg)
@@ -26,7 +27,15 @@ class ArcGisAnalysis(Analysis):
             if type_filter is not None:
                 self.add_run_algorithm(f'query {type_filter}')
 
-            arcgis_response = await query_arcgis(self.config, layer_id, type_filter, arcgis_geom, self.epsg)
+            status_code, arcgis_response = await query_arcgis(self.config, layer_id, type_filter, arcgis_geom, self.epsg, self.client)
+            
+            if status_code == 408:
+                self.result_status = ResultStatus.TIMEOUT
+                break
+            elif status_code != 200:
+                self.result_status = ResultStatus.ERROR
+                break
+            
             self.add_run_algorithm(f'intersect layer {layer_id}')
 
             if arcgis_response is not None:
@@ -51,7 +60,7 @@ class ArcGisAnalysis(Analysis):
         layer_id = self.config['layers'][0]['arcgis']
         type_filter = self.config['layers'][0].get('type_filter', None)
 
-        response = await query_arcgis(self.config, layer_id, type_filter, arcgis_geom, self.epsg)
+        _, response = await query_arcgis(self.config, layer_id, type_filter, arcgis_geom, self.epsg, self.client)
 
         if response is None:
             self.distance_to_object = maxsize

@@ -3,6 +3,7 @@ from sys import maxsize
 import xml.etree.ElementTree as ET
 from osgeo import ogr
 from .analysis import Analysis
+from .result_status import ResultStatus
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
 from ..helpers.geometry import get_buffered_geometry
 from ..services.api import query_wfs
@@ -11,8 +12,8 @@ _DIR_PATH = path.dirname(path.realpath(__file__))
 
 
 class WfsAnalysis(Analysis):
-    def __init__(self, config, geometry, epsg, orig_epsg, buffer):
-        super().__init__(config, geometry, epsg, orig_epsg, buffer)
+    def __init__(self, config, geometry, epsg, orig_epsg, buffer, client):
+        super().__init__(config, geometry, epsg, orig_epsg, buffer, client)
 
     def get_input_geometry(self):
         return self.run_on_input_geometry.ExportToGML(['FORMAT=GML3'])
@@ -25,8 +26,14 @@ class WfsAnalysis(Analysis):
         for layer in self.config['layers']:
             layer_name = layer['wfs']
             request_xml = self.__create_request_xml(layer_name, gml)
-
-            wfs_response = await query_wfs(self.config, request_xml)
+            status_code, wfs_response = await query_wfs(self.config, request_xml, self.client)
+            
+            if status_code == 408:
+                self.result_status = ResultStatus.TIMEOUT
+                break
+            elif status_code != 200:
+                self.result_status = ResultStatus.ERROR
+                break
 
             self.add_run_algorithm(f'intersect {layer_name}')
 
@@ -53,7 +60,7 @@ class WfsAnalysis(Analysis):
         layer = self.config['layers'][0]
         request_xml = self.__create_request_xml(layer['wfs'], gml)
 
-        response = await query_wfs(self.config, request_xml)
+        _, response = await query_wfs(self.config, request_xml, self.client)
 
         if response is None:
             self.distance_to_object = maxsize

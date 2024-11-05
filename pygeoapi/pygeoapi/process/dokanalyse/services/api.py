@@ -1,30 +1,31 @@
 from os import path
 import json
+import asyncio
 import aiohttp
 from async_lru import alru_cache
 
 _DIR_PATH = path.dirname(path.realpath(__file__))
-_TIMEOUT = 20000
+_TIMEOUT_SECS = 15
 
 
-async def query_wfs(config, xml):
+async def query_wfs(config, xml, client: aiohttp.ClientSession):
     try:
         url = config['wfs']
         headers = {'Content-Type': 'application/xml'}
 
         async with aiohttp.ClientSession() as session:
-            session.timeout = _TIMEOUT
-            
-            async with session.post(url, data=xml, headers=headers) as response:
+            async with session.post(url, data=xml, headers=headers, timeout=_TIMEOUT_SECS) as response:
                 if response.status != 200:
-                    return None
+                    return response.status, None
 
-                return await response.text()
+                return 200, await response.text()
+    except asyncio.TimeoutError:
+        return 408, None    
     except:
-        return None
+        return 500, None
 
 
-async def query_arcgis(config, layer_id, type_filter, geometry, epsg):
+async def query_arcgis(config, layer_id, type_filter, geometry, epsg, client):
     try:
         url = f'{config["arcgis"]}/{layer_id}/query'
 
@@ -42,39 +43,39 @@ async def query_arcgis(config, layer_id, type_filter, geometry, epsg):
         }
 
         async with aiohttp.ClientSession() as session:
-            session.timeout = _TIMEOUT
-            
-            async with session.post(url, data=data) as response:
+            async with session.post(url, data=data, timeout=_TIMEOUT_SECS) as response:
                 if response.status != 200:
-                    return None
+                    return response.status, None
 
                 json = await response.json()
 
                 if 'error' in json:
-                    return None
+                    return 400, None
 
-                return json
+                return 200, json
+    except asyncio.TimeoutError:
+        return 408, None        
     except:
-        return None
+        return 500, None
 
 
-async def query_ogc_api(config, layer_id, wkt_geom, epsg):
+async def query_ogc_api(config, layer_id, wkt_geom, epsg, client):
     try:
         base_url = config['ogc_api']
         geom_element_name = config['geom_element_name']
-        filter_crs = f'&filter-crs=http://www.opengis.net/def/crs/EPSG/0/{epsg}' if epsg is not 4326 else ''                   
+        filter_crs = f'&filter-crs=http://www.opengis.net/def/crs/EPSG/0/{epsg}' if epsg is not 4326 else ''
         url = f'{base_url}/{layer_id}/items?filter-lang=cql2-text{filter_crs}&filter=S_INTERSECTS({geom_element_name},{wkt_geom})'
 
         async with aiohttp.ClientSession() as session:
-            session.timeout = _TIMEOUT
-                
-            async with session.get(url) as response:
+            async with session.get(url, timeout=_TIMEOUT_SECS) as response:
                 if response.status != 200:
-                    return None
+                    return response.status, None
 
-                return await response.json()
+                return 200, await response.json()
+    except asyncio.TimeoutError:
+        return 408, None        
     except:
-        return None
+        return 500, None
 
 
 @alru_cache(maxsize=32, ttl=86400*7)
