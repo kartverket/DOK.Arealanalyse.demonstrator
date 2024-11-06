@@ -1,21 +1,14 @@
-import { React, useState } from 'react';
+import { React } from 'react';
 import { Table, TableBody, TableCell,TableContainer,TableHead,TableRow } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import Result from './Result';
+
 import styles from './ResultList.module.scss';
 
 
 export default function ResultList({ data }) {    
    
-    const [open, setOpen] = useState(false);
-
-    const handleClickOpen = () => {
-      setOpen(true);
-    };
   
-    const handleClose = () => {
-      setOpen(false);
-    };
+
+   
     function getAccordionTitle(result) {
         const datasetTitle = result.runOnDataset ?
             `«${result.runOnDataset.title}» (${result.title})` :
@@ -105,7 +98,7 @@ export default function ResultList({ data }) {
                             <TableCell className={getAccordionClassNames(result)}>
                                 {renderThemeName(result)}
                             </TableCell>
-                            <TableCell onClick={handleClickOpen}>
+                            <TableCell>
                             <span className={styles.title}>{getAccordionTitle(result)}</span>                                                        
                             </TableCell>
                             <TableCell>
