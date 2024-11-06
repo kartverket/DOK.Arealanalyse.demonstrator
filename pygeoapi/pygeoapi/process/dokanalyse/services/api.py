@@ -8,9 +8,9 @@ _DIR_PATH = path.dirname(path.realpath(__file__))
 _TIMEOUT_SECS = 15
 
 
-async def query_wfs(config, xml, client: aiohttp.ClientSession):
+async def query_wfs(config, xml):
     try:
-        url = config['wfs']
+        url = f'{config["wfs"]}?service=WFS&version=2.0.0'
         headers = {'Content-Type': 'application/xml'}
 
         async with aiohttp.ClientSession() as session:
@@ -25,7 +25,7 @@ async def query_wfs(config, xml, client: aiohttp.ClientSession):
         return 500, None
 
 
-async def query_arcgis(config, layer_id, type_filter, geometry, epsg, client):
+async def query_arcgis(config, layer_id, type_filter, geometry, epsg):
     try:
         url = f'{config["arcgis"]}/{layer_id}/query'
 
@@ -59,7 +59,7 @@ async def query_arcgis(config, layer_id, type_filter, geometry, epsg, client):
         return 500, None
 
 
-async def query_ogc_api(config, layer_id, wkt_geom, epsg, client):
+async def query_ogc_api(config, layer_id, wkt_geom, epsg):
     try:
         base_url = config['ogc_api']
         geom_element_name = config['geom_element_name']

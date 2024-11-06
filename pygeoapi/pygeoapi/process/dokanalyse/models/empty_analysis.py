@@ -7,13 +7,10 @@ class EmptyAnalysis(Analysis):
         super().__init__(config, None, None, None, 0)
         self.result_status = result_status
 
-    async def _init(self):
-        self.set_dataset_title()
+    async def run(self):
+        self.title = self.geolett['tittel'] if self.geolett else self.config.get('title')
         self.themes = self.config.get('themes', [])
         self.run_on_dataset = await get_kartkatalog_metadata(self.config)
-
-    async def run(self):
-        raise NotImplementedError
 
     def add_run_algorithm(self):
         raise NotImplementedError
@@ -26,3 +23,4 @@ class EmptyAnalysis(Analysis):
 
     def set_distance_to_object(self):
         return NotImplementedError
+    

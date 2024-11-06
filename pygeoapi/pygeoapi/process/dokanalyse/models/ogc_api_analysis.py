@@ -10,8 +10,8 @@ from ..services.api import query_ogc_api
 
 
 class OgcApiAnalysis(Analysis):
-    def __init__(self, config, geometry, epsg, orig_epsg, buffer, client):
-        super().__init__(config, geometry, epsg, orig_epsg, buffer, client)
+    def __init__(self, config, geometry, epsg, orig_epsg, buffer):
+        super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
     def get_input_geometry(self):
         return geometry_to_wkt(self.run_on_input_geometry, self.epsg)
@@ -23,7 +23,7 @@ class OgcApiAnalysis(Analysis):
 
         for layer in self.config['layers']:
             layer_id = layer['ogc_api']
-            status_code, ogc_api_response = await query_ogc_api(self.config, layer_id, wkt_geom, self.epsg, self.client)
+            status_code, ogc_api_response = await query_ogc_api(self.config, layer_id, wkt_geom, self.epsg)
             
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
@@ -55,7 +55,7 @@ class OgcApiAnalysis(Analysis):
         wkt_geom = geometry_to_wkt(buffered_geom, self.epsg)
         layer_id = self.config['layers'][0]['ogc_api']
 
-        _, response = await query_ogc_api(self.config, layer_id, wkt_geom, self.epsg, self.client)
+        _, response = await query_ogc_api(self.config, layer_id, wkt_geom, self.epsg)
 
         if response is None:
             self.distance_to_object = maxsize

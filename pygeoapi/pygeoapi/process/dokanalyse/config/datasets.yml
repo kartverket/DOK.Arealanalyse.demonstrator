@@ -1,7 +1,7 @@
 stormflo:
   dataset_id: fbb95c67-623f-430a-9fa5-9cfcea8366b3
-  wfs: https://wfs.geonorge.no/skwms1/wfs.stormflo_havniva?service=WFS&version=2.0.0
-  wms: https://wms.geonorge.no/skwms1/wms.stormflo_havniva?
+  wfs: https://wfs.geonorge.no/skwms1/wfs.stormflo_havniva
+  wms: https://wms.geonorge.no/skwms1/wms.stormflo_havniva
   namespace: https://skjema.geonorge.no/SOSI/produktspesifikasjon/StormfloHavniva/20240220
   layers:
   - wfs: app:Stormflo20År_KlimaÅrNå
@@ -29,8 +29,8 @@ stormflo:
 
 flomsoner:
   dataset_id: e95008fc-0945-4d66-8bc9-e50ab3f50401
-  wfs: https://wfs.geonorge.no/skwms1/wfs.flomsoner?service=WFS&version=2.0.0
-  wms: https://nve.geodataonline.no/arcgis/services/Flomsoner1/MapServer/WMSServer?
+  wfs: https://wfs.geonorge.no/skwms1/wfs.flomsoner
+  wms: https://nve.geodataonline.no/arcgis/services/Flomsoner1/MapServer/WMSServer
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Flomsoner/1.1
   layers:
   - wfs: app:Analyseområde
@@ -50,8 +50,8 @@ flomsoner:
 
 flom_aktsomhets_omr:
   dataset_id: 60c5024f-bf93-4d7a-888a-5fe001427195
-  wfs: http://wfs.geonorge.no/skwms1/wfs.flomaktsomhetsomrader?service=WFS
-  wms: https://nve.geodataonline.no/arcgis/services/FlomAktsomhet/MapServer/WMSServer?
+  wfs: http://wfs.geonorge.no/skwms1/wfs.flomaktsomhetsomrader
+  wms: https://nve.geodataonline.no/arcgis/services/FlomAktsomhet/MapServer/WMSServer
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Flomaktsomhetsomrader/1.1
   layers:
   - wfs: app:FlomAktsomhetOmr
@@ -69,8 +69,8 @@ flom_aktsomhets_omr:
 
 jord_flomskred_aktsomhets_omr:
   dataset_id: 30e1883e-70e9-4510-9e97-00edbdcddc02
-  wfs: https://wfs.geonorge.no/skwms1/wfs.jord_og_flomskred_aktsomhetsomrader?service=WFS
-  wms: https://nve.geodataonline.no/arcgis/services/SkredJordFlomAktR1/MapServer/WMSServer?
+  wfs: https://wfs.geonorge.no/skwms1/wfs.jord_og_flomskred_aktsomhetsomrader
+  wms: https://nve.geodataonline.no/arcgis/services/SkredJordFlomAktR1/MapServer/WMSServer
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2
   layers:
   - wfs: app:PotensieltSkredfareOmr
@@ -89,8 +89,8 @@ jord_flomskred_aktsomhets_omr:
 
 snoskred_aktsomhets_omr:
   dataset_id: 54ada9d8-e6fc-48d6-82b0-5477166a4aaa
-  wfs: https://wfs.geonorge.no/skwms1/wfs.snoskredaktsomhetsomrader?SERVICE=WFS
-  wms: https://nve.geodataonline.no/arcgis/services/SkredSnoAktR/MapServer/WMSServer?
+  wfs: https://wfs.geonorge.no/skwms1/wfs.snoskredaktsomhetsomrader
+  wms: https://nve.geodataonline.no/arcgis/services/SkredSnoAktR/MapServer/WMSServer
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2
   layers:
   - wfs: app:PotensieltSkredfareOmr
@@ -109,8 +109,8 @@ snoskred_aktsomhets_omr:
 
 steinsprang_aktsomhets_omr:
   dataset_id: 02c6d51c-4e8c-4948-a620-dc046c8cb747
-  wfs: https://wfs.geonorge.no/skwms1/wfs.steinsprang_aktsomhetsomrader?service=WFS
-  wms: https://nve.geodataonline.no/arcgis/services/SkredSteinAktR/MapServer/WmsServer?
+  wfs: https://wfs.geonorge.no/skwms1/wfs.steinsprang_aktsomhetsomrader
+  wms: https://nve.geodataonline.no/arcgis/services/SkredSteinAktR/MapServer/WmsServer
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2
   layers:
   - wfs: app:PotensieltSkredfareOmr
@@ -130,7 +130,7 @@ steinsprang_aktsomhets_omr:
 faresone_fjellskred:
   dataset_id: 17149f79-1289-4e3c-b964-94113eeb14c8
   arcgis: https://nve.geodataonline.no/arcgis/rest/services/Fjellskred1/MapServer
-  wms: https://nve.geodataonline.no/arcgis/services/Fjellskred1/MapServer/WMSServer?
+  wms: https://nve.geodataonline.no/arcgis/services/Fjellskred1/MapServer/WMSServer
   layers:
   - arcgis: 8
     wms: 
@@ -147,7 +147,7 @@ faresone_fjellskred:
 faresone_kvikkleireskred:
   dataset_id: b2d5aaf8-79ac-40f3-9cd6-fdc30bc42ea1
   arcgis: https://nve.geodataonline.no/arcgis/rest/services/SkredKvikkleire2/MapServer
-  wms: https://nve.geodataonline.no/arcgis/services/SkredKvikkleire2/MapServer/WMSServer?
+  wms: https://nve.geodataonline.no/arcgis/services/SkredKvikkleire2/MapServer/WMSServer
   layers:
   - arcgis: 1
     wms: 
@@ -166,7 +166,7 @@ faresone_kvikkleireskred:
 faresone_skred_bratt_terreng:
   dataset_id: b2d5aaf8-79ac-40f3-9cd6-fdc30bc42ea1
   arcgis: https://nve.geodataonline.no/arcgis/rest/services/Skredfaresoner1/MapServer
-  wms: https://nve.geodataonline.no/arcgis/services/Skredfaresoner1/MapServer/WMSServer?
+  wms: https://nve.geodataonline.no/arcgis/services/Skredfaresoner1/MapServer/WMSServer
   layers:
   - arcgis: 0
     wms: 
@@ -183,8 +183,8 @@ faresone_skred_bratt_terreng:
 tilfluktsrom_offentlige:
   dataset_id: dbae9aae-10e7-4b75-8d67-7f0e8828f3d8
   title: 'Tilfluktsrom - offentlige'
-  wfs: https://wfs.geonorge.no/skwms1/wfs.tilfluktsrom_offentlige?service=WFS
-  wms: https://ogc.dsb.no/wms.ashx?
+  wfs: https://wfs.geonorge.no/skwms1/wfs.tilfluktsrom_offentlige
+  wms: https://ogc.dsb.no/wms.ashx
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/TilfluktsromOffentlige/20191001
   layers:
   - wfs: app:Tilfluktsrom
@@ -216,10 +216,51 @@ tilfluktsrom_offentlige:
 #   themes:
 #   - samfunnssikkerhet    
 
+arter_nasjonal_forvaltningsinteresse:
+  dataset_id: a8456aed-441a-40c4-831f-46bcbe4e6ff1
+  arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/artnasjonal2/MapServer
+  wms: https://kart.miljodirektoratet.no/arcgis/services/artnasjonal2/MapServer/WMSServer
+  layers:
+  - arcgis: 2
+    wms: 
+    - Alle_arter_av_sarlig_stor_forv_int_omr
+    result_status: HIT-RED
+  properties:
+  - AntallObservasjoner
+  - Gruppe
+  - NorskNavn
+  - Status
+  - Faktaark 
+  themes:
+  - natur
+
+kulturminner_enkeltminner:
+  dataset_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
+  wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
+  wms: https://kart.ra.no/wms/kulturminner
+  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/LokaliteterEnkeltminnerOgSikringssoner/20210217  
+  layers:
+  - wfs: app:Enkeltminne
+    wms: 
+    - Enkeltminner
+    result_status: HIT-RED
+  geom_element_name: app:område
+  properties:
+  - app:navn
+  - app:kulturminneId
+  - app:vernelov
+  - app:verneparagraf
+  - app:vernetype
+  - app:vernedato
+  - app:linkAskeladden
+  - app:linkKulturminnesøk
+  themes:
+  - natur  
+
 naturtyper_ku_verdi:
   dataset_id: 64cbb884-a19d-4356-a114-380cfe4a7314
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_kuverdi/MapServer
-  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_kuverdi/MapServer/WMSServer?
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_kuverdi/MapServer/WMSServer
   layers:
   - arcgis: 0
     wms: 
@@ -246,7 +287,7 @@ naturtyper_ku_verdi:
 naturtyper_utvalgte_slåttemark:
   dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
-  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
   layers:
   - arcgis: 0
     wms: 
@@ -266,7 +307,7 @@ naturtyper_utvalgte_slåttemark:
 naturtyper_utvalgte_slåttemyr:
   dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
-  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
   layers:
   - arcgis: 0
     wms: 
@@ -286,7 +327,7 @@ naturtyper_utvalgte_slåttemyr:
 naturtyper_utvalgte_hul_eik:
   dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
-  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
   layers:
   - arcgis: 0
     wms: 
@@ -306,7 +347,7 @@ naturtyper_utvalgte_hul_eik:
 naturtyper_utvalgte_kalklindeskog:
   dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
-  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
   layers:
   - arcgis: 0
     wms: 
@@ -326,7 +367,7 @@ naturtyper_utvalgte_kalklindeskog:
 naturtyper_utvalgte_kalksjøer:
   dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
-  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
   layers:
   - arcgis: 0
     wms: 
@@ -346,7 +387,7 @@ naturtyper_utvalgte_kalksjøer:
 naturtyper_utvalgte_kystlynghei:
   dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
-  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
   layers:
   - arcgis: 0
     wms: 
@@ -366,7 +407,7 @@ naturtyper_utvalgte_kystlynghei:
 naturtyper_utvalgte_kalkmark_boreonemoral:
   dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
   arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
-  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer?
+  wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
   layers:
   - arcgis: 0
     wms: 
@@ -385,7 +426,7 @@ naturtyper_utvalgte_kalkmark_boreonemoral:
 
 farled:
   dataset_id: 8ff1538a-a93c-4391-8d6f-3555fc37819c
-  wfs: https://wfs.geonorge.no/skwms1/wfs.farled?service=WFS
+  wfs: https://wfs.geonorge.no/skwms1/wfs.farled
   wms: https://services.kystverket.no/wms.ashx?
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Farled/20210101
   layers:
@@ -403,7 +444,7 @@ farled:
 geoteknisk_borehull:
   title: 'Geoteknisk borehull'
   ogc_api: https://ogcapitest.ngu.no/rest/services/grunnundersokelser_utvidet/collections
-  wms: https://geo.ngu.no/geoserver/nadag/ows?
+  wms: https://geo.ngu.no/geoserver/nadag/ows
   layers:
   - ogc_api: geotekniskborehull
     wms: 

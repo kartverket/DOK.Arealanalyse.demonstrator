@@ -4,8 +4,9 @@ from .result_status import ResultStatus
 from ..helpers.analysis import get_kartkatalog_metadata, get_quality_measurement
 from ..helpers.geometry import get_buffered_geometry, create_run_on_input_geometry_json
 
+
 class Analysis(ABC):
-    def __init__(self, config, geometry, epsg, orig_epsg, buffer, client):
+    def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         self.config = config
         self.geometry = geometry
         self.run_on_input_geometry = None
@@ -31,15 +32,14 @@ class Analysis(ABC):
         self.run_on_dataset = None
         self.run_algorithm = []
         self.result_status = ResultStatus.NO_HIT_GREEN
-        self.client = client
 
     async def run(self, context, include_guidance, include_quality_measurement):
         self.__set_input_geometry()
         await self.run_queries()
-        
+
         if self.result_status == ResultStatus.TIMEOUT or self.result_status == ResultStatus.ERROR:
             return
-        
+
         self.__set_geometry_areas()
 
         if self.result_status == ResultStatus.NO_HIT_GREEN:
@@ -49,15 +49,12 @@ class Analysis(ABC):
 
         self.run_on_input_geometry_json = create_run_on_input_geometry_json(
             self.run_on_input_geometry, self.epsg, self.orig_epsg)
-
+        
+        self.title = self.geolett['tittel'] if self.geolett else self.config.get('title')
         self.themes = self.config.get('themes', [])
-        self.set_dataset_title()
 
         dataset_info = await get_kartkatalog_metadata(self.config)
         self.run_on_dataset = dataset_info
-
-        if self.distance_to_object >= 20000 and context != 'byggesak':
-            self.result_status = ResultStatus.NO_HIT_YELLOW
 
         if include_guidance and self.geolett is not None:
             self.__set_guidance_data()
@@ -67,12 +64,6 @@ class Analysis(ABC):
 
     def add_run_algorithm(self, algorithm):
         self.run_algorithm.append(algorithm)
-
-    def set_dataset_title(self):
-        if self.geolett:
-            self.title = self.geolett['tittel']
-        else:
-            self.title = self.config.get('title', '<Mangler tittel>')
 
     def __set_input_geometry(self):
         self.add_run_algorithm('set input_geometry')

@@ -7,23 +7,17 @@ LOCAL_GEOLETT_IDS = [
 ]
 
 
-def camel_case(string):
-    string = sub(r'(_|-)+', ' ', string).title().replace(' ', '')
-
-    return ''.join([string[0].lower(), string[1:]])
-
-
 def get_raster_result(wms_url, wms_layers):
     layers = ','.join(wms_layers)
 
-    return f'{wms_url}&layers={layers}'
+    return f'{wms_url}?layers={layers}'
 
 
 async def get_cartography_url(wms_url, wms_layers):
     urls = []
 
     for wms_layer in wms_layers:
-        url = f'{wms_url}service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&layer={wms_layer.strip()}&format=image/png'
+        url = f'{wms_url}?service=WMS&version=1.3.0&request=GetLegendGraphic&sld_version=1.1.0&layer={wms_layer.strip()}&format=image/png'
         urls.append(url)
 
     if len(urls) == 1:
@@ -73,24 +67,4 @@ async def get_kartkatalog_metadata(config):
 
 def get_quality_measurement():
     return [
-        {
-            'qualityDimension': 'fullstendighet_dekningskart',
-            'value': 'Ja',
-            'comment': 'Området har dekning'
-        },
-        {
-            'qualityDimension': 'egnethet_reguleringsplan',
-            'value': '5',
-            'comment': 'Svært godt egnet'
-        },
-        {
-            'qualityDimension': 'egnethet_byggesak',
-            'value': '5',
-            'comment': 'Svært godt egnet'
-        },
-        {
-            'qualityDimension': 'egnethet_ros_reguleringsplan',
-            'value': '4',
-            'comment': 'Godt egnet'
-        }
     ]

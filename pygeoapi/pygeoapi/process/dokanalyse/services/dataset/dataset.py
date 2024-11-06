@@ -6,7 +6,7 @@ from typing import List
 import aiohttp
 import xml.etree.ElementTree as ET
 from osgeo import ogr
-from ...config import CONFIG
+from ...config import DATASET_CONFIG, get_dataset_config
 
 
 _DIR_PATH = path.dirname(path.realpath(__file__))
@@ -14,11 +14,13 @@ _CACHE_DAYS = 7
 
 
 def get_dataset_type(dataset) -> str:
-    if 'wfs' in CONFIG[dataset]:
+    config = get_dataset_config(dataset)
+    
+    if 'wfs' in config:
         return 'wfs'
-    elif 'arcgis' in CONFIG[dataset]:
+    elif 'arcgis' in config:
         return 'arcgis'
-    elif 'ogc_api' in CONFIG[dataset]:
+    elif 'ogc_api' in config:
         return 'ogc_api'
 
     return None
@@ -39,7 +41,7 @@ async def get_dataset_names(data, geometry, epsg):
 def get_datasets_by_theme(theme):
     datasets = []
 
-    for key, value in CONFIG.items():
+    for key, value in DATASET_CONFIG.items():
         if theme is None or theme in value['themes']:
             datasets.append({
                 'id': value.get('dataset_id'),

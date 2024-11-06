@@ -12,8 +12,8 @@ _DIR_PATH = path.dirname(path.realpath(__file__))
 
 
 class WfsAnalysis(Analysis):
-    def __init__(self, config, geometry, epsg, orig_epsg, buffer, client):
-        super().__init__(config, geometry, epsg, orig_epsg, buffer, client)
+    def __init__(self, config, geometry, epsg, orig_epsg, buffer):
+        super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
     def get_input_geometry(self):
         return self.run_on_input_geometry.ExportToGML(['FORMAT=GML3'])
@@ -26,7 +26,7 @@ class WfsAnalysis(Analysis):
         for layer in self.config['layers']:
             layer_name = layer['wfs']
             request_xml = self.__create_request_xml(layer_name, gml)
-            status_code, wfs_response = await query_wfs(self.config, request_xml, self.client)
+            status_code, wfs_response = await query_wfs(self.config, request_xml)
             
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
@@ -60,7 +60,7 @@ class WfsAnalysis(Analysis):
         layer = self.config['layers'][0]
         request_xml = self.__create_request_xml(layer['wfs'], gml)
 
-        _, response = await query_wfs(self.config, request_xml, self.client)
+        _, response = await query_wfs(self.config, request_xml)
 
         if response is None:
             self.distance_to_object = maxsize
