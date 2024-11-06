@@ -102,10 +102,12 @@ export default function ResultList({ data }) {
                             <span className={styles.title}>{getAccordionTitle(result)}</span>                                                        
                             </TableCell>
                             <TableCell>
-                            {resultStatus === "NO-HIT-YELLOW" && result.runOnDataset && (<span className={styles.warningbadge}>Det finnes ikke dekning i området og ytterligere kartlegging bør vurderes
+                            {resultStatus === "NO-HIT-YELLOW" && result.runOnDataset && (<span className={styles.warningbadge}>
+                                Stedfestingsnøyaktighet: {result.runOnDataset.qualityIndicator}
+                                Dekningskart?: {result.runOnDataset.coverageMap ? "Ja" : "Nei"}
                                 </span>
                                 )}
-                                <div>"nøyaktighetsklasse : Mindre god her"<br />Dekningskart: Over normalen</div>
+                                
                             </TableCell>
                             <TableCell>
                              {getLastUpdated(result)}
