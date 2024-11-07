@@ -13,12 +13,15 @@ async def query_wfs(dataset, xml):
         headers = {'Content-Type': 'application/xml'}
 
         async with aiohttp.ClientSession() as session:
+            #session.timeout = 10000
+            
             async with session.post(url, data=xml, headers=headers) as response:
                 if response.status != 200:
                     return None
 
                 return await response.text()
     except:
+        print('timeout: ' + dataset)
         return None
 
 
@@ -40,6 +43,8 @@ async def query_arcgis(dataset, layer_id, type_filter, geometry, epsg):
         }
 
         async with aiohttp.ClientSession() as session:
+            #session.timeout = 10000
+            
             async with session.post(url, data=data) as response:
                 if response.status != 200:
                     return None
@@ -51,6 +56,7 @@ async def query_arcgis(dataset, layer_id, type_filter, geometry, epsg):
 
                 return json
     except:
+        print('timeout: ' + dataset)
         return None
 
 
@@ -61,13 +67,16 @@ async def query_ogc_api(dataset, layer_id, wkt_geom, epsg):
         filter_crs = f'&filter-crs=http://www.opengis.net/def/crs/EPSG/0/{epsg}' if epsg is not 4326 else ''                   
         url = f'{base_url}/{layer_id}/items?filter-lang=cql2-text{filter_crs}&filter=S_INTERSECTS({geom_element_name},{wkt_geom})'
 
-        async with aiohttp.ClientSession() as session:            
+        async with aiohttp.ClientSession() as session:
+            #session.timeout = 10000
+                
             async with session.get(url) as response:
                 if response.status != 200:
                     return None
 
                 return await response.json()
     except:
+        print('timeout: ' + dataset)   
         return None
 
 

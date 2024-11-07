@@ -8,6 +8,7 @@ from .services import common
 from .services import wfs
 from .services import arcgis
 from .services import ogc_api
+from ... import socket_io
 
 LOGGER = logging.getLogger(__name__)
 
@@ -160,8 +161,25 @@ class DokanalyseProcessor(BaseProcessor):
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
 
-    async def query_dataset(self, dataset, epsg, orig_epsg, geom, buffer, include_guidance, include_quality_measurement, context):
+    async def query_dataset(self, dataset, analyze, epsg, orig_epsg, geom, buffer, include_guidance, include_quality_measurement, context, correlation_id):
         start = time.time()
+
+        if analyze == False:
+            return {
+                'runAlgorithm': None,
+                'buffer': None,
+                'runOnInputGeometry': None,
+                'inputGeometryArea': None,
+                'hitArea': None,
+                'resultStatus': 'NOT-RELEVANT',
+                'distanceToObject': None,
+                'rasterResult': None,
+                'cartography': None,
+                'data': None,
+                'title': None,
+                'themes':  common.get_dataset_themes(dataset),
+                'runOnDataset': await common.get_kartkatalog_metadata(dataset)
+            }
 
         data_output = {
             'runAlgorithm': ['set input_geometry'],
@@ -218,7 +236,7 @@ class DokanalyseProcessor(BaseProcessor):
             'data': data_output.get('data'),
             'themes': common.get_dataset_themes(dataset)
         }
-            
+
         dataset_info = await common.get_kartkatalog_metadata(dataset)
         result['runOnDataset'] = dataset_info
 
@@ -237,9 +255,12 @@ class DokanalyseProcessor(BaseProcessor):
 
         print(f'"{dataset}": {round(end - start, 2)} sek.')
 
+        if correlation_id:
+            await socket_io.sio.emit('dataset_analyzed', dataset, correlation_id)
+
         return result
 
-    async def query(self, data, datasets):
+    async def query(self, data, correlation_id):
         geo_json = data.get('inputGeometry')
         geom, epsg = common.create_input_geometry(geo_json)
         orig_epsg = common.get_epsg(geo_json)
@@ -259,27 +280,32 @@ class DokanalyseProcessor(BaseProcessor):
             'resultList': [],
         }
 
+        datasets = await common.get_dataset_names(data, geom, epsg)
+
+        if correlation_id:
+            to_analyze = {key: value for (
+                key, value) in datasets.items() if value == True}
+            await socket_io.sio.emit('dataset_count', len(to_analyze), correlation_id)
+
         tasks = []
 
         async with asyncio.TaskGroup() as tg:
-            for dataset in datasets:
+            for dataset, analyze in datasets.items():
                 tasks.append(tg.create_task(self.query_dataset(
-                    dataset, epsg, orig_epsg, geom, buffer, include_guidance, include_quality_measurement, context)))
+                    dataset, analyze, epsg, orig_epsg, geom, buffer, include_guidance, include_quality_measurement, context, correlation_id)))
 
         for task in tasks:
             response['resultList'].append(task.result())
 
         return response
 
-    async def execute(self, data):
+    async def execute(self, data, correlation_id):
         mimetype = 'application/json'
 
         if not common.request_is_valid(data):
             raise ProcessorExecuteError('Invalid payload')
 
-        dataset_names = common.get_dataset_names_by_theme(data.get('theme'))
-
-        outputs = await self.query(data, dataset_names)
+        outputs = await self.query(data, correlation_id)
 
         return mimetype, outputs
 

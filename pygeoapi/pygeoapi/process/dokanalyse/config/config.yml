@@ -88,7 +88,7 @@ jord_flomskred_aktsomhets_omr:
   - samfunnssikkerhet
 
 snoskred_aktsomhets_omr:
-  dataset_id: e9542260-6315-4770-b085-86e95179f735
+  dataset_id: 54ada9d8-e6fc-48d6-82b0-5477166a4aaa
   wfs: https://wfs.geonorge.no/skwms1/wfs.snoskredaktsomhetsomrader?SERVICE=WFS
   wms: https://nve.geodataonline.no/arcgis/services/SkredSnoAktR/MapServer/WMSServer?
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2

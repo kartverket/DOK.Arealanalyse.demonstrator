@@ -7,6 +7,7 @@ import math
 import json
 from .api import fetch_geolett_data, fetch_local_geolett_data, fetch_kartkatalog_metadata
 from .legend import create_legend
+from .kartgrunnlag import get_kartgrunnlag
 from ..config import CONFIG
 
 EARTH_RADIUS = 6371008.8
@@ -40,17 +41,29 @@ def get_dataset_type(dataset):
     return None
 
 
-def get_dataset_names_by_theme(theme):
-    if theme is None:
-        return list(CONFIG.keys())
+async def get_dataset_names(data, geom, epsg):
+    kartgrunnlag = await get_kartgrunnlag(geom, epsg)
+    datasets = get_datasets_by_theme(data.get('theme'))
+    dataset_names = {}
 
-    dataset_names = []
-
-    for key, value in CONFIG.items():
-        if theme in value['themes']:
-            dataset_names.append(key)
+    for dataset in datasets:
+        analyze = dataset['id'] is None or dataset['id'] in kartgrunnlag
+        dataset_names[dataset['name']] = analyze
 
     return dataset_names
+
+
+def get_datasets_by_theme(theme):
+    datasets = []
+
+    for key, value in CONFIG.items():
+        if theme is None or theme in value['themes']:
+            datasets.append({
+                'id': value.get('dataset_id'),
+                'name': key
+            })
+
+    return datasets
 
 
 def get_epsg(geo_json):
