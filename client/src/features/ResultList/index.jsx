@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
+import { inPlaceSort } from 'fast-sort';
+import { Accordion, AccordionDetails, AccordionSummary, Paper } from '@mui/material';
 import Result from './Result';
 import styles from './ResultList.module.scss';
 
@@ -12,7 +13,7 @@ export default function ResultList({ data }) {
 
     function getAccordionTitle(result) {
         const datasetTitle = result.runOnDataset ?
-            `«${result.runOnDataset.title}» (${result.title})` :
+            `«${result.runOnDataset.title}»${result.title !== null ? ` (${result.title})` : ''}` :
             `«${result.title}»`
 
         switch (result.resultStatus) {
@@ -73,6 +74,26 @@ export default function ResultList({ data }) {
         );
     }
 
+    function renderNotRelevant() {
+        const resultList = data.resultList['NOT-RELEVANT'] || [];
+
+        if (resultList.length === 0) {
+            return null;
+        }
+
+        inPlaceSort(resultList).asc(result => result.runOnDataset.title);        
+        const distinct = new Set(resultList.map(result => result.runOnDataset?.title || result.title));
+
+        return (
+            <Paper className={styles.notRelevant}>
+                <span className={styles.heading}>Ikke relevant for analyseområdet:</span>
+                <ul>
+                    {[...distinct].map(title => <li key={title}>{title}</li>)}
+                </ul>
+            </Paper>
+        );
+    }
+
     function renderAccordions(resultStatus) {
         const resultList = data.resultList[resultStatus];
 
@@ -80,12 +101,19 @@ export default function ResultList({ data }) {
             return null;
         }
 
+        if (resultStatus === 'NO-HIT-GREEN') {
+            inPlaceSort(resultList).asc([
+                result => result.distanceToObject,
+                result => result.themes[0]
+            ]);
+        }
+
         return (
             <div className={styles.resultGroup}>
                 {
                     resultList.map((result, index) => (
                         <Accordion
-                            key={result.title}
+                            key={result.runOnDataset?.datasetId || result.title}
                             expanded={expanded === `panel-${resultStatus}-${index}`}
                             onChange={handleAccordionChange(`panel-${resultStatus}-${index}`)}
                         >
@@ -101,15 +129,23 @@ export default function ResultList({ data }) {
                                                 <span>Treff: {getHitAreaPercent(result).toLocaleString('nb-NO')} %</span>
                                             )
                                         }
-                                        <span>Avstand: {getDistance(result)}</span>
+                                        {
+                                            result.distanceToObject !== null && (
+                                                <span>Avstand: {getDistance(result)}</span>
+                                            )
+                                        }
                                     </div>
                                 </div>
                             </AccordionSummary>
                             <AccordionDetails sx={{ padding: '6px 24px' }}>
-                                <Result
-                                    inputGeometry={data.inputGeometry}
-                                    result={result}
-                                />
+                                {
+                                    result.resultStatus !== 'NOT-RELEVANT' && (
+                                        <Result
+                                            inputGeometry={data.inputGeometry}
+                                            result={result}
+                                        />
+                                    )
+                                }
                             </AccordionDetails>
                         </Accordion>
                     ))
@@ -119,11 +155,15 @@ export default function ResultList({ data }) {
     }
 
     return (
-        <div>
-            {renderAccordions('HIT-RED')}
-            {renderAccordions('HIT-YELLOW')}
-            {renderAccordions('NO-HIT-YELLOW')}
-            {renderAccordions('NO-HIT-GREEN')}
+        <div className={styles.container}>
+            <div>
+                {renderAccordions('HIT-RED')}
+                {renderAccordions('HIT-YELLOW')}
+                {renderAccordions('NO-HIT-YELLOW')}
+                {renderAccordions('NO-HIT-GREEN')}
+            </div>
+
+            {renderNotRelevant()}
         </div>
     );
 }

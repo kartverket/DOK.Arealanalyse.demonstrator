@@ -5,7 +5,7 @@ export default function Data({ result }) {
       return null;
    }
 
-   const json = prettyPrintJson.toHtml(result.data, { quoteKeys: true, trailingComma: false });
+   const json = prettyPrintJson.toHtml(result.data, { quoteKeys: true, trailingCommas: false });
 
    return (
       <div className="paper">

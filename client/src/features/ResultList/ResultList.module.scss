@@ -60,3 +60,22 @@
         content: none;
     }
 }
+
+.notRelevant {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 24px;
+    font-size: 16px;
+
+    .heading {
+        font-family: 'Roboto-Medium';
+        font-weight: 500;
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style-position: inside;
+    }
+}

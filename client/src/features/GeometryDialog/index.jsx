@@ -77,7 +77,7 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
         }
 
         const isValid = geoJson !== null && await validate(geoJson);
-
+        
         if (!isValid) {
             dispatch(setErrorMessage(`Geometrien i «${file.name}» er ugyldig`));
         } else {

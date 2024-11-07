@@ -33,7 +33,7 @@ export default function PossibleActions({ result }) {
         }
     }
 
-    if (!result.possibleActions) {
+    if (!Array.isArray(result.possibleActions) || result.possibleActions.length === 0) {
         return null;
     }
 
