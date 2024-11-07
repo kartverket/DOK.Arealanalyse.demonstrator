@@ -1,10 +1,10 @@
 import time
 import asyncio
-from ..config import get_dataset_config
+from ..config import get_dataset_config, get_quality_measurement_config
 from .dataset import get_dataset_names, get_dataset_type
 from ..helpers.geometry import create_input_geometry, get_epsg
 from ..models import Analysis, ArcGisAnalysis, EmptyAnalysis, OgcApiAnalysis, WfsAnalysis, Response, ResultStatus
-from .... import socket_io
+from ....socket_io import sio
 from ....middleware.correlation_id_middleware import get_correlation_id
 
 
@@ -17,14 +17,13 @@ async def run(data) -> Response:
     include_guidance = data.get('includeGuidance', False)
     include_quality_measurement = data.get('includeQualityMeasurement', False)
 
-    #datasets = await get_dataset_names(data, geometry, epsg)
-    datasets = {'naturtyper_utvalgte_slåttemark': True}
+    datasets = {'naturtyper_utvalgte_slåttemark': True} #await get_dataset_names(data, geometry, epsg)
     correlation_id = get_correlation_id()
 
-    if correlation_id:
+    if correlation_id and sio:
         to_analyze = {key: value for (
             key, value) in datasets.items() if value == True}
-        await socket_io.sio.emit('dataset_count', len(to_analyze), correlation_id)
+        sio.emit('datasets_counted_api', {'count': len(to_analyze), 'recipient': correlation_id})
 
     tasks = []
 
@@ -44,7 +43,7 @@ async def run(data) -> Response:
 
 async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffer, context, include_guidance, include_quality_measurement) -> Analysis:
     config = get_dataset_config(dataset)
-    
+
     if config is None:
         return None
 
@@ -58,12 +57,12 @@ async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffe
 
     analysis = get_analysis(dataset, config, geometry, epsg, orig_epsg, buffer)
     await analysis.run(context, include_guidance, include_quality_measurement)
-    
+
     end = time.time()
     print(f'"{dataset}": {round(end - start, 2)} sek.')
 
-    if correlation_id:
-        await socket_io.sio.emit('dataset_analyzed', dataset, correlation_id)
+    if correlation_id and sio:
+        sio.emit('dataset_analyzed_api', {'dataset': dataset, 'recipient': correlation_id})
 
     return analysis
 

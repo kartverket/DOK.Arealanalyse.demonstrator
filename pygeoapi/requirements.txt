@@ -29,4 +29,4 @@ gunicorn
 uvicorn
 pydash
 pillow
-python-socketio
+python-socketio[client]

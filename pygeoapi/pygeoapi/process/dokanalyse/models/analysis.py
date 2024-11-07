@@ -3,6 +3,8 @@ from osgeo import ogr
 from .result_status import ResultStatus
 from ..helpers.analysis import get_kartkatalog_metadata, get_quality_measurement
 from ..helpers.geometry import get_buffered_geometry, create_run_on_input_geometry_json
+from ..config import get_quality_measurement_config
+from ..services.quality_measurement import get_object_quality_measurements, get_dataset_quality_measurements
 
 
 class Analysis(ABC):
@@ -49,8 +51,9 @@ class Analysis(ABC):
 
         self.run_on_input_geometry_json = create_run_on_input_geometry_json(
             self.run_on_input_geometry, self.epsg, self.orig_epsg)
-        
-        self.title = self.geolett['tittel'] if self.geolett else self.config.get('title')
+
+        self.title = self.geolett['tittel'] if self.geolett else self.config.get(
+            'title')
         self.themes = self.config.get('themes', [])
 
         dataset_info = await get_kartkatalog_metadata(self.config)
@@ -59,11 +62,24 @@ class Analysis(ABC):
         if include_guidance and self.geolett is not None:
             self.__set_guidance_data()
 
+        self.__set_quality_measurements(context)
+
         if include_quality_measurement:
             self.quality_measurement = get_quality_measurement()
 
     def add_run_algorithm(self, algorithm):
         self.run_algorithm.append(algorithm)
+
+    def __set_quality_measurements(self, context):
+        config = get_quality_measurement_config(self.config['dataset_name'])
+
+        if config is None:
+            return
+
+        warnings = get_object_quality_measurements(config, self.data)
+        yo = get_dataset_quality_measurements(config, context)
+
+        print(warnings)
 
     def __set_input_geometry(self):
         self.add_run_algorithm('set input_geometry')

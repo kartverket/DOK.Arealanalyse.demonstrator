@@ -8,7 +8,6 @@ from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartogra
 from ..helpers.geometry import get_buffered_geometry, geometry_to_arcgis_geom
 from ..services.api import query_arcgis
 
-
 class ArcGisAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
@@ -102,7 +101,7 @@ class ArcGisAnalysis(Analysis):
         properties = {}
 
         for mapping in mappings:
-            properties[camel_case(mapping)] = feature['properties'].get(
+            properties[mapping] = feature['properties'].get(
                 mapping, None)
 
         return properties

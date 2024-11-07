@@ -441,22 +441,22 @@ farled:
   themes:
   - samferdsel
 
-geoteknisk_borehull:
-  title: 'Geoteknisk borehull'
-  ogc_api: https://ogcapitest.ngu.no/rest/services/grunnundersokelser_utvidet/collections
-  wms: https://geo.ngu.no/geoserver/nadag/ows
-  layers:
-  - ogc_api: geotekniskborehull
-    wms: 
-    - GB_filter_komplette_data
-    result_status: HIT-RED
-  geom_element_name: posisjon
-  properties:
-  - kvikkleirePåvisning
-  - antallBorehullUndersøkelser
-  - høyde
-  - maksBoretLengde
-  themes:
-  - geologi
+# geoteknisk_borehull:
+#   title: 'Geoteknisk borehull'
+#   ogc_api: https://ogcapitest.ngu.no/rest/services/grunnundersokelser_utvidet/collections
+#   wms: https://geo.ngu.no/geoserver/nadag/ows
+#   layers:
+#   - ogc_api: geotekniskborehull
+#     wms: 
+#     - GB_filter_komplette_data
+#     result_status: HIT-RED
+#   geom_element_name: posisjon
+#   properties:
+#   - kvikkleirePåvisning
+#   - antallBorehullUndersøkelser
+#   - høyde
+#   - maksBoretLengde
+#   themes:
+#   - geologi
 
 

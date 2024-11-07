@@ -6,7 +6,7 @@ from typing import List
 import aiohttp
 import xml.etree.ElementTree as ET
 from osgeo import ogr
-from ...config import DATASET_CONFIG, get_dataset_config
+from ...config import get_config, get_dataset_config
 
 
 _DIR_PATH = path.dirname(path.realpath(__file__))
@@ -41,7 +41,7 @@ async def get_dataset_names(data, geometry, epsg):
 def get_datasets_by_theme(theme):
     datasets = []
 
-    for key, value in DATASET_CONFIG.items():
+    for key, value in get_config().items():
         if theme is None or theme in value['themes']:
             datasets.append({
                 'id': value.get('dataset_id'),

@@ -1,10 +1,10 @@
 egnethet_reguleringsplan:
   type: dataset
-  input_filter: context = 'Reguleringsplan'  
   quality_dimension_id: Egnethet
   quality_dimension_name: Egnethet for reguleringsplan
-  quality_warning_text: Datasett er lite egnet for regueringsplan
-  warning_threshold: 1 OR 2 
+  quality_warning_text: Datasett er lite egnet for reguleringsplan
+  warning_threshold: 1|2 
+  input_filter: context = 'Reguleringsplan'  
   value: 4 (God)
 
 stedfestingsnøyaktighet:

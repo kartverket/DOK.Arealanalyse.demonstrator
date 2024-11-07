@@ -52,7 +52,6 @@ import uvicorn
 from pygeoapi.api import API
 from pygeoapi.util import yaml_load, get_api_rules
 from .middleware.correlation_id_middleware import CorrelationIdMiddleware
-from .socket_io import sio_app
 
 if 'PYGEOAPI_CONFIG' not in os.environ:
     raise RuntimeError('PYGEOAPI_CONFIG environment variable not set')
@@ -560,7 +559,7 @@ url_prefix = API_RULES.get_url_prefix('starlette')
 
 APP = Starlette(
     routes=[
-        Mount('/ws', sio_app),
+        #Mount('/ws', sio_app),
         Mount(f'{url_prefix}/static', StaticFiles(directory=STATIC_DIR)),
         Mount(url_prefix or '/', routes=api_routes)
     ]

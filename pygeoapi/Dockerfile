@@ -50,8 +50,10 @@ ADD ./requirements-prod.txt /pygeoapi/requirements.txt
 RUN \
     apt-get update -y \
     && apt-get upgrade -y \
-    && apt-get --no-install-recommends install -y ${DEB_PACKAGES} ${DEB_BUILD_DEPS}  \
-    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
+    && apt-get --no-install-recommends install -y ${DEB_PACKAGES} ${DEB_BUILD_DEPS}
+
+RUN \
+    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
     && echo "For ${TZ} date=$(date)" && echo "Locale=$(locale)"  \
     && mkdir /schemas.opengis.net \
     && curl -O http://schemas.opengis.net/SCHEMAS_OPENGIS_NET.zip \

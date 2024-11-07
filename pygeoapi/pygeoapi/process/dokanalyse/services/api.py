@@ -5,7 +5,7 @@ import aiohttp
 from async_lru import alru_cache
 
 _DIR_PATH = path.dirname(path.realpath(__file__))
-_TIMEOUT_SECS = 15
+_TIMEOUT_SECS = 120
 
 
 async def query_wfs(config, xml):
