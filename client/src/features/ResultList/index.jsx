@@ -97,13 +97,16 @@ export default function ResultList({ data }) {
 
     function renderThemeName(result) {
         return (
-            <strong className={styles.themeName}>{result.themes[0]}</strong>
+            <strong className={styles.themeName}>{result.themes[0]}:</strong>
         );
     }
 
     function renderWarningText(result) {
         return (
-            result.resultStatus === 'NO-HIT-YELLOW' ? <span>Advarsel: <strong>her kommer det varsel</strong></span> : null
+            result.resultStatus === 'NO-HIT-YELLOW' ? <div className={styles.warnings}>
+            <div><span>Egenskapskvalitet: <strong>Mindre god</strong></span></div> 
+            <div><span>Nøyaktighet: <strong>Stedfestingsnøyaktighet er utfordrene</strong></span></div>
+            <div><span>Dato: <strong>Datasettet er gammelt</strong></span></div></div> : null
         )
     }
 
@@ -134,7 +137,7 @@ export default function ResultList({ data }) {
                             <AccordionSummary sx={{ padding: '0 24px', '& .MuiAccordionSummary-content': { margin: '20px 0' } }}>
                                 <div className={styles.accordionSummary}>
                                     <span className={getAccordionClassNames(result)}>
-                                        <span className={styles.accordionTitle}>{renderThemeName(result)}: {getAccordionTitle(result)}</span>
+                                        <span className={styles.accordionTitle}>{renderThemeName(result)}<span> {getAccordionTitle(result)}</span></span>
                                     </span>
                                     <div className={styles.warningText}>
                                       {renderWarningText(result)}

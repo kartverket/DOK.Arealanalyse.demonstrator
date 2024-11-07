@@ -13,12 +13,16 @@
 }
 .accordionSummary {
     display: grid;
-    grid-template-columns: 850px 250px 150px;
+    grid-template-columns: 800px 350px 150px;
     gap: 10px;    
     padding: 10px;   
    
 }
-
+.warnings {
+    display: flex;
+    flex-direction: column;
+    min-width: 350px;
+}
 .accordion {
     display: flex;
     align-items: center;
@@ -28,6 +32,9 @@
         display: flex;
         font-size: 16px;
         margin-top: 1px;
+        > span {
+            margin-left: 6px;
+        }
     }
 
     .themeName {
