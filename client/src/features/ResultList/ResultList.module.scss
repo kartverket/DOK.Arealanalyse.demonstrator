@@ -10,28 +10,33 @@
     &.redwarning > div {
         background-color: rgb(253, 246, 237);
     }
+    &.redwarning > div {
+        background-color: rgb(253, 246, 237);
+    }
+    .warnings {
+        display: flex;
+        flex-direction: column;              
+        min-width: 342px;
+        padding: 6px;
+        background-color: rgb(255, 224, 180);
+        border-radius: 4px;
+        border: 1px solid rgb(252, 182, 82);
+        > div > span {
+            width: 120px;
+            display: inline-block;
+        }
+    
+    }
 }
 .accordionSummary {
     display: grid;
-    grid-template-columns: 750px 340px 150px;
+    grid-template-columns: auto 1fr auto;
     gap: 10px;    
     padding: 10px;   
-   
+    width: 100%;
+    align-items: center;
 }
-.warnings {
-    display: flex;
-    flex-direction: column;
-    min-width: 342px;
-    padding: 6px;
-    background-color: rgb(255, 224, 180);
-    border-radius: 4px;
-    border: 1px solid rgb(252, 182, 82);
-    > div > span {
-        width: 120px;
-        display: inline-block;
-    }
 
-}
 .accordion {
     display: flex;
     align-items: top;
@@ -100,11 +105,10 @@
     }
 }
  .hitAndDistance {
-    display: flex;
+    display: flex;    
+    justify-self: end;
     white-space: nowrap;
 }
-.warningText {
-    
-    width: 200px;
-    text-align: left;
+.warningContent {
+    justify-self: end;  
 }

@@ -139,9 +139,9 @@ export default function ResultList({ data }) {
                                     <span className={getAccordionClassNames(result)}>
                                         <span className={styles.accordionTitle}>{renderThemeName(result)}<span> {getAccordionTitle(result)}</span></span>
                                     </span>
-                                    <div className={styles.warningText}>
+                                   <div className={styles.warningContent}>
                                       {renderWarningText(result)}
-                                    </div>
+                                      </div>
                                     <div className={styles.hitAndDistance}>
                                         {
                                             result.hitArea || getDistance(result) === '0 m' ? (
