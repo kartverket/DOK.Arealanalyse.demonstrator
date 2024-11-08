@@ -104,9 +104,9 @@ export default function ResultList({ data }) {
     function renderWarningText(result) {
         return (
             result.resultStatus === 'NO-HIT-YELLOW' ? <div className={styles.warnings}>
-            <div><span>Egenskapskvalitet:</span> <strong>Mindre god</strong></div> 
-            <div><span>Nøyaktighet: </span><strong>Stedfestingsnøyaktigheten er utfordrene</strong></div>
-            <div><span>Dato: </span><strong>Datasettet er gammelt</strong></div></div> : null
+            <div> <strong>Området er ikke kartlagt</strong></div> 
+            <div><strong>Stedfestingsnøyaktigheten er mer enn 50 meter</strong></div>
+            <div><strong>Datasettet er fra 2021</strong></div></div> : null
         )
     }
 
