@@ -144,7 +144,7 @@ export default function ResultList({ data }) {
                                       </div>
                                     <div className={styles.hitAndDistance}>
                                         {
-                                            result.hitArea || getDistance(result) === '0 m' ? (
+                                            result.hitArea || getDistance(result) === '0 meter' ? (
                                                 <span><Tooltip title={<h2>Andel av analyseområde med evt buffer som treffer område til datasett</h2>} placement='top-end'>Treff: {getHitAreaPercent(result).toLocaleString('nb-NO')} %</Tooltip></span>
                                             ) :  <span><Tooltip title={<h2>Angir antall meter fra utkant analyseområde til nærmeste objekt i datasett.</h2>} placement='top-end'>Avstand: {getDistance(result)}</Tooltip></span>
                                         }
