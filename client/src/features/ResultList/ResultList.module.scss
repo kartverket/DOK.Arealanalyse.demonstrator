@@ -8,12 +8,12 @@
 .accordionContainer {
     
     &.redwarning > div {
-        background-color: rgb(255, 244, 229);
+        background-color: rgb(253, 246, 237);
     }
 }
 .accordionSummary {
     display: grid;
-    grid-template-columns: 800px 350px 150px;
+    grid-template-columns: 700px 390px 150px;
     gap: 10px;    
     padding: 10px;   
    
@@ -21,11 +21,20 @@
 .warnings {
     display: flex;
     flex-direction: column;
-    min-width: 350px;
+    min-width: 392px;
+    padding: 6px;
+    background-color: rgb(255, 224, 180);
+    border-radius: 4px;
+    border: 1px solid rgb(252, 182, 82);
+    > div > span {
+        width: 120px;
+        display: inline-block;
+    }
+
 }
 .accordion {
     display: flex;
-    align-items: center;
+    align-items: top;
    
 
     .accordionTitle {
