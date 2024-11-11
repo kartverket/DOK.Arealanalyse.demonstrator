@@ -71,14 +71,14 @@
     }
 
     &.warning::before {
-        background-image: url('../../assets/gfx/icon-redwarning.svg');
+        background-image: url('../../assets/gfx/icon-warning.svg');
     }
     &.redwarning::before {
-        background-image: url('../../assets/gfx/icon-warning.svg');
+        background-image: url('../../assets/gfx/icon-error.svg');
     }    
 
     &.error::before {
-        background-image: url('../../assets/gfx/icon-error.svg');
+        background-image: url('../../assets/gfx/icon-redwarning.svg');
     }
 
     &.noStatus::before {

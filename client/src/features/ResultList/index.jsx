@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { inPlaceSort } from 'fast-sort';
-import { Accordion, AccordionDetails, AccordionSummary, Tooltip } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Tooltip, Paper } from '@mui/material';
 import Result from './Result';
 import styles from './ResultList.module.scss';
 
