@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { inPlaceSort } from 'fast-sort';
-import { Accordion, AccordionDetails, AccordionSummary, Paper } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Tooltip, Paper } from '@mui/material';
 import Result from './Result';
 import styles from './ResultList.module.scss';
 
@@ -32,23 +32,31 @@ export default function ResultList({ data }) {
 
     function getAccordionClassNames(result) {
         const classNames = [styles.accordion];
+        const classNameMain = [styles.accordionSummary]
 
         switch (result.resultStatus) {
             case 'NO-HIT-GREEN':
                 classNames.push(styles.success);
                 break;
             case 'NO-HIT-YELLOW':
+                classNames.push(styles.redwarning);              
+                break;
             case 'HIT-YELLOW':
-                classNames.push(styles.warning);
+                classNames.push(styles.warning);               
                 break;
             case 'HIT-RED':
                 classNames.push(styles.error);
                 break;
+            
             default:
                 break;
-        }
-
+        }       
         return classNames.join(' ');
+    }
+    function getAccordionContentClassName(result) {
+        const className = [styles.accordionContainer];
+        result.resultStatus === 'NO-HIT-YELLOW' ? className.push(styles.redwarning) : null;       
+        return className.join(' ');
     }
 
     function getHitAreaPercent(result) {
@@ -62,36 +70,45 @@ export default function ResultList({ data }) {
 
         if (distance >= 20_000) {
             distance = 20_000;
-            return `> ${distance.toLocaleString('nb-NO')} m`
+            return `> ${distance.toLocaleString('nb-NO')} meter`
         }
 
-        return `${distance.toLocaleString('nb-NO')} m`
-    }
-
-    function renderThemeName(result) {
-        return (
-            <strong className={styles.themeName}>{result.themes[0]}</strong>
-        );
-    }
-
+        return `${distance.toLocaleString('nb-NO')} meter`
+    }   
     function renderNotRelevant() {
-        const resultList = data.resultList['NOT-RELEVANT'] || [];
-
+        const resultList = data.resultList['NOT-RELEVANT'] || [];        
         if (resultList.length === 0) {
             return null;
         }
 
         inPlaceSort(resultList).asc(result => result.runOnDataset.title);        
-        const distinct = new Set(resultList.map(result => result.runOnDataset?.title || result.title));
-
+        const distinct = new Set(resultList.map(result => result.runOnDataset?.title || result.title));               
         return (
             <Paper className={styles.notRelevant}>
-                <span className={styles.heading}>Ikke relevant for analyseområdet:</span>
+                
+                <span className={styles.heading}>                
+                   Oslo har valgt for Det offentlige kartgrunnlaget at følgende datasett som ikke relevante for analyseområdet:
+                    </span>
                 <ul>
                     {[...distinct].map(title => <li key={title}>{title}</li>)}
                 </ul>
             </Paper>
         );
+    }
+
+    function renderThemeName(result) {
+        return (
+            <strong className={styles.themeName}>{result.themes[0]}:</strong>
+        );
+    }
+
+    function renderWarningText(result) {
+        return (
+            result.resultStatus === 'NO-HIT-YELLOW' ? <div className={styles.warnings}>
+            <div> <strong>Området er ikke kartlagt</strong></div> 
+            <div><strong>Stedfestingsnøyaktigheten er mer enn 50 meter</strong></div>
+            <div><strong>Datasettet er fra 2021</strong></div></div> : null
+        )
     }
 
     function renderAccordions(resultStatus) {
@@ -112,31 +129,30 @@ export default function ResultList({ data }) {
             <div className={styles.resultGroup}>
                 {
                     resultList.map((result, index) => (
+                        
                         <Accordion
                             key={result.runOnDataset?.datasetId || result.title}
                             expanded={expanded === `panel-${resultStatus}-${index}`}
                             onChange={handleAccordionChange(`panel-${resultStatus}-${index}`)}
-                        >
+                        ><div className={getAccordionContentClassName(result)}>
                             <AccordionSummary sx={{ padding: '0 24px', '& .MuiAccordionSummary-content': { margin: '20px 0' } }}>
                                 <div className={styles.accordionSummary}>
                                     <span className={getAccordionClassNames(result)}>
-                                        <span className={styles.accordionTitle}>{renderThemeName(result)}: {getAccordionTitle(result)}</span>
+                                        <span className={styles.accordionTitle}>{renderThemeName(result)}<span> {getAccordionTitle(result)}</span></span>
                                     </span>
-
+                                   <div className={styles.warningContent}>
+                                      {renderWarningText(result)}
+                                      </div>
                                     <div className={styles.hitAndDistance}>
                                         {
-                                            result.hitArea && (
-                                                <span>Treff: {getHitAreaPercent(result).toLocaleString('nb-NO')} %</span>
-                                            )
+                                            result.hitArea || getDistance(result) === '0 meter' ? (
+                                                <span><Tooltip title={<h2>Andel av analyseområde med evt buffer som treffer område til datasett</h2>} placement='top-end'>Treff: {getHitAreaPercent(result).toLocaleString('nb-NO')} %</Tooltip></span>
+                                            ) :  <span><Tooltip title={<h2>Angir antall meter fra utkant analyseområde til nærmeste objekt i datasett.</h2>} placement='top-end'>Avstand: {getDistance(result)}</Tooltip></span>
                                         }
-                                        {
-                                            result.distanceToObject !== null && (
-                                                <span>Avstand: {getDistance(result)}</span>
-                                            )
-                                        }
+                                       
                                     </div>
                                 </div>
-                            </AccordionSummary>
+                            </AccordionSummary></div>
                             <AccordionDetails sx={{ padding: '6px 24px' }}>
                                 {
                                     result.resultStatus !== 'NOT-RELEVANT' && (

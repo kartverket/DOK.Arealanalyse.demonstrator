@@ -5,28 +5,50 @@
 .resultGroup {
     margin-bottom: 18px;
 }
-
-.accordionSummary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex: 1;
-
-    .hitAndDistance {
-        display: flex;
-        gap: 24px;
-        font-size: 16px;
+.accordionContainer {
+    
+    &.redwarning > div {
+        background-color: rgb(253, 246, 237);
     }
+    &.redwarning > div {
+        background-color: rgb(253, 246, 237);
+    }
+    .warnings {
+        display: flex;
+        flex-direction: column;              
+        min-width: 342px;
+        padding: 6px;
+        background-color: rgb(255, 224, 180);
+        border-radius: 4px;
+        border: 1px solid rgb(252, 182, 82);
+        > div > span {
+            width: 120px;
+            display: inline-block;
+        }
+    
+    }
+}
+.accordionSummary {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;    
+    padding: 10px;   
+    width: 100%;
+    align-items: center;
 }
 
 .accordion {
     display: flex;
-    align-items: center;
+    align-items: top;
+   
 
     .accordionTitle {
         display: flex;
         font-size: 16px;
         margin-top: 1px;
+        > span {
+            margin-left: 6px;
+        }
     }
 
     .themeName {
@@ -51,14 +73,17 @@
     &.warning::before {
         background-image: url('../../assets/gfx/icon-warning.svg');
     }
+    &.redwarning::before {
+        background-image: url('../../assets/gfx/icon-error.svg');
+    }    
 
     &.error::before {
-        background-image: url('../../assets/gfx/icon-error.svg');
+        background-image: url('../../assets/gfx/icon-redwarning.svg');
     }
 
     &.noStatus::before {
         content: none;
-    }
+    }    
 }
 
 .notRelevant {
@@ -78,4 +103,12 @@
         padding: 0;
         list-style-position: inside;
     }
+}
+ .hitAndDistance {
+    display: flex;    
+    justify-self: end;
+    white-space: nowrap;
+}
+.warningContent {
+    justify-self: end;  
 }
