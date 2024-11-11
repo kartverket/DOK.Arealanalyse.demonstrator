@@ -52,11 +52,11 @@ class Analysis(ABC):
                 return
 
             self.__set_geometry_areas()
-
-            if self.result_status == ResultStatus.NO_HIT_GREEN:
-                await self.set_distance_to_object()
         else:
             self.result_status = ResultStatus.NO_HIT_YELLOW
+
+        if self.result_status in [ResultStatus.NO_HIT_GREEN, ResultStatus.NO_HIT_YELLOW]:
+            await self.set_distance_to_object()
 
         self.add_run_algorithm('deliver result')
 

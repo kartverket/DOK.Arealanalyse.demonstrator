@@ -28,7 +28,7 @@ ARG SOCKET_IO_URL="https://dok-arealanalyse.azurewebsites.net/ws"
 ENV TZ=${TZ} \
     LANG=${LANG} \
     DEBIAN_FRONTEND="noninteractive" \
-    SOCKET_IO_URL=${SOCKET_IO_URL}
+    SOCKET_IO_URL=${SOCKET_IO_URL} \
     DEB_BUILD_DEPS="\
     curl \
     unzip" \

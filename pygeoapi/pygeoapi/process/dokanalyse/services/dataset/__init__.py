@@ -27,9 +27,9 @@ def get_dataset_type(dataset) -> str:
 
 
 async def get_dataset_names(data, geometry, epsg):
-    municipality_dok_data = data.get('municipalityDokData', True)
+    include_chosen_dok = data.get('includeFilterChosenDOK', True)
 
-    if municipality_dok_data:
+    if include_chosen_dok:
         kartgrunnlag = await get_kartgrunnlag(geometry, epsg)
     else:
         kartgrunnlag = []
