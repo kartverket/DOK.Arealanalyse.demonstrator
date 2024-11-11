@@ -1,6 +1,6 @@
 import time
 import asyncio
-from ..config import get_dataset_config, get_quality_measurement_config
+from ..config import get_dataset_config
 from .dataset import get_dataset_names, get_dataset_type
 from ..helpers.geometry import create_input_geometry, get_epsg
 from ..models import Analysis, ArcGisAnalysis, EmptyAnalysis, OgcApiAnalysis, WfsAnalysis, Response, ResultStatus
@@ -16,14 +16,15 @@ async def run(data) -> Response:
     context = data.get('context')
     include_guidance = data.get('includeGuidance', False)
     include_quality_measurement = data.get('includeQualityMeasurement', False)
-
-    datasets = {'naturtyper_utvalgte_slåttemark': True} #await get_dataset_names(data, geometry, epsg)
+    
+    datasets = await get_dataset_names(data, geometry, epsg)
     correlation_id = get_correlation_id()
 
     if correlation_id and sio:
         to_analyze = {key: value for (
             key, value) in datasets.items() if value == True}
-        sio.emit('datasets_counted_api', {'count': len(to_analyze), 'recipient': correlation_id})
+        sio.emit('datasets_counted_api', {'count': len(
+            to_analyze), 'recipient': correlation_id})
 
     tasks = []
 
@@ -62,7 +63,8 @@ async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffe
     print(f'"{dataset}": {round(end - start, 2)} sek.')
 
     if correlation_id and sio:
-        sio.emit('dataset_analyzed_api', {'dataset': dataset, 'recipient': correlation_id})
+        sio.emit('dataset_analyzed_api', {
+                 'dataset': dataset, 'recipient': correlation_id})
 
     return analysis
 

@@ -1,4 +1,3 @@
-from re import sub
 from ..services.api import fetch_geolett_data, fetch_local_geolett_data, fetch_kartkatalog_metadata
 from ..services.legend import create_legend
 
@@ -63,8 +62,3 @@ async def get_kartkatalog_metadata(config):
         'datasetDescriptionUri': 'https://kartkatalog.geonorge.no/metadata/' + dataset_id,
         'updated': updated
     }
-
-
-def get_quality_measurement():
-    return [
-    ]

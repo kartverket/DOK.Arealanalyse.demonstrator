@@ -73,7 +73,7 @@ class WfsAnalysis(Analysis):
 
         for member in members:
             geom_el = member.find(
-                f'./{self.config["geom_element_name"]}/*', namespaces=ns)
+                f'./{self.config["geom_field"]}/*', namespaces=ns)
             gml_str = ET.tostring(geom_el, encoding='unicode')
             feature_geom = ogr.CreateGeometryFromGML(gml_str)
             distance = round(self.geometry.Distance(feature_geom))
@@ -93,7 +93,7 @@ class WfsAnalysis(Analysis):
         with open(file_path, 'r') as file:
             file_text = file.read()
 
-        return file_text.format(layerName=layer_name, epsg=self.epsg, geomField=self.config['geom_element_name'], geometry=gml).encode('utf-8')
+        return file_text.format(layerName=layer_name, epsg=self.epsg, geomField=self.config['geom_field'], geometry=gml).encode('utf-8')
 
     def __parse_response(self, wfs_response, layer):
         data = {
@@ -138,7 +138,7 @@ class WfsAnalysis(Analysis):
         return properties
 
     def __get_geometry_from_response(self, member, ns):
-        selector = './' + self.config['geom_element_name'] + '/*'
+        selector = './' + self.config['geom_field'] + '/*'
         geom_el = member.find(selector, namespaces=ns)
         gml_str = ET.tostring(geom_el, encoding='unicode')
 

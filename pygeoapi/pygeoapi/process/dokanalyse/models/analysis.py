@@ -1,51 +1,62 @@
 from abc import ABC, abstractmethod
+from typing import List
 from osgeo import ogr
+from .quality_measurement import QualityMeasurement
 from .result_status import ResultStatus
-from ..helpers.analysis import get_kartkatalog_metadata, get_quality_measurement
+from ..helpers.analysis import get_kartkatalog_metadata
 from ..helpers.geometry import get_buffered_geometry, create_run_on_input_geometry_json
-from ..config import get_quality_measurement_config
-from ..services.quality_measurement import get_object_quality_measurements, get_dataset_quality_measurements
+from ..config import get_quality_indicators_config
+from ..services.quality_warning import get_dataset_quality_warnings, get_object_quality_warnings, get_coverage_quality_warnings
+from ..services.quality_measurement import get_quality_measurements
 
 
 class Analysis(ABC):
-    def __init__(self, config, geometry, epsg, orig_epsg, buffer):
+    def __init__(self, config: dict, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int):
         self.config = config
-        self.geometry = geometry
-        self.run_on_input_geometry = None
-        self.epsg = epsg
-        self.orig_epsg = orig_epsg
-        self.geometries = []
+        self.geometry: ogr.Geometry = geometry
+        self.run_on_input_geometry: ogr.Geometry = None
+        self.epsg: int = epsg
+        self.orig_epsg: int = orig_epsg
+        self.geometries: List[ogr.Geometry] = []
         self.geolett = None
-        self.title = None
-        self.description = None
-        self.guidance_text = None
-        self.guidance_uri = []
+        self.title: str = None
+        self.description: str = None
+        self.guidance_text: str = None
+        self.guidance_uri: List[dict] = []
         self.possible_actions = []
-        self.quality_measurement = []
+        self.quality_measurement: List[QualityMeasurement] = []
+        self.quality_warning: List[str] = []
         self.buffer = buffer or 0
-        self.input_geometry_area = None
+        self.input_geometry_area: ogr.Geometry = None
         self.run_on_input_geometry_json = None
-        self.hit_area = None
-        self.distance_to_object = 0
-        self.raster_result = None
-        self.cartography = None
+        self.hit_area: float = None
+        self.distance_to_object: int = 0
+        self.raster_result: str = None
+        self.cartography: str = None
         self.data = None
-        self.themes = None
+        self.themes: List[str] = None
         self.run_on_dataset = None
-        self.run_algorithm = []
-        self.result_status = ResultStatus.NO_HIT_GREEN
+        self.run_algorithm: List[str] = []
+        self.result_status: ResultStatus = ResultStatus.NO_HIT_GREEN
+        self.has_coverage = True
 
     async def run(self, context, include_guidance, include_quality_measurement):
         self.__set_input_geometry()
-        await self.run_queries()
 
-        if self.result_status == ResultStatus.TIMEOUT or self.result_status == ResultStatus.ERROR:
-            return
+        await self.__run_coverage_analysis()
 
-        self.__set_geometry_areas()
+        if self.has_coverage:
+            await self.run_queries()
 
-        if self.result_status == ResultStatus.NO_HIT_GREEN:
-            await self.set_distance_to_object()
+            if self.result_status == ResultStatus.TIMEOUT or self.result_status == ResultStatus.ERROR:
+                return
+
+            self.__set_geometry_areas()
+
+            if self.result_status == ResultStatus.NO_HIT_GREEN:
+                await self.set_distance_to_object()
+        else:
+            self.result_status = ResultStatus.NO_HIT_YELLOW
 
         self.add_run_algorithm('deliver result')
 
@@ -56,30 +67,36 @@ class Analysis(ABC):
             'title')
         self.themes = self.config.get('themes', [])
 
-        dataset_info = await get_kartkatalog_metadata(self.config)
-        self.run_on_dataset = dataset_info
+        self.run_on_dataset = await get_kartkatalog_metadata(self.config)
 
         if include_guidance and self.geolett is not None:
             self.__set_guidance_data()
 
-        self.__set_quality_measurements(context)
-
         if include_quality_measurement:
-            self.quality_measurement = get_quality_measurement()
+            await self.__set_quality_measurement()
+
+        self.__set_quality_warnings(context)
 
     def add_run_algorithm(self, algorithm):
         self.run_algorithm.append(algorithm)
 
-    def __set_quality_measurements(self, context):
-        config = get_quality_measurement_config(self.config['dataset_name'])
+    async def __run_coverage_analysis(self):
+        config = get_quality_indicators_config(self.config['dataset_id'])
 
         if config is None:
             return
 
-        warnings = get_object_quality_measurements(config, self.data)
-        yo = get_dataset_quality_measurements(config, context)
+        quality_indicators: List[dict] = [
+            entry for entry in config if entry['type'] == 'coverage']
 
-        print(warnings)
+        if len(quality_indicators) == 0:
+            return
+
+        self.add_run_algorithm('check coverage')
+        warnings = await get_coverage_quality_warnings(quality_indicators, self.run_on_input_geometry, self.epsg)
+
+        self.has_coverage = len(warnings) == 0
+        self.quality_warning.extend(warnings)
 
     def __set_input_geometry(self):
         self.add_run_algorithm('set input_geometry')
@@ -128,6 +145,22 @@ class Analysis(ABC):
         for line in self.geolett['muligeTiltak'].splitlines():
             self.possible_actions.append(line.lstrip('- '))
 
+    async def __set_quality_measurement(self):
+        self.quality_measurement = await get_quality_measurements(self.config.get('dataset_id'))
+
+    def __set_quality_warnings(self, context):
+        config = get_quality_indicators_config(self.config['dataset_id'])
+
+        if config is None:
+            return
+
+        warnings = []
+        warnings.extend(get_object_quality_warnings(config, self.data))
+        warnings.extend(get_dataset_quality_warnings(
+            config, self.quality_measurement, context=context, themes=self.themes))
+
+        self.quality_warning.extend(warnings)
+
     def to_json(self):
         return {
             'title': self.title,
@@ -147,7 +180,8 @@ class Analysis(ABC):
             'guidanceText': self.guidance_text,
             'guidanceUri': self.guidance_uri,
             'possibleActions': self.possible_actions,
-            'qualityMeasurements': self.quality_measurement
+            'qualityMeasurement': list(map(lambda item: item.to_json(), self.quality_measurement)),
+            'qualityWarning': self.quality_warning
         }
 
     @abstractmethod

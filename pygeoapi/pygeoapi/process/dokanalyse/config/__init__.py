@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import List
 import yaml
 
 __dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -10,31 +11,33 @@ def __load_dataset_config() -> dict:
         return yaml.safe_load(file)
 
 
-def __load_quality_measurement_config() -> dict:
-    path = os.path.join(__dir_path, 'quality_measurement')
+def __load_quality_indicators_config() -> List[dict]:
+    path = os.path.join(__dir_path, 'quality_indicators')
     glob = Path(path).glob('**/*.yml')
     files = [path for path in glob if path.is_file()]
-    config = {}
+    config = []
 
     for path in files:
         with open(path, 'r') as file:
-            name = os.path.splitext(path.name)[0]
             dataset_config = yaml.safe_load(file)
-            config[name] = dataset_config
+            dataset = dataset_config.get('dataset')
+
+            if dataset:
+                config.append(dataset)
 
     return config
 
 
 __dataset_config = __load_dataset_config()
-__quality_measurement_config = __load_quality_measurement_config()
+__quality_indicators_config = __load_quality_indicators_config()
 
 
-def get_config():
+def get_config() -> dict:
     return __dataset_config
 
 
-def get_dataset_config(dataset):
-    config = __dataset_config.get(dataset)
+def get_dataset_config(dataset) -> dict:
+    config: dict = __dataset_config.get(dataset)
 
     if not config:
         return None
@@ -44,10 +47,13 @@ def get_dataset_config(dataset):
     return config
 
 
-def get_quality_measurement_config(dataset) -> dict:
-    config = __quality_measurement_config.get(dataset)
+def get_quality_indicators_config(dataset_id: str) -> List[dict]:
+    indicators: List[dict] = []
 
-    if not config:
-        return None
+    for dataset in __quality_indicators_config:
+        id: str = dataset.get('dataset_id')
 
-    return config
+        if not id or id == dataset_id:
+            indicators.extend(dataset.get('quality_indicators', []))
+
+    return indicators
