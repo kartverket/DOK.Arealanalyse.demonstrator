@@ -1,14 +1,7 @@
 import logging
-import json
-import time
-from osgeo import ogr
-import asyncio
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
-from .services import common
-from .services import wfs
-from .services import arcgis
-from .services import ogc_api
-from ... import socket_io
+from .helpers.request import request_is_valid
+from .services import analyses
 
 LOGGER = logging.getLogger(__name__)
 
@@ -161,151 +154,13 @@ class DokanalyseProcessor(BaseProcessor):
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
 
-    async def query_dataset(self, dataset, analyze, epsg, orig_epsg, geom, buffer, include_guidance, include_quality_measurement, context, correlation_id):
-        start = time.time()
-
-        if analyze == False:
-            return {
-                'runAlgorithm': None,
-                'buffer': None,
-                'runOnInputGeometry': None,
-                'inputGeometryArea': None,
-                'hitArea': None,
-                'resultStatus': 'NOT-RELEVANT',
-                'distanceToObject': None,
-                'rasterResult': None,
-                'cartography': None,
-                'data': None,
-                'title': None,
-                'themes':  common.get_dataset_themes(dataset),
-                'runOnDataset': await common.get_kartkatalog_metadata(dataset)
-            }
-
-        data_output = {
-            'runAlgorithm': ['set input_geometry'],
-            'resultStatus': 'NO-HIT-GREEN'
-        }
-
-        dataset_type = common.get_dataset_type(dataset)
-
-        if dataset_type == 'wfs':
-            gml = wfs.get_input_geometry(
-                geom, epsg, buffer, data_output)
-            await wfs.run_queries(dataset, gml, epsg, data_output)
-
-        elif dataset_type == 'arcgis':
-            arcgis_geom = arcgis.get_input_geometry(
-                geom, epsg, buffer, data_output)
-            await arcgis.run_queries(dataset, arcgis_geom, epsg, data_output)
-
-        elif dataset_type == 'ogc_api':
-            wkt_geom = ogc_api.get_input_geometry(
-                geom, epsg, buffer, data_output)
-            await ogc_api.run_queries(dataset, wkt_geom, epsg, data_output)
-
-        common.set_geometry_areas(data_output)
-
-        distance_to_object = 0
-
-        if data_output['resultStatus'] == 'NO-HIT-GREEN':
-            if dataset_type == 'wfs':
-                distance_to_object = await wfs.get_shortest_distance(
-                    dataset, geom, epsg, data_output)
-            elif dataset_type == 'arcgis':
-                distance_to_object = await arcgis.get_shortest_distance(
-                    dataset, geom, epsg, data_output)
-            elif dataset_type == 'ogc_api':
-                distance_to_object = await ogc_api.get_shortest_distance(
-                    dataset, geom, epsg, data_output)
-
-        data_output['runAlgorithm'].append('deliver result')
-
-        run_on_input_geometry = common.create_run_on_input_geometry(
-            data_output['runOnInputGeometry'], epsg, orig_epsg)
-
-        result = {
-            'runAlgorithm': data_output['runAlgorithm'],
-            'buffer': buffer,
-            'runOnInputGeometry': run_on_input_geometry,
-            'inputGeometryArea': data_output.get('inputGeometryArea'),
-            'hitArea': data_output.get('hitArea'),
-            'resultStatus': data_output['resultStatus'],
-            'distanceToObject': distance_to_object,
-            'rasterResult': data_output.get('rasterResult'),
-            'cartography': data_output.get('cartography'),
-            'data': data_output.get('data'),
-            'themes': common.get_dataset_themes(dataset)
-        }
-
-        dataset_info = await common.get_kartkatalog_metadata(dataset)
-        result['runOnDataset'] = dataset_info
-
-        if distance_to_object >= 20000 and context != 'byggesak':
-            result['resultStatus'] = 'NO-HIT-YELLOW'
-
-        result['title'] = common.get_dataset_title(data_output, dataset)
-
-        if include_guidance and data_output['geolett'] is not None:
-            common.set_guidance_data(data_output['geolett'], result)
-
-        if include_quality_measurement:
-            common.set_quality_measurement(result)
-
-        end = time.time()
-
-        print(f'"{dataset}": {round(end - start, 2)} sek.')
-
-        if correlation_id:
-            await socket_io.sio.emit('dataset_analyzed', dataset, correlation_id)
-
-        return result
-
-    async def query(self, data, correlation_id):
-        geo_json = data.get('inputGeometry')
-        geom, epsg = common.create_input_geometry(geo_json)
-        orig_epsg = common.get_epsg(geo_json)
-
-        context = data.get('context', None)
-        buffer = data.get('requestedBuffer', 0)
-        include_guidance = data.get('includeGuidance', False)
-        include_quality_measurement = data.get(
-            'includeQualityMeasurement', False)
-
-        input_geometry = geo_json
-        common.add_geojson_crs(input_geometry, orig_epsg)
-
-        response = {
-            'inputGeometry': input_geometry,
-            'report': None,
-            'resultList': [],
-        }
-
-        datasets = await common.get_dataset_names(data, geom, epsg)
-
-        if correlation_id:
-            to_analyze = {key: value for (
-                key, value) in datasets.items() if value == True}
-            await socket_io.sio.emit('dataset_count', len(to_analyze), correlation_id)
-
-        tasks = []
-
-        async with asyncio.TaskGroup() as tg:
-            for dataset, analyze in datasets.items():
-                tasks.append(tg.create_task(self.query_dataset(
-                    dataset, analyze, epsg, orig_epsg, geom, buffer, include_guidance, include_quality_measurement, context, correlation_id)))
-
-        for task in tasks:
-            response['resultList'].append(task.result())
-
-        return response
-
-    async def execute(self, data, correlation_id):
+    async def execute(self, data):
         mimetype = 'application/json'
 
-        if not common.request_is_valid(data):
+        if not request_is_valid(data):
             raise ProcessorExecuteError('Invalid payload')
 
-        outputs = await self.query(data, correlation_id)
+        outputs = await analyses.run(data)
 
         return mimetype, outputs
 

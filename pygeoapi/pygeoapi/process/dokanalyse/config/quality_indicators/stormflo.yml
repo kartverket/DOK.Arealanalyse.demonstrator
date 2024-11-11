@@ -1,0 +1,14 @@
+dataset:
+  dataset_id: fbb95c67-623f-430a-9fa5-9cfcea8366b3
+
+  quality_indicators:
+  - type: coverage
+    quality_dimension_id: fullstendighet_dekning
+    quality_warning_text: Området er ikke kartlagt
+    warning_threshold: ikkeKartlagt
+    wfs:
+      url: https://wfs.geonorge.no/skwms1/wfs.stormflo_havniva
+      namespace: https://skjema.geonorge.no/SOSI/produktspesifikasjon/StormfloHavniva/20240220
+      layer: app:Dekningsområde
+      geom_field: app:område
+      property: app:dekningStatus

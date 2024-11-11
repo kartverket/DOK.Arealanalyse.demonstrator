@@ -1,33 +1,33 @@
 from os import path
 import json
+import asyncio
 import aiohttp
 from async_lru import alru_cache
-from ..config import CONFIG
 
-DIR_PATH = path.dirname(path.realpath(__file__))
+_DIR_PATH = path.dirname(path.realpath(__file__))
+_TIMEOUT_SECS = 15
 
 
-async def query_wfs(dataset, xml):
+async def query_wfs(config, xml):
     try:
-        url = CONFIG[dataset]['wfs']
+        url = f'{config["wfs"]}?service=WFS&version=2.0.0'
         headers = {'Content-Type': 'application/xml'}
 
         async with aiohttp.ClientSession() as session:
-            #session.timeout = 10000
-            
-            async with session.post(url, data=xml, headers=headers) as response:
+            async with session.post(url, data=xml, headers=headers, timeout=_TIMEOUT_SECS) as response:
                 if response.status != 200:
-                    return None
+                    return response.status, None
 
-                return await response.text()
+                return 200, await response.text()
+    except asyncio.TimeoutError:
+        return 408, None    
     except:
-        print('timeout: ' + dataset)
-        return None
+        return 500, None
 
 
-async def query_arcgis(dataset, layer_id, type_filter, geometry, epsg):
+async def query_arcgis(config, layer_id, type_filter, geometry, epsg):
     try:
-        url = f'{CONFIG[dataset]["arcgis"]}/{layer_id}/query'
+        url = f'{config["arcgis"]}/{layer_id}/query'
 
         data = {
             'geometry': geometry,
@@ -43,41 +43,39 @@ async def query_arcgis(dataset, layer_id, type_filter, geometry, epsg):
         }
 
         async with aiohttp.ClientSession() as session:
-            #session.timeout = 10000
-            
-            async with session.post(url, data=data) as response:
+            async with session.post(url, data=data, timeout=_TIMEOUT_SECS) as response:
                 if response.status != 200:
-                    return None
+                    return response.status, None
 
                 json = await response.json()
 
                 if 'error' in json:
-                    return None
+                    return 400, None
 
-                return json
+                return 200, json
+    except asyncio.TimeoutError:
+        return 408, None        
     except:
-        print('timeout: ' + dataset)
-        return None
+        return 500, None
 
 
-async def query_ogc_api(dataset, layer_id, wkt_geom, epsg):
+async def query_ogc_api(config, layer_id, wkt_geom, epsg):
     try:
-        base_url = CONFIG[dataset]['ogc_api']
-        geom_element_name = CONFIG[dataset]['geom_element_name']
-        filter_crs = f'&filter-crs=http://www.opengis.net/def/crs/EPSG/0/{epsg}' if epsg is not 4326 else ''                   
-        url = f'{base_url}/{layer_id}/items?filter-lang=cql2-text{filter_crs}&filter=S_INTERSECTS({geom_element_name},{wkt_geom})'
+        base_url = config['ogc_api']
+        geom_field = config['geom_field']
+        filter_crs = f'&filter-crs=http://www.opengis.net/def/crs/EPSG/0/{epsg}' if epsg != 4326 else ''
+        url = f'{base_url}/{layer_id}/items?filter-lang=cql2-text{filter_crs}&filter=S_INTERSECTS({geom_field},{wkt_geom})'
 
         async with aiohttp.ClientSession() as session:
-            #session.timeout = 10000
-                
-            async with session.get(url) as response:
+            async with session.get(url, timeout=_TIMEOUT_SECS) as response:
                 if response.status != 200:
-                    return None
+                    return response.status, None
 
-                return await response.json()
+                return 200, await response.json()
+    except asyncio.TimeoutError:
+        return 408, None        
     except:
-        print('timeout: ' + dataset)   
-        return None
+        return 500, None
 
 
 @alru_cache(maxsize=32, ttl=86400*7)
@@ -97,7 +95,7 @@ async def fetch_geolett_data():
 
 def fetch_local_geolett_data():
     file_path = path.join(
-        path.dirname(DIR_PATH), 'resources/geolett.local.json')
+        path.dirname(_DIR_PATH), 'resources/geolett.local.json')
 
     with open(file_path, 'r') as file:
         return json.load(file)
