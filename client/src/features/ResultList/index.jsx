@@ -55,7 +55,7 @@ export default function ResultList({ data }) {
     }
     function getAccordionContentClassName(result) {
         const className = [styles.accordionContainer];
-        result.resultStatus === 'NO-HIT-YELLOW' ? className.push(styles.redwarning) : null;
+        result.resultStatus === 'NO-HIT-YELLOW' ? className.push(styles.redwarning) : null;       
         return className.join(' ');
     }
 
@@ -74,20 +74,21 @@ export default function ResultList({ data }) {
         }
 
         return `${distance.toLocaleString('nb-NO')} meter`
-    }
+    }   
     function renderNotRelevant() {
-        const resultList = data.resultList['NOT-RELEVANT'] || [];
-
+        const resultList = data.resultList['NOT-RELEVANT'] || [];        
         if (resultList.length === 0) {
             return null;
         }
 
         inPlaceSort(resultList).asc(result => result.runOnDataset.title);        
-        const distinct = new Set(resultList.map(result => result.runOnDataset?.title || result.title));
-
+        const distinct = new Set(resultList.map(result => result.runOnDataset?.title || result.title));               
         return (
             <Paper className={styles.notRelevant}>
-                <span className={styles.heading}>Ikke relevant for analyseområdet:</span>
+                
+                <span className={styles.heading}>                
+                   Oslo har valgt for Det offentlige kartgrunnlaget at følgende datasett som ikke relevante for analyseområdet:
+                    </span>
                 <ul>
                     {[...distinct].map(title => <li key={title}>{title}</li>)}
                 </ul>
