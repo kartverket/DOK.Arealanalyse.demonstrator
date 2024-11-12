@@ -85,10 +85,7 @@ export default function ResultList({ data }) {
         const distinct = new Set(resultList.map(result => result.runOnDataset?.title || result.title));               
         return (
             <Paper className={styles.notRelevant}>
-                
-                <span className={styles.heading}>                
-                   Oslo har valgt for Det offentlige kartgrunnlaget at følgende datasett som ikke relevante for analyseområdet:
-                    </span>
+                <span className={styles.heading}> Kommunenavn har valgt for Det offentlige kartgrunnlaget at følgende datasett som ikke relevante for analyseområdet:</span>
                 <ul>
                     {[...distinct].map(title => <li key={title}>{title}</li>)}
                 </ul>
@@ -144,12 +141,15 @@ export default function ResultList({ data }) {
                                       {renderWarningText(result)}
                                       </div>
                                     <div className={styles.hitAndDistance}>
-                                        {
-                                            result.hitArea || getDistance(result) === '0 meter' ? (
-                                                <span><Tooltip title={<h2>Andel av analyseområde med evt buffer som treffer område til datasett</h2>} placement='top-end'>Treff: {getHitAreaPercent(result).toLocaleString('nb-NO')} %</Tooltip></span>
-                                            ) :  <span><Tooltip title={<h2>Angir antall meter fra utkant analyseområde til nærmeste objekt i datasett.</h2>} placement='top-end'>Avstand: {getDistance(result)}</Tooltip></span>
-                                        }
-                                       
+                                    {
+                                        result.hitArea ? (
+                                            <span>Treff: {getHitAreaPercent(result).toLocaleString('nb-NO')} %</span>
+                                        ) : (
+                                            result.distanceToObject !== null && (
+                                                <span>Avstand: {getDistance(result)}</span>
+                                            )
+                                        )
+                                    }
                                     </div>
                                 </div>
                             </AccordionSummary></div>
