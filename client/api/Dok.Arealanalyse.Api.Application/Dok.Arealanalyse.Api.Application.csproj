@@ -15,10 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\GeoJson\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Resources\GeoJson\drammen.geojson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -31,7 +27,7 @@
     <None Update="Resources\GeoJson\laupsnipa.geojson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\GeoJson\skien-havnelager.geojson">
+    <None Update="Resources\GeoJson\skien-havneterminal.geojson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\GeoJson\ullevål.geojson">
