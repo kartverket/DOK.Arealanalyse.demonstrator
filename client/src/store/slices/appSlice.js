@@ -2,10 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     correlationId: null,
-    dataset: {
-        count: 0,
-        analyzed: []
-    },
+    selectedResult: null,
     errorMessage: null
 };
 
@@ -19,25 +16,10 @@ export const appSlice = createSlice({
                 correlationId: action.payload
             };
         },
-        setDatasetCount: (state, action) => {
+        setSelectedResult: (state, action) => {
             return {
                 ...state,
-                dataset: {
-                    ...state.dataset,
-                    count: action.payload
-                }
-            };
-        },
-        addDatasetAnalyzed: (state, action) => {
-            return {
-                ...state,
-                dataset: {
-                    ...state.dataset,
-                    analyzed: [
-                        ...state.dataset.analyzed,
-                        action.payload
-                    ]
-                }
+                selectedResult: action.payload
             };
         },
         setErrorMessage: (state, action) => {
@@ -49,6 +31,6 @@ export const appSlice = createSlice({
     }
 });
 
-export const { setCorrelationId, setDatasetCount, addDatasetAnalyzed, setErrorMessage } = appSlice.actions;
+export const { setCorrelationId, setSelectedResult, setErrorMessage } = appSlice.actions;
 
 export default appSlice.reducer;

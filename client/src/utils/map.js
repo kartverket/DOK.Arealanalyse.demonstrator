@@ -11,9 +11,8 @@ import Stroke from 'ol/style/Stroke';
 import { getEpsgCode } from './helpers';
 import { createBaseMapLayer } from './baseMap';
 import baseMap from 'config/baseMap.config';
-import { getPointResolution } from 'ol/proj';
 
-const MAP_WIDTH = 640;
+const MAP_WIDTH = 720;
 const MAP_HEIGHT = 480;
 
 export async function createMap(inputGeometry, result, wmtsOptions) {

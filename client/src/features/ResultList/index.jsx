@@ -1,117 +1,88 @@
-import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { inPlaceSort } from 'fast-sort';
-import { Accordion, AccordionDetails, AccordionSummary, Tooltip, Paper } from '@mui/material';
-import Result from './Result';
+import { setSelectedResult } from 'store/slices/appSlice';
+import { getDistance, getHitAreaPercent, getResultClassNames, getResultTitle } from './helpers';
+import { Tooltip, Paper } from '@mui/material';
 import styles from './ResultList.module.scss';
 
 export default function ResultList({ data }) {
-    const [expanded, setExpanded] = useState('');
+    const dispatch = useDispatch();
 
-    const handleAccordionChange = (panel) => (_, isExpanded) => {
-        setExpanded(isExpanded ? panel : false);
-    };
-
-    function getAccordionTitle(result) {
-        const datasetTitle = result.runOnDataset ?
-            `«${result.runOnDataset.title}»${result.title !== null ? ` (${result.title})` : ''}` :
-            `«${result.title}»`
-
-        switch (result.resultStatus) {
-            case 'NO-HIT-GREEN':
-                return `Området er utenfor ${datasetTitle}`;
-            case 'NO-HIT-YELLOW':
-                return `Området har ikke treff for ${datasetTitle}`;
-            case 'HIT-YELLOW':
-                return `Området har treff i ${datasetTitle}`;
-            case 'HIT-RED':
-                return `Området er i konflikt med ${datasetTitle}`;
-            default:
-                return '';
-        }
+    function selectResult(result) {
+        dispatch(setSelectedResult(result));
     }
 
-    function getAccordionClassNames(result) {
-        const classNames = [styles.accordion];
-        const classNameMain = [styles.accordionSummary]
+    function getResultRowClassName(result) {
+        const classNames = [styles.resultRow];
 
-        switch (result.resultStatus) {
-            case 'NO-HIT-GREEN':
-                classNames.push(styles.success);
-                break;
-            case 'NO-HIT-YELLOW':
-                classNames.push(styles.redwarning);              
-                break;
-            case 'HIT-YELLOW':
-                classNames.push(styles.warning);               
-                break;
-            case 'HIT-RED':
-                classNames.push(styles.error);
-                break;
-            
-            default:
-                break;
-        }       
+        if (result.qualityWarning.length > 0) {
+            classNames.push(styles.hasWarnings);
+        }
+
+        if (result.resultStatus === 'NO-HIT-YELLOW') {
+            classNames.push(styles.warning);
+        }
+
         return classNames.join(' ');
     }
-    function getAccordionContentClassName(result) {
-        const className = [styles.accordionContainer];
-        result.resultStatus === 'NO-HIT-YELLOW' ? className.push(styles.redwarning) : null;       
-        return className.join(' ');
-    }
 
-    function getHitAreaPercent(result) {
-        const percent = (result.hitArea / result.inputGeometryArea) * 100;
-
-        return Math.round((percent + Number.EPSILON) * 100) / 100;
-    }
-
-    function getDistance(result) {
-        let distance = result.distanceToObject;
-
-        if (distance >= 20_000) {
-            distance = 20_000;
-            return `> ${distance.toLocaleString('nb-NO')} meter`
-        }
-
-        return `${distance.toLocaleString('nb-NO')} meter`
-    }   
-    function renderNotRelevant() {
-        const resultList = data.resultList['NOT-RELEVANT'] || [];        
-        if (resultList.length === 0) {
-            return null;
-        }
-
-        inPlaceSort(resultList).asc(result => result.runOnDataset.title);        
-        const distinct = new Set(resultList.map(result => result.runOnDataset?.title || result.title));               
-        return (
-            <Paper className={styles.notRelevant}>
-                
-                <span className={styles.heading}>                
-                   Oslo har valgt for Det offentlige kartgrunnlaget at følgende datasett som ikke relevante for analyseområdet:
-                    </span>
-                <ul>
-                    {[...distinct].map(title => <li key={title}>{title}</li>)}
-                </ul>
-            </Paper>
-        );
+    function getDokRegisterLink() {
+        return `https://register.geonorge.no/det-offentlige-kartgrunnlaget-kommunalt?municipality=${data.municipalityNumber}`;
     }
 
     function renderThemeName(result) {
         return (
-            <strong className={styles.themeName}>{result.themes[0]}:</strong>
+            <strong className={`${styles.themeName} ${getResultClassNames(result, styles)}`}>{result.themes[0]}</strong>
         );
     }
 
-    function renderWarningText(result) {
+    function renderTitle(result) {
         return (
-            result.resultStatus === 'NO-HIT-YELLOW' ? <div className={styles.warnings}>
-            <div> <strong>Området er ikke kartlagt</strong></div> 
-            <div><strong>Stedfestingsnøyaktigheten er mer enn 50 meter</strong></div>
-            <div><strong>Datasettet er fra 2021</strong></div></div> : null
-        )
+            <span className={styles.title}>{getResultTitle(result)}</span>
+        );
     }
 
-    function renderAccordions(resultStatus) {
+    function renderWarnings(result) {
+        if (!result.qualityWarning.length) {
+            return null;
+        }
+
+        return (
+            <div className={styles.warnings}>
+                <ul>
+                    {result.qualityWarning.map(warning => <li key={warning}>{warning}</li>)}
+                </ul>
+            </div>
+        );
+    }
+
+    function renderHitAreaAndDistance(result) {
+        if (result.hitArea !== null || result.distanceToObject === 0) {
+            return (
+                <Tooltip
+                    title={
+                        <span className={styles.tooltip}>Andel av analyseområde med evt. buffer som treffer datasettets område</span>
+                    }
+                    placement="top-end"
+                >
+                    <span>Treff: <strong>{getHitAreaPercent(result)}</strong></span>
+                </Tooltip>
+            );
+        }
+
+        return (
+            <Tooltip
+                title={
+                    <span className={styles.tooltip}>Angir antall meter fra utkant av analyseområde til nærmeste objekt i datasett</span>
+                }
+                placement="top-end"
+            >
+                <span>Avstand: <strong>{getDistance(result)}</strong></span>
+            </Tooltip>
+        );
+    }
+
+    function renderResults(resultStatus) {
         const resultList = data.resultList[resultStatus];
 
         if (resultList === undefined) {
@@ -127,56 +98,54 @@ export default function ResultList({ data }) {
 
         return (
             <div className={styles.resultGroup}>
-                {
-                    resultList.map((result, index) => (
-                        
-                        <Accordion
-                            key={result.runOnDataset?.datasetId || result.title}
-                            expanded={expanded === `panel-${resultStatus}-${index}`}
-                            onChange={handleAccordionChange(`panel-${resultStatus}-${index}`)}
-                        ><div className={getAccordionContentClassName(result)}>
-                            <AccordionSummary sx={{ padding: '0 24px', '& .MuiAccordionSummary-content': { margin: '20px 0' } }}>
-                                <div className={styles.accordionSummary}>
-                                    <span className={getAccordionClassNames(result)}>
-                                        <span className={styles.accordionTitle}>{renderThemeName(result)}<span> {getAccordionTitle(result)}</span></span>
-                                    </span>
-                                   <div className={styles.warningContent}>
-                                      {renderWarningText(result)}
-                                      </div>
-                                    <div className={styles.hitAndDistance}>
-                                        {
-                                            result.hitArea || getDistance(result) === '0 meter' ? (
-                                                <span><Tooltip title={<h2>Andel av analyseområde med evt buffer som treffer område til datasett</h2>} placement='top-end'>Treff: {getHitAreaPercent(result).toLocaleString('nb-NO')} %</Tooltip></span>
-                                            ) :  <span><Tooltip title={<h2>Angir antall meter fra utkant analyseområde til nærmeste objekt i datasett.</h2>} placement='top-end'>Avstand: {getDistance(result)}</Tooltip></span>
-                                        }
-                                       
-                                    </div>
+                <Paper sx={{ marginBottom: '18px' }}>
+                    {
+                        resultList.map((result, index) => (
+                            <div key={index} className={getResultRowClassName(result)} onClick={() => selectResult(result)}>
+                                {renderThemeName(result)}
+                                {renderTitle(result)}
+                                {renderWarnings(result)}
+
+                                <div className={styles.hitAndDistance}>
+                                    {renderHitAreaAndDistance(result)}
                                 </div>
-                            </AccordionSummary></div>
-                            <AccordionDetails sx={{ padding: '6px 24px' }}>
-                                {
-                                    result.resultStatus !== 'NOT-RELEVANT' && (
-                                        <Result
-                                            inputGeometry={data.inputGeometry}
-                                            result={result}
-                                        />
-                                    )
-                                }
-                            </AccordionDetails>
-                        </Accordion>
-                    ))
-                }
+                            </div>
+                        ))
+                    }
+                </Paper>
             </div>
+        );
+    }
+
+    function renderNotRelevant() {
+        const resultList = data.resultList['NOT-RELEVANT'] || [];
+
+        if (resultList.length === 0) {
+            return null;
+        }
+
+        inPlaceSort(resultList).asc(result => result.runOnDataset.title);
+        const distinct = new Set(resultList.map(result => result.runOnDataset?.title || result.title));
+
+        return (
+            <Paper className={styles.notRelevant}>
+                <span className={styles.heading}>
+                    {data.municipalityName} kommune har i <a href={getDokRegisterLink()} target="_blank" rel="noopener noreferrer">Det offentlige kartgrunnlaget</a> valgt bort følgende datasett:
+                </span>
+                <ul>
+                    {[...distinct].map(title => <li key={title}>{title}</li>)}
+                </ul>
+            </Paper>
         );
     }
 
     return (
         <div className={styles.container}>
             <div>
-                {renderAccordions('HIT-RED')}
-                {renderAccordions('HIT-YELLOW')}
-                {renderAccordions('NO-HIT-YELLOW')}
-                {renderAccordions('NO-HIT-GREEN')}
+                {renderResults('HIT-RED')}
+                {renderResults('HIT-YELLOW')}
+                {renderResults('NO-HIT-YELLOW')}
+                {renderResults('NO-HIT-GREEN')}
             </div>
 
             {renderNotRelevant()}

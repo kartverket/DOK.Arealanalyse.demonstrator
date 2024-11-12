@@ -1,18 +1,19 @@
 .grid {
    display: flex;
+   gap: 24px;
 
    > div {
       display: flex;
       flex-direction: column;
       flex: 1;
+      gap: 24px;
 
       &:first-child {
-         flex: 0 0 600px;
-         margin-right: 24px;
+         flex: 0 0 50%;
       }
 
-      > * {
-         margin-bottom: 24px;
+      &:empty {
+        display: none;
       }
    }
 }

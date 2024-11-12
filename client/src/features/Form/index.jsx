@@ -16,7 +16,8 @@ export default function Form({ onSubmit }) {
             context: '',
             theme: '',
             includeGuidance: true,
-            includeQualityMeasurement: true
+            includeQualityMeasurement: true,
+            includeFilterChosenDOK: true
         };
     }
 
@@ -121,33 +122,47 @@ export default function Form({ onSubmit }) {
                             >
                                 <MenuItem value="">Velg...</MenuItem>
                                 <MenuItem value="geologi">Geologi</MenuItem>
+                                <MenuItem value="kulturminner">Kulturminner</MenuItem>
                                 <MenuItem value="natur">Natur</MenuItem>
                                 <MenuItem value="samferdsel">Samferdsel</MenuItem>
                                 <MenuItem value="samfunnssikkerhet">Samfunnssikkerhet</MenuItem>
                             </Select>
                         </FormControl>
                     </div>
-                    <div>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    name="includeGuidance"
-                                    checked={state.includeGuidance}
-                                    onChange={handleChange}
-                                />
-                            }
-                            label="Inkluder veiledning" />
-                    </div>
-                    <div>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    name="includeQualityMeasurement"
-                                    checked={state.includeQualityMeasurement}
-                                    onChange={handleChange}
-                                />
-                            }
-                            label="Inkluder kvalitetsinformasjon" />
+                    <div className={styles.checkboxes}>
+                        <div>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="includeGuidance"
+                                        checked={state.includeGuidance}
+                                        onChange={handleChange}
+                                    />
+                                }
+                                label="Inkluder veiledning" />
+                        </div>
+                        <div>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="includeFilterChosenDOK"
+                                        checked={state.includeFilterChosenDOK}
+                                        onChange={handleChange}
+                                    />
+                                }
+                                label="Inkluder kun kommunens valgte DOK-data" />
+                        </div>                        
+                        <div>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="includeQualityMeasurement"
+                                        checked={state.includeQualityMeasurement}
+                                        onChange={handleChange}
+                                    />
+                                }
+                                label="Inkluder kvalitetsinformasjon" />
+                        </div>
                     </div>
                 </div>
                 <div className={styles.row}>

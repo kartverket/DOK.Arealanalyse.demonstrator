@@ -77,7 +77,7 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
         }
 
         const isValid = geoJson !== null && await validate(geoJson);
-        
+
         if (!isValid) {
             dispatch(setErrorMessage(`Geometrien i «${file.name}» er ugyldig`));
         } else {
@@ -137,7 +137,12 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
                                     >
                                         {
                                             samples.map(sample => (
-                                                <MenuItem key={sample.fileName} value={sample.fileName}>{sample.name}</MenuItem>
+                                                <MenuItem key={sample.fileName} value={sample.fileName}>
+                                                    <div className={styles.menuItem}>
+                                                        <span>{sample.name}</span>
+                                                        <span>{sample.description}</span>
+                                                    </div>
+                                                </MenuItem>
                                             ))
                                         }
                                     </Select>

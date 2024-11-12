@@ -7,7 +7,15 @@ export default function PossibleActions({ result }) {
             case 'NO-HIT-GREEN':
                 return <Alert icon={false} severity="success">Ingen tiltak trenger å utføres</Alert>
             case 'NO-HIT-YELLOW':
-                return <Alert icon={false} severity="warning">Det finnes ikke dekning i området og ytterligere kartlegging bør vurderes</Alert>
+                return result.qualityWarning.length > 0 ?
+                    <Alert icon={false} severity="warning">
+                        <ul className={styles.possibleActionsList}>
+                            {
+                                result.qualityWarning.map(warning => <li key={warning}>{warning}</li>)
+                            }
+                        </ul>
+                    </Alert> :
+                    null
             case 'HIT-YELLOW':
                 return (
                     <Alert icon={false} severity="warning">

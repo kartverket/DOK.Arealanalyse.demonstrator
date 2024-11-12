@@ -4,12 +4,15 @@ import { setErrorMessage } from 'store/slices/appSlice';
 import { analyze } from 'utils/api';
 import groupBy from 'lodash.groupby';
 import { LinearProgress } from '@mui/material';
-import { Form, ResultList } from 'features';
+import { Form, ResultDialog, ResultList } from 'features';
 import { Toaster } from 'components';
+import useSocketIO from 'hooks/useSocketIO';
+import messageHandlers from 'config/messageHandlers';
 import logo from 'assets/gfx/logo-kartverket.svg';
 import styles from './App.module.scss';
 
 export default function App() {
+    useSocketIO(messageHandlers);
     const [data, setData] = useState(null);
     const [fetching, setFetching] = useState(false);
     const dispatch = useDispatch();
@@ -30,10 +33,10 @@ export default function App() {
                 dispatch(setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.'));
                 console.error(response.code);
             } else {
-                const { inputGeometry, resultList } = response;
+                const { resultList } = response;
                 const grouped = groupBy(resultList, result => result.resultStatus);
 
-                setData({ inputGeometry, resultList: grouped });
+                setData({ ...response, resultList: grouped });
             }
         } catch (error) {
             dispatch(setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.'));
@@ -55,9 +58,12 @@ export default function App() {
                 <Form onSubmit={start} />
                 {
                     fetching && <LinearProgress />
-                }                
+                }
                 {
                     data !== null && <ResultList data={data} />
+                }
+                {
+                    data !== null && <ResultDialog inputGeometry={data.inputGeometry} />
                 }
                 <Toaster />
             </div>
