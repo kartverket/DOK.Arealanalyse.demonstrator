@@ -86,7 +86,7 @@ export default function ResultList({ data }) {
 
         return (
             <Paper className={styles.notRelevant}>
-                <span className={styles.heading}>Ikke relevant for analyseområdet:</span>
+                <span className={styles.heading}> Kommunenavn har valgt for Det offentlige kartgrunnlaget at følgende datasett som ikke relevante for analyseområdet:</span>
                 <ul>
                     {[...distinct].map(title => <li key={title}>{title}</li>)}
                 </ul>
