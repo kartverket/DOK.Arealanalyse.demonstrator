@@ -1,7 +1,8 @@
 import logging
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
-from .helpers.request import request_is_valid
 from .services import analyses
+from .helpers.request import request_is_valid
+from .helpers.socket_io import get_client
 
 LOGGER = logging.getLogger(__name__)
 
@@ -160,7 +161,13 @@ class DokanalyseProcessor(BaseProcessor):
         if not request_is_valid(data):
             raise ProcessorExecuteError('Invalid payload')
 
-        outputs = await analyses.run(data)
+        sio_client = get_client()
+        
+        try:        
+            outputs = await analyses.run(data, sio_client)
+        finally:
+            if sio_client:
+                sio_client.disconnect()
 
         return mimetype, outputs
 

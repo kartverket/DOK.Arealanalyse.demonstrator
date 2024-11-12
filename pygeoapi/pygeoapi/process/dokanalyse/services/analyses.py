@@ -1,14 +1,15 @@
 import time
 import asyncio
+from socketio import SimpleClient
 from ..config import get_dataset_config
 from .dataset import get_dataset_names, get_dataset_type
+from .municipality import get_municipality
 from ..helpers.geometry import create_input_geometry, get_epsg
 from ..models import Analysis, ArcGisAnalysis, EmptyAnalysis, OgcApiAnalysis, WfsAnalysis, Response, ResultStatus
-from ....socket_io import sio
 from ....middleware.correlation_id_middleware import get_correlation_id
 
 
-async def run(data) -> Response:
+async def run(data: dict, sio_client: SimpleClient) -> Response:
     geo_json = data.get('inputGeometry')
     geometry, epsg = create_input_geometry(geo_json)
     orig_epsg = get_epsg(geo_json)
@@ -16,14 +17,15 @@ async def run(data) -> Response:
     context = data.get('context')
     include_guidance = data.get('includeGuidance', False)
     include_quality_measurement = data.get('includeQualityMeasurement', False)
-    
-    datasets = await get_dataset_names(data, geometry, epsg)
+    municipality_number, municipality_name = await get_municipality(geometry, epsg)
+
+    datasets = await get_dataset_names(data, municipality_number)
     correlation_id = get_correlation_id()
 
-    if correlation_id and sio:
+    if correlation_id and sio_client:
         to_analyze = {key: value for (
             key, value) in datasets.items() if value == True}
-        sio.emit('datasets_counted_api', {'count': len(
+        sio_client.emit('datasets_counted_api', {'count': len(
             to_analyze), 'recipient': correlation_id})
 
     tasks = []
@@ -31,10 +33,11 @@ async def run(data) -> Response:
     async with asyncio.TaskGroup() as tg:
         for dataset, should_analyze in datasets.items():
             task = tg.create_task(run_analysis(
-                dataset, should_analyze, geometry, epsg, orig_epsg, buffer, context, include_guidance, include_quality_measurement))
+                dataset, should_analyze, geometry, epsg, orig_epsg, buffer, context, include_guidance, include_quality_measurement, sio_client))
             tasks.append(task)
 
-    response = Response(geo_json, orig_epsg)
+    response = Response.create(
+        geo_json, geometry, epsg, orig_epsg, buffer, municipality_number, municipality_name)
 
     for task in tasks:
         response.result_list.append(task.result())
@@ -42,7 +45,7 @@ async def run(data) -> Response:
     return response.to_json()
 
 
-async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffer, context, include_guidance, include_quality_measurement) -> Analysis:
+async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffer, context, include_guidance, include_quality_measurement, sio_client) -> Analysis:
     config = get_dataset_config(dataset)
 
     if config is None:
@@ -62,9 +65,9 @@ async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffe
     end = time.time()
     print(f'"{dataset}": {round(end - start, 2)} sek.')
 
-    if correlation_id and sio:
-        sio.emit('dataset_analyzed_api', {
-                 'dataset': dataset, 'recipient': correlation_id})
+    if correlation_id and sio_client:
+        sio_client.emit('dataset_analyzed_api', {
+            'dataset': dataset, 'recipient': correlation_id})
 
     return analysis
 
