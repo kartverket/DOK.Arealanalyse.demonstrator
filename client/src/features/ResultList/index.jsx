@@ -124,16 +124,15 @@ export default function ResultList({ data }) {
                                     </span>
 
                                     <div className={styles.hitAndDistance}>
-                                        {
-                                            result.hitArea && (
-                                                <span>Treff: {getHitAreaPercent(result).toLocaleString('nb-NO')} %</span>
-                                            )
-                                        }
-                                        {
+                                    {
+                                        result.hitArea ? (
+                                            <span>Treff: {getHitAreaPercent(result).toLocaleString('nb-NO')} %</span>
+                                        ) : (
                                             result.distanceToObject !== null && (
                                                 <span>Avstand: {getDistance(result)}</span>
                                             )
-                                        }
+                                        )
+                                    }
                                     </div>
                                 </div>
                             </AccordionSummary>
