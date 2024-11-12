@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import multiprocessing
 import socketio
 import uvicorn
 from fastapi import FastAPI
@@ -41,4 +42,5 @@ async def dataset_analyzed(_, data):
 
 
 if __name__ == '__main__':
+    multiprocessing.freeze_support() 
     uvicorn.run('main:app', host='127.0.0.1', port=5002, reload=True)
