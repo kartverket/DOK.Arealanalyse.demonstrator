@@ -1,27 +1,12 @@
 import { useCollapse } from 'react-collapsed';
 import styles from './QualityMeasurement.module.scss';
-import { useMemo } from 'react';
-
-const ORDER = [
-    'egnethet_reguleringsplan',
-    'egnethet_kommuneplan',
-    'egnethet_byggesak',
-];
 
 export default function QualityMeasurement({ result }) {
     const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
-    const _qualityMeasurement = result.qualityMeasurement || [];
+    const qualityMeasurement = result.qualityMeasurement || [];
 
-    const qualityMeasurement = useMemo(
-        () => {
-            return ORDER
-                .map(id => _qualityMeasurement.find(qm => qm.qualityDimensionId === id) || null)
-                .filter(qm => qm !== null);
-        },
-        [_qualityMeasurement]
-    );
 
-    if (!_qualityMeasurement.length) {
+    if (!qualityMeasurement.length) {
         return null;
     }
 

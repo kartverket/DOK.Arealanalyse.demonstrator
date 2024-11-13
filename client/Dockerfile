@@ -1,4 +1,4 @@
-FROM node:18-alpine AS client-build
+FROM node:22-alpine AS client-build
 WORKDIR /app
 COPY front-end/. .
 RUN corepack enable && corepack prepare yarn@4.5 \
@@ -12,7 +12,7 @@ RUN dotnet restore
 RUN dotnet build -c Release
 
 FROM api-build AS api-publish
-RUN dotnet publish -c Release /p:PublishDir=/api/publish /p:UseAppHost=false
+RUN dotnet publish -c Release /p:PublishDir=/app/publish /p:UseAppHost=false
 
 FROM python:3.12 AS sio-build
 WORKDIR /app
@@ -20,7 +20,8 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY socket-io/. .
-RUN apt update && apt install -y binutils \
+RUN apt update \
+    && apt install -y binutils \
     && pip3 install -r requirements.txt \
     && pyinstaller --name main --onefile --hidden-import=main ./main.py
 	

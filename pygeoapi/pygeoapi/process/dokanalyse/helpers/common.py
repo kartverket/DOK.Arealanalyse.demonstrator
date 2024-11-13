@@ -1,6 +1,6 @@
 import re
 from typing import List
-
+from datetime import datetime, timezone
 
 def to_camel_case(text: str) -> str:
     matches = re.findall('[A-ZÆØÅ][^A-ZÆØÅ]*', text)
@@ -22,3 +22,11 @@ def parse_string(value: str) -> str | int | float | bool:
         return False
 
     return value
+
+
+def should_refresh_cache(file_path: str, cache_days: int) -> bool:
+    timestamp = file_path.stat().st_mtime
+    modified = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+    diff = datetime.now(tz=timezone.utc) - modified
+
+    return diff.days > cache_days

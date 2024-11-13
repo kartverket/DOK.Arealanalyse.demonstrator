@@ -1,11 +1,10 @@
 from os import path
 from pathlib import Path
 import json
-from datetime import datetime, timezone
 from typing import List
 import aiohttp
 from ..config import get_config, get_dataset_config
-
+from ..helpers.common import should_refresh_cache
 
 __CACHE_DAYS = 7
 
@@ -62,7 +61,7 @@ async def __get_kartgrunnlag(municipality_number: str) -> List[str]:
     file_path = Path(path.join(
         Path.home(), 'pygeoapi/dokanalyse/kartgrunnlag', f'{municipality_number}.json'))
 
-    if not file_path.exists() or __should_refresh_cache(file_path):
+    if not file_path.exists() or should_refresh_cache(file_path, __CACHE_DAYS):
         file_path.parent.mkdir(parents=True, exist_ok=True)
         dataset_ids = await __fetch_dataset_ids(municipality_number)
         json_object = json.dumps(dataset_ids)
@@ -108,11 +107,3 @@ async def __fetch_kartgrunnlag(municipality_number: str) -> dict:
                 return await response.json()
     except:
         return None
-
-
-def __should_refresh_cache(file_path: str) -> bool:
-    timestamp = file_path.stat().st_mtime
-    modified = datetime.fromtimestamp(timestamp, tz=timezone.utc)
-    diff = datetime.now(tz=timezone.utc) - modified
-
-    return diff.days > __CACHE_DAYS

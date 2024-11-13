@@ -63,25 +63,22 @@ def get_object_quality_warnings(config: dict, data: List[dict]) -> List[str]:
     return warnings
 
 
-async def get_coverage_quality_warnings(quality_indicators: List[dict], geometry: ogr.Geometry, epsg: int) -> List[str]:
-    warnings: List[str] = []
+async def get_coverage_quality(quality_indicator: dict, geometry: ogr.Geometry, epsg: int) -> tuple[str, str | None]:
+    wfs = quality_indicator.get('wfs')
 
-    for qi in quality_indicators:
-        wfs = qi['wfs']
+    if not wfs:
+        return
 
-        if not wfs:
-            continue
+    values = await __get_values_from_wfs(wfs, geometry, epsg)
+    threshold_values = __get_threshold_values(quality_indicator)
 
-        values = await __get_values_from_wfs(wfs, geometry, epsg)
-        threshold_values = __get_threshold_values(qi)
+    should_warn = any(value for value in values if any(
+        t_value for t_value in threshold_values if t_value == value))
 
-        should_warn = any(value for value in values if any(
-            t_value for t_value in threshold_values if t_value == value))
+    warning = quality_indicator['quality_warning_text'] if should_warn else None
+    value = 'ikkeKartlagt' if 'ikkeKartlagt' in values else values[0]
 
-        if should_warn:
-            warnings.append(qi['quality_warning_text'])
-
-    return warnings
+    return value, warning
 
 
 async def __get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: int) -> List[str | int | float | bool]:

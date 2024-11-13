@@ -2,43 +2,45 @@ from abc import ABC, abstractmethod
 from typing import List
 from osgeo import ogr
 from .quality_measurement import QualityMeasurement
+from .exceptions import DokAnalysisException
 from .result_status import ResultStatus
 from ..helpers.analysis import get_kartkatalog_metadata
 from ..helpers.geometry import get_buffered_geometry, create_run_on_input_geometry_json
 from ..config import get_quality_indicators_config
-from ..services.quality_warning import get_dataset_quality_warnings, get_object_quality_warnings, get_coverage_quality_warnings
+from ..services.quality_warning import get_dataset_quality_warnings, get_object_quality_warnings, get_coverage_quality
 from ..services.quality_measurement import get_quality_measurements
 
 
 class Analysis(ABC):
     def __init__(self, config: dict, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int):
-        self.config = config
+        self.config: dict = config
         self.geometry: ogr.Geometry = geometry
         self.run_on_input_geometry: ogr.Geometry = None
         self.epsg: int = epsg
         self.orig_epsg: int = orig_epsg
         self.geometries: List[ogr.Geometry] = []
-        self.geolett = None
+        self.geolett: dict = None
         self.title: str = None
         self.description: str = None
         self.guidance_text: str = None
         self.guidance_uri: List[dict] = []
-        self.possible_actions = []
+        self.possible_actions: List[str] = []
         self.quality_measurement: List[QualityMeasurement] = []
         self.quality_warning: List[str] = []
-        self.buffer = buffer or 0
+        self.buffer: int = buffer or 0
         self.input_geometry_area: ogr.Geometry = None
-        self.run_on_input_geometry_json = None
+        self.run_on_input_geometry_json: dict = None
         self.hit_area: float = None
         self.distance_to_object: int = 0
         self.raster_result: str = None
         self.cartography: str = None
-        self.data = None
+        self.data: List[dict] = None
         self.themes: List[str] = None
         self.run_on_dataset = None
         self.run_algorithm: List[str] = []
         self.result_status: ResultStatus = ResultStatus.NO_HIT_GREEN
-        self.has_coverage = True
+        self.coverage_status: str = None
+        self.has_coverage: bool = True
 
     async def run(self, context, include_guidance, include_quality_measurement):
         self.__set_input_geometry()
@@ -88,12 +90,17 @@ class Analysis(ABC):
 
         if len(quality_indicators) == 0:
             return
+        elif len(quality_indicators) > 1:
+            raise DokAnalysisException('A dataset can only have one coverage quality indicator')
 
         self.add_run_algorithm('check coverage')
-        warnings = await get_coverage_quality_warnings(quality_indicators, self.run_on_input_geometry, self.epsg)
+        value, warning = await get_coverage_quality(quality_indicators[0], self.run_on_input_geometry, self.epsg)
 
-        self.has_coverage = len(warnings) == 0
-        self.quality_warning.extend(warnings)
+        self.coverage_status = value
+        self.has_coverage = warning == None
+        
+        if warning != None:
+            self.quality_warning.append(warning)
 
     def __set_input_geometry(self):
         self.add_run_algorithm('set input_geometry')
@@ -149,7 +156,8 @@ class Analysis(ABC):
             self.possible_actions.append(line.lstrip('- '))
 
     async def __set_quality_measurement(self):
-        self.quality_measurement = await get_quality_measurements(self.config.get('dataset_id'))
+        dataset_id = self.config.get('dataset_id')        
+        self.quality_measurement = await get_quality_measurements(dataset_id, self.coverage_status)
 
     def __set_quality_warnings(self, context):
         config = get_quality_indicators_config(self.config['dataset_id'])

@@ -14,8 +14,12 @@ app.mount('/ws', sio_app)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*'],
-    allow_methods=['*'],
+    allow_origins=[
+        'https://dok-arealanalyse-api.azurewebsites.net',
+        'http://localhost:5000',
+        'http://localhost:5173'
+    ],
+    allow_methods=['GET', 'POST'],
     allow_headers=['*'],
     allow_credentials=True
 )
@@ -42,5 +46,5 @@ async def dataset_analyzed(_, data):
 
 
 if __name__ == '__main__':
-    multiprocessing.freeze_support() 
+    multiprocessing.freeze_support()
     uvicorn.run('main:app', host='127.0.0.1', port=5002, reload=True)

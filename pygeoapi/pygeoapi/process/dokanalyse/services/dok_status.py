@@ -1,10 +1,9 @@
 from os import path
 import json
 from pathlib import Path
-from datetime import datetime, timezone
 from typing import List
 import aiohttp
-from ..helpers.common import parse_string
+from ..helpers.common import parse_string, should_refresh_cache
 
 __CACHE_DAYS = 7
 __API_URL = 'https://register.geonorge.no/api/dok-statusregisteret.json'
@@ -39,7 +38,7 @@ async def get_dok_status() -> List[dict]:
     file_path = Path(
         path.join(Path.home(), 'pygeoapi/dokanalyse/dok-status.json'))
 
-    if not file_path.exists() or __should_refresh_cache(file_path):
+    if not file_path.exists() or should_refresh_cache(file_path, __CACHE_DAYS):
         file_path.parent.mkdir(parents=True, exist_ok=True)
         dok_status = await __get_dok_status()
         json_object = json.dumps(dok_status, indent=2)
@@ -112,11 +111,3 @@ def __get_relevant_categories(item) -> List[tuple]:
                   if key in __CATEGEORY_MAPPINGS.keys()]
 
     return categories
-
-
-def __should_refresh_cache(file_path: str) -> bool:
-    timestamp = file_path.stat().st_mtime
-    modified = datetime.fromtimestamp(timestamp, tz=timezone.utc)
-    diff = datetime.now(tz=timezone.utc) - modified
-
-    return diff.days > __CACHE_DAYS
