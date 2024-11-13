@@ -1,7 +1,7 @@
 from sys import maxsize
 import json
+from typing import List
 from osgeo import ogr
-from pydash import camel_case
 from .analysis import Analysis
 from .result_status import ResultStatus
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
@@ -12,10 +12,10 @@ class ArcGisAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
-    def get_input_geometry(self):
+    def get_input_geometry(self) -> str:
         return geometry_to_arcgis_geom(self.run_on_input_geometry, self.epsg)
 
-    async def run_queries(self):
+    async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
         geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
         arcgis_geom = self.get_input_geometry()
@@ -54,7 +54,7 @@ class ArcGisAnalysis(Analysis):
 
         self.geolett = geolett_data
 
-    async def set_distance_to_object(self):
+    async def set_distance_to_object(self) -> None:
         buffered_geom = get_buffered_geometry(self.geometry, 20000, self.epsg)
         arcgis_geom = geometry_to_arcgis_geom(buffered_geom, self.epsg)
         layer_id = self.config['layers'][0]['arcgis']
@@ -83,7 +83,7 @@ class ArcGisAnalysis(Analysis):
         else:
             self.distance_to_object = distances[0]
 
-    def __parse_response(self, arcgis_response):
+    def __parse_response(self, arcgis_response) -> dict[str, List]:
         data = {
             'properties': [],
             'geometries': []
@@ -97,7 +97,7 @@ class ArcGisAnalysis(Analysis):
 
         return data
 
-    def __map_properties(self, feature, mappings):
+    def __map_properties(self, feature, mappings) -> dict:
         properties = {}
 
         for mapping in mappings:
@@ -106,7 +106,7 @@ class ArcGisAnalysis(Analysis):
 
         return properties
 
-    def __get_geometry_from_response(self, feature):
+    def __get_geometry_from_response(self, feature) -> ogr.Geometry:
         try:
             geojson = json.dumps(feature['geometry'])
             return ogr.CreateGeometryFromJson(geojson)

@@ -75,6 +75,14 @@ PROCESS_METADATA = {
             },
             'minOccurs': 0,
             'maxOccurs': 1
+        },
+        'includeFilterChosenDOK': {
+            'title': 'Inkluder kun kommunens valgte DOK-data',
+            'schema': {
+                'type': 'boolean'
+            },
+            'minOccurs': 0,
+            'maxOccurs': 1
         }
     },
     'outputs': {
@@ -142,10 +150,11 @@ PROCESS_METADATA = {
                 }
             },
             'requestedBuffer': 50,
-            'context': 'ROS',
-            'theme': 'Plan',
+            'context': 'Reguleringsplan',
+            'theme': 'Natur',
             'includeGuidance': True,
-            'includeQualityMeasurement': True
+            'includeQualityMeasurement': True,
+            'includeFilterChosenDOK': True
         }
     }
 }
@@ -162,8 +171,8 @@ class DokanalyseProcessor(BaseProcessor):
             raise ProcessorExecuteError('Invalid payload')
 
         sio_client = get_client()
-        
-        try:        
+
+        try:
             outputs = await analyses.run(data, sio_client)
         finally:
             if sio_client:

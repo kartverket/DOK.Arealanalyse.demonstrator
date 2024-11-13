@@ -57,7 +57,7 @@ export default function ResultList({ data }) {
     }
 
     function renderHitAreaAndDistance(result) {
-        if (result.hitArea !== null || result.distanceToObject === 0) {
+        if (result.hitArea !== null) {
             return (
                 <Tooltip
                     title={
@@ -68,18 +68,20 @@ export default function ResultList({ data }) {
                     <span>Treff: <strong>{getHitAreaPercent(result)}</strong></span>
                 </Tooltip>
             );
+        } else if (result.distanceToObject !== 0) {
+            return (
+                <Tooltip
+                    title={
+                        <span className={styles.tooltip}>Angir antall meter fra utkant av analyseområde til nærmeste objekt i datasett</span>
+                    }
+                    placement="top-end"
+                >
+                    <span>Avstand: <strong>{getDistance(result)}</strong></span>
+                </Tooltip>
+            );
         }
 
-        return (
-            <Tooltip
-                title={
-                    <span className={styles.tooltip}>Angir antall meter fra utkant av analyseområde til nærmeste objekt i datasett</span>
-                }
-                placement="top-end"
-            >
-                <span>Avstand: <strong>{getDistance(result)}</strong></span>
-            </Tooltip>
-        );
+        return null;
     }
 
     function renderResults(resultStatus) {

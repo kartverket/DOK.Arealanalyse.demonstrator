@@ -1,5 +1,6 @@
 from os import path
 from sys import maxsize
+from typing import List
 import xml.etree.ElementTree as ET
 from osgeo import ogr
 from .analysis import Analysis
@@ -8,17 +9,17 @@ from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartogra
 from ..helpers.geometry import get_buffered_geometry
 from ..services.api import query_wfs
 
-_DIR_PATH = path.dirname(path.realpath(__file__))
+__DIR_PATH = path.dirname(path.realpath(__file__))
 
 
 class WfsAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
-    def get_input_geometry(self):
+    def get_input_geometry(self) -> str:
         return self.run_on_input_geometry.ExportToGML(['FORMAT=GML3'])
 
-    async def run_queries(self):
+    async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
         gml = self.get_input_geometry()
         geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
@@ -54,7 +55,7 @@ class WfsAnalysis(Analysis):
 
         self.geolett = geolett_data
 
-    async def set_distance_to_object(self):
+    async def set_distance_to_object(self) -> None:
         buffered_geom = get_buffered_geometry(self.geometry, 20000, self.epsg)
         gml = buffered_geom.ExportToGML(['FORMAT=GML3'])
         layer = self.config['layers'][0]
@@ -87,15 +88,15 @@ class WfsAnalysis(Analysis):
         else:
             self.distance_to_object = distances[0]
 
-    def __create_request_xml(self, layer_name, gml):
-        file_path = path.join(_DIR_PATH, 'wfs_request.xml.txt')
+    def __create_request_xml(self, layer_name, gml) -> str:
+        file_path = path.join(__DIR_PATH, 'wfs_request.xml.txt')
 
         with open(file_path, 'r') as file:
             file_text = file.read()
 
         return file_text.format(layerName=layer_name, epsg=self.epsg, geomField=self.config['geom_field'], geometry=gml).encode('utf-8')
 
-    def __parse_response(self, wfs_response, layer):
+    def __parse_response(self, wfs_response, layer) -> dict[str, List]:
         data = {
             'properties': [],
             'geometries': []
@@ -113,7 +114,7 @@ class WfsAnalysis(Analysis):
 
         return data
 
-    def __filter_member(self, member, layer, ns):
+    def __filter_member(self, member, layer, ns) -> bool:
         if 'type_filter' not in layer:
             return True
 
@@ -125,7 +126,7 @@ class WfsAnalysis(Analysis):
 
         return attr_element.text == layer['type_filter']['value']
 
-    def __map_properties(self, member, ns):
+    def __map_properties(self, member, ns) -> dict:
         properties = {}
 
         for mapping in self.config['properties']:
@@ -137,7 +138,7 @@ class WfsAnalysis(Analysis):
 
         return properties
 
-    def __get_geometry_from_response(self, member, ns):
+    def __get_geometry_from_response(self, member, ns) -> ogr.Geometry:
         selector = './' + self.config['geom_field'] + '/*'
         geom_el = member.find(selector, namespaces=ns)
         gml_str = ET.tostring(geom_el, encoding='unicode')
@@ -147,5 +148,5 @@ class WfsAnalysis(Analysis):
         except:
             return None
 
-    def __get_namespaces(self):
+    def __get_namespaces(self) -> dict:
         return {'wfs': 'http://www.opengis.net/wfs/2.0', 'app': self.config['namespace']}

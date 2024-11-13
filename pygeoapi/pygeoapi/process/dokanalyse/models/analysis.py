@@ -42,7 +42,7 @@ class Analysis(ABC):
         self.coverage_status: str = None
         self.has_coverage: bool = True
 
-    async def run(self, context, include_guidance, include_quality_measurement):
+    async def run(self, context, include_guidance, include_quality_measurement) -> None:
         self.__set_input_geometry()
 
         await self.__run_coverage_analysis()
@@ -76,10 +76,10 @@ class Analysis(ABC):
 
         self.__set_quality_warnings(context)
 
-    def add_run_algorithm(self, algorithm):
+    def add_run_algorithm(self, algorithm) -> None:
         self.run_algorithm.append(algorithm)
 
-    async def __run_coverage_analysis(self):
+    async def __run_coverage_analysis(self) -> None:
         config = get_quality_indicators_config(self.config['dataset_id'])
 
         if config is None:
@@ -91,18 +91,19 @@ class Analysis(ABC):
         if len(quality_indicators) == 0:
             return
         elif len(quality_indicators) > 1:
-            raise DokAnalysisException('A dataset can only have one coverage quality indicator')
+            raise DokAnalysisException(
+                'A dataset can only have one coverage quality indicator')
 
         self.add_run_algorithm('check coverage')
         value, warning = await get_coverage_quality(quality_indicators[0], self.run_on_input_geometry, self.epsg)
 
         self.coverage_status = value
         self.has_coverage = warning == None
-        
+
         if warning != None:
             self.quality_warning.append(warning)
 
-    def __set_input_geometry(self):
+    def __set_input_geometry(self) -> None:
         self.add_run_algorithm('set input_geometry')
 
         if self.buffer > 0:
@@ -113,35 +114,36 @@ class Analysis(ABC):
         else:
             self.run_on_input_geometry = self.geometry.Clone()
 
-    def __set_geometry_areas(self):
+    def __set_geometry_areas(self) -> None:
         self.input_geometry_area = round(
             self.run_on_input_geometry.GetArea(), 2)
 
         if len(self.geometries) == 0:
             return
 
-        geom_collection = ogr.Geometry(ogr.wkbGeometryCollection)
+        hit_area: float = 0
 
         for geometry in self.geometries:
-            geom_collection.AddGeometry(geometry)
+            intersection: ogr.Geometry = self.run_on_input_geometry.Intersection(
+                geometry)
 
-        intersection = self.run_on_input_geometry.Intersection(geom_collection)
+            if intersection is None:
+                continue
 
-        if intersection is None:
-            return
+            geom_type = intersection.GetGeometryType()
 
-        geom_type = intersection.GetGeometryType()
+            if geom_type == ogr.wkbPolygon or geom_type == ogr.wkbMultiPolygon:
+                hit_area += intersection.GetArea()
 
-        if geom_type == ogr.wkbPolygon or geom_type == ogr.wkbMultiPolygon:
-            self.hit_area = round(intersection.GetArea(), 2)
+        self.hit_area = hit_area
 
-    async def __set_default_data(self):
+    async def __set_default_data(self) -> None:
         self.title = self.geolett['tittel'] if self.geolett else self.config.get(
             'title')
         self.themes = self.config.get('themes', [])
         self.run_on_dataset = await get_kartkatalog_metadata(self.config)
 
-    def __set_guidance_data(self):
+    def __set_guidance_data(self) -> None:
         if self.result_status != ResultStatus.NO_HIT_GREEN:
             self.description = self.geolett['forklarendeTekst']
             self.guidance_text = self.geolett['dialogtekst']
@@ -155,11 +157,11 @@ class Analysis(ABC):
         for line in self.geolett['muligeTiltak'].splitlines():
             self.possible_actions.append(line.lstrip('- '))
 
-    async def __set_quality_measurement(self):
-        dataset_id = self.config.get('dataset_id')        
+    async def __set_quality_measurement(self) -> None:
+        dataset_id = self.config.get('dataset_id')
         self.quality_measurement = await get_quality_measurements(dataset_id, self.coverage_status)
 
-    def __set_quality_warnings(self, context):
+    def __set_quality_warnings(self, context) -> None:
         config = get_quality_indicators_config(self.config['dataset_id'])
 
         if config is None:
@@ -172,7 +174,7 @@ class Analysis(ABC):
 
         self.quality_warning.extend(warnings)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             'title': self.title,
             'runOnInputGeometry': self.run_on_input_geometry_json,
@@ -196,13 +198,13 @@ class Analysis(ABC):
         }
 
     @abstractmethod
-    def get_input_geometry(self):
+    def get_input_geometry(self) -> str:
         pass
 
     @abstractmethod
-    async def run_queries(self):
+    async def run_queries(self) -> None:
         pass
 
     @abstractmethod
-    def set_distance_to_object(self):
+    def set_distance_to_object(self) -> None:
         pass

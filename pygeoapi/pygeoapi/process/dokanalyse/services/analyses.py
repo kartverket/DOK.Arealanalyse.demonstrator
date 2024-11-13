@@ -19,7 +19,7 @@ async def run(data: dict, sio_client: SimpleClient) -> Response:
     include_quality_measurement = data.get('includeQualityMeasurement', False)
     municipality_number, municipality_name = await get_municipality(geometry, epsg)
 
-    datasets = await get_dataset_names(data, municipality_number)
+    datasets = {'naturtyper_ku_verdi': True} #await get_dataset_names(data, municipality_number)
     correlation_id = get_correlation_id()
 
     if correlation_id and sio_client:

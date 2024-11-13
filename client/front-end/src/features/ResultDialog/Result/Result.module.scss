@@ -1,36 +1,40 @@
 .grid {
-   display: flex;
-   gap: 24px;
+    display: flex;
+    gap: 24px;
 
-   > div {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      gap: 24px;
+    >div {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        gap: 24px;
 
-      &:first-child {
-         flex: 0 0 50%;
-      }
+        &:first-child {
+            flex: 0 0 50%;
+        }
 
-      &:empty {
-        display: none;
-      }
-   }
+        &:last-child {
+            width: calc(50% - 24px);
+        }
+
+        &:empty {
+            display: none;
+        }
+    }
 }
 
 .expandables {
-   > *:last-child {
-      border-bottom: 1px solid #e0e0e0;
-   }
+    >*:last-child {
+        border-bottom: 1px solid #e0e0e0;
+    }
 }
 
 .loading {
-   width: 100%;
-   height: 412.5px;
-   border: 1px solid #e0e0e0;
-   display: flex;
-   align-items: center;
-   justify-content: center;
+    width: 100%;
+    height: 412.5px;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .guidanceLinks {

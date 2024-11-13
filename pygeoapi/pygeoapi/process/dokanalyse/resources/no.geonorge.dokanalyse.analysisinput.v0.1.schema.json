@@ -4,41 +4,44 @@
     "title": "AnalysisInput",
     "type": "object",
     "properties": {
-       "inputGeometry": {
-          "description": "Området en ønsker å analysere mot. Kan feks være en eiendom eller planområde.",
-          "oneOf": [
-             {
-                "$ref": "http://geojson.org/schema/Polygon.json"
-             },
-             {
-                "$ref": "http://geojson.org/schema/MultiPolygon.json"
-             }
-          ]
-       },
-       "requestedBuffer": {
-          "description": "Antall meter som legges på inputGeometry som buffer i analysen. Kan utelates og avgjøres av analysen hva som er fornuftig buffer.",
-          "type": "integer"
-       },
-       "theme": {
-          "type": [
-             "string",
-             "null"
-          ]
-       },
-       "context": {
-          "type": [
-             "string",
-             "null"
-          ]
-       },
-       "includeGuidance": {
-          "type": "boolean"
-       },
-       "includeQualityMeasurement": {
-          "type": "boolean"
-       }
+        "inputGeometry": {
+            "description": "Området en ønsker å analysere mot. Kan feks være en eiendom eller planområde.",
+            "oneOf": [
+                {
+                    "$ref": "http://geojson.org/schema/Polygon.json"
+                },
+                {
+                    "$ref": "http://geojson.org/schema/MultiPolygon.json"
+                }
+            ]
+        },
+        "requestedBuffer": {
+            "description": "Antall meter som legges på inputGeometry som buffer i analysen. Kan utelates og avgjøres av analysen hva som er fornuftig buffer.",
+            "type": "integer"
+        },
+        "theme": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "context": {
+            "type": [
+                "string",
+                "null"
+            ]
+        },
+        "includeGuidance": {
+            "type": "boolean"
+        },
+        "includeQualityMeasurement": {
+            "type": "boolean"
+        },
+        "includeFilterChosenDOK": {
+            "type": "boolean"
+        }
     },
     "required": [
-       "inputGeometry"
+        "inputGeometry"
     ]
- }
+}

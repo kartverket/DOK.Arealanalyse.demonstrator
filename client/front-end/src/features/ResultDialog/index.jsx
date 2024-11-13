@@ -23,19 +23,21 @@ export default function ResultDialog({ inputGeometry }) {
     }
 
     function renderHitAreaOrDistance() {
-        if (result.hitArea !== null || result.distanceToObject === 0) {
+        if (result.hitArea !== null) {
             return (
                 <span>
                     Treff: <strong>{getHitAreaPercent(result)}</strong>
                 </span>
             );
+        } else if (result.distanceToObject !== 0) {
+            return (
+                <span>
+                    Avstand: <strong>{getDistance(result)}</strong>
+                </span>
+            );
         }
 
-        return (
-            <span>
-                Avstand: <strong>{getDistance(result)}</strong>
-            </span>
-        );
+        return null;
     }
 
     function renderDialogTitle() {
@@ -67,7 +69,7 @@ export default function ResultDialog({ inputGeometry }) {
             sx={{
                 '& .MuiDialog-container': {
                     '& > .MuiPaper-root': {
-                        minWidth: '1280px',
+                        minWidth: '1600px',
                         maxWidth: '1600px',
                     },
                 }

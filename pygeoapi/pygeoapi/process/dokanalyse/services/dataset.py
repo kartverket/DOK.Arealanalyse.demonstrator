@@ -45,7 +45,9 @@ def get_datasets_by_theme(theme: str) -> List[dict]:
     datasets = []
 
     for key, value in get_config().items():
-        if theme is None or theme in value['themes']:
+        themes = list(map(lambda t: t.lower(), value['themes']))
+        
+        if theme is None or theme.lower() in themes:
             datasets.append({
                 'id': value.get('dataset_id'),
                 'name': key
@@ -59,12 +61,12 @@ async def __get_kartgrunnlag(municipality_number: str) -> List[str]:
         return []
 
     file_path = Path(path.join(
-        Path.home(), 'pygeoapi/dokanalyse/kartgrunnlag', f'{municipality_number}.json'))
+        Path.home(), 'dokanalyse/resources/dok-datasets', f'{municipality_number}.json'))
 
     if not file_path.exists() or should_refresh_cache(file_path, __CACHE_DAYS):
         file_path.parent.mkdir(parents=True, exist_ok=True)
         dataset_ids = await __fetch_dataset_ids(municipality_number)
-        json_object = json.dumps(dataset_ids)
+        json_object = json.dumps(dataset_ids, indent=2)
 
         with file_path.open('w', encoding='utf-8') as file:
             file.write(json_object)

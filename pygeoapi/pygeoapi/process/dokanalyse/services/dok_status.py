@@ -36,7 +36,7 @@ async def get_dok_status_for_dataset(dataset_id) -> dict:
 
 async def get_dok_status() -> List[dict]:
     file_path = Path(
-        path.join(Path.home(), 'pygeoapi/dokanalyse/dok-status.json'))
+        path.join(Path.home(), 'dokanalyse/resources/dok-status.json'))
 
     if not file_path.exists() or should_refresh_cache(file_path, __CACHE_DAYS):
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -74,7 +74,7 @@ async def __get_dok_status() -> List[dict]:
             suitability.append({
                 'qualityDimensionId': id,
                 'qualityDimensionName': name,
-                'value': parse_string(value),
+                'value': value,
                 'comment': __VALUE_MAPPINGS.get(value)
             })
 

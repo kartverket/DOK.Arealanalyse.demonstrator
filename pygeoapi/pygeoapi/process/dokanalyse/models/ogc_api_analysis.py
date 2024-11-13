@@ -1,5 +1,6 @@
 import json
 from sys import maxsize
+from typing import List
 from pydash import get
 from osgeo import ogr
 from .analysis import Analysis
@@ -13,10 +14,10 @@ class OgcApiAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
-    def get_input_geometry(self):
+    def get_input_geometry(self) -> str:
         return geometry_to_wkt(self.run_on_input_geometry, self.epsg)
 
-    async def run_queries(self):
+    async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
         geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
         wkt_geom = self.get_input_geometry()
@@ -50,7 +51,7 @@ class OgcApiAnalysis(Analysis):
 
         self.geolett = geolett_data
 
-    async def set_distance_to_object(self):
+    async def set_distance_to_object(self) -> None:
         buffered_geom = get_buffered_geometry(self.geometry, 20000, self.epsg)
         wkt_geom = geometry_to_wkt(buffered_geom, self.epsg)
         layer_id = self.config['layers'][0]['ogc_api']
@@ -78,7 +79,7 @@ class OgcApiAnalysis(Analysis):
         else:
             self.distance_to_object = distances[0]
 
-    def __parse_response(self, ogc_api_response):
+    def __parse_response(self, ogc_api_response) -> dict[str, List]:
         data = {
             'properties': [],
             'geometries': []
@@ -92,7 +93,7 @@ class OgcApiAnalysis(Analysis):
 
         return data
 
-    def __map_properties(self, feature, mappings):
+    def __map_properties(self, feature, mappings) -> dict:
         properties = {}
 
         for mapping in mappings:
@@ -102,7 +103,7 @@ class OgcApiAnalysis(Analysis):
 
         return properties
 
-    def __get_geometry_from_response(self, feature):
+    def __get_geometry_from_response(self, feature) -> ogr.Geometry:
         try:
             geojson = json.dumps(feature['geometry'])
             return ogr.CreateGeometryFromJson(geojson)
