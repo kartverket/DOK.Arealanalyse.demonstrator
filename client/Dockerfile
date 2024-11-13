@@ -6,7 +6,7 @@ RUN corepack enable && corepack prepare yarn@4.5 \
     && yarn build
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS api-build
-WORKDIR /api
+WORKDIR /app
 COPY api/. .
 RUN dotnet restore
 RUN dotnet build -c Release
@@ -14,7 +14,7 @@ RUN dotnet build -c Release
 FROM api-build AS api-publish
 RUN dotnet publish -c Release /p:PublishDir=/api/publish /p:UseAppHost=false
 
-FROM python:3.11 AS socket-io-build
+FROM python:3.12 AS sio-build
 WORKDIR /app
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
@@ -22,7 +22,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 COPY socket-io/. .
 RUN apt update && apt install -y binutils \
     && pip3 install -r requirements.txt \
-    && pyinstaller --name socket-io --onefile --hidden-import=main ./main.py
+    && pyinstaller --name main --onefile --hidden-import=main ./main.py
 	
 FROM nginx:1.27.2
 RUN apt update \
@@ -37,8 +37,8 @@ RUN apt update \
    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=client-build /app/dist /usr/share/nginx/html
-COPY --from=socket-io-build /app/dist /socket-io
-COPY --from=api-publish /api/publish /api
+COPY --from=sio-build /app/dist /app/socket-io
+COPY --from=api-publish /app/publish /app/api
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY deploy/supervisor.conf /etc/supervisor.conf
 

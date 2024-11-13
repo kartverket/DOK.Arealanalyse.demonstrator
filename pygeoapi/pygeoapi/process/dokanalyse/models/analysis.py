@@ -49,6 +49,7 @@ class Analysis(ABC):
             await self.run_queries()
 
             if self.result_status == ResultStatus.TIMEOUT or self.result_status == ResultStatus.ERROR:
+                await self.__set_default_data()
                 return
 
             self.__set_geometry_areas()
@@ -63,11 +64,7 @@ class Analysis(ABC):
         self.run_on_input_geometry_json = create_run_on_input_geometry_json(
             self.run_on_input_geometry, self.epsg, self.orig_epsg)
 
-        self.title = self.geolett['tittel'] if self.geolett else self.config.get(
-            'title')
-        self.themes = self.config.get('themes', [])
-
-        self.run_on_dataset = await get_kartkatalog_metadata(self.config)
+        await self.__set_default_data()
 
         if include_guidance and self.geolett is not None:
             self.__set_guidance_data()
@@ -130,6 +127,12 @@ class Analysis(ABC):
 
         if geom_type == ogr.wkbPolygon or geom_type == ogr.wkbMultiPolygon:
             self.hit_area = round(intersection.GetArea(), 2)
+
+    async def __set_default_data(self):
+        self.title = self.geolett['tittel'] if self.geolett else self.config.get(
+            'title')
+        self.themes = self.config.get('themes', [])
+        self.run_on_dataset = await get_kartkatalog_metadata(self.config)
 
     def __set_guidance_data(self):
         if self.result_status != ResultStatus.NO_HIT_GREEN:

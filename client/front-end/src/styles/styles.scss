@@ -1,7 +1,8 @@
 @use './reset';
-@use './fonts';
 @use '../../node_modules/ol/ol.css';
 @use '../../node_modules/pretty-print-json/dist/css/pretty-print-json.css';
+@use './fonts';
+@use './overrides';
 
 html {
    font-family: 'Roboto-Regular';

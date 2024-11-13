@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setErrorMessage } from 'store/slices/appSlice';
+import { resetProgress } from 'store/slices/datasetSlice';
 import { analyze } from 'utils/api';
-import groupBy from 'lodash.groupby';
-import { LinearProgress } from '@mui/material';
 import { Form, ResultDialog, ResultList } from 'features';
-import { Toaster } from 'components';
+import { ProgressBar, Toaster } from 'components';
+import groupBy from 'lodash.groupby';
 import useSocketIO from 'hooks/useSocketIO';
 import messageHandlers from 'config/messageHandlers';
 import logo from 'assets/gfx/logo-kartverket.svg';
@@ -20,6 +20,7 @@ export default function App() {
 
     function resetState() {
         setData(null);
+        dispatch(resetProgress());
     }
 
     async function start(payload) {
@@ -57,7 +58,7 @@ export default function App() {
             <div className={styles.content}>
                 <Form onSubmit={start} />
                 {
-                    fetching && <LinearProgress />
+                    fetching && <ProgressBar />
                 }
                 {
                     data !== null && <ResultList data={data} />

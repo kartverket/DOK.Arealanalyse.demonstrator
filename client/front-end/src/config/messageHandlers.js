@@ -3,7 +3,7 @@ import { addAnalyzed, setCount } from 'store/slices/datasetSlice';
 
 const messageHandlers = new Map();
 
-messageHandlers.set('dataset_count', message => {
+messageHandlers.set('datasets_counted', message => {
     store.dispatch(setCount(parseInt(message)));
 });
 
