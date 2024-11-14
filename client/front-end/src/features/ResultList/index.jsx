@@ -57,7 +57,7 @@ export default function ResultList({ data }) {
     }
 
     function renderHitAreaAndDistance(result) {
-        if (result.hitArea !== null) {
+        if (result.hitArea !== null && result.hitArea !== 0) {
             return (
                 <Tooltip
                     title={

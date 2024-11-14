@@ -124,6 +124,9 @@ class Analysis(ABC):
         hit_area: float = 0
 
         for geometry in self.geometries:
+            if geometry is None:
+                continue
+            
             intersection: ogr.Geometry = self.run_on_input_geometry.Intersection(
                 geometry)
 

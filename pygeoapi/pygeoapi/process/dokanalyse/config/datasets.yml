@@ -2,28 +2,27 @@ stormflo:
   dataset_id: fbb95c67-623f-430a-9fa5-9cfcea8366b3
   wfs: https://wfs.geonorge.no/skwms1/wfs.stormflo_havniva
   wms: https://wms.geonorge.no/skwms1/wms.stormflo_havniva
-  namespace: https://skjema.geonorge.no/SOSI/produktspesifikasjon/StormfloHavniva/20240220
   layers:
-  - wfs: app:Stormflo20År_KlimaÅrNå
+  - wfs: Stormflo20År_KlimaÅrNå
     wms:
     - stormflo20ar_klimaarna
     result_status: HIT-RED
     geolett_id: a150a588-6b48-415b-aa18-2c5c683bf18c
-  - wfs: app:Stormflo200År_KlimaÅrNå
+  - wfs: Stormflo200År_KlimaÅrNå
     wms:
     - stormflo200ar_klimaarna
     result_status: HIT-YELLOW
     geolett_id: a150a588-6b48-415b-aa18-2c5c683bf18c
-  - wfs: app:Stormflo200År_KlimaÅr2100
+  - wfs: Stormflo200År_KlimaÅr2100
     wms:
     - stormflo200ar_klimaar2100
     result_status: HIT-YELLOW
     geolett_id: a150a588-6b48-415b-aa18-2c5c683bf18c
-  geom_field: app:område
+  geom_field: område
   properties:
-  - app:sikkerhetsklasseFlom
-  - app:oppdateringsdato
-  - app:opphav
+  - sikkerhetsklasseFlom
+  - oppdateringsdato
+  - opphav
   themes:
   - samfunnssikkerhet
 
@@ -31,9 +30,8 @@ flomsoner:
   dataset_id: e95008fc-0945-4d66-8bc9-e50ab3f50401
   wfs: https://wfs.geonorge.no/skwms1/wfs.flomsoner
   wms: https://nve.geodataonline.no/arcgis/services/Flomsoner1/MapServer/WMSServer
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Flomsoner/1.1
   layers:
-  - wfs: app:FlomAreal
+  - wfs: FlomAreal
     wms:
     - Flomsone_20arsflom
     - Flomsone_200arsflom
@@ -41,10 +39,10 @@ flomsoner:
     type_filter: gjentaksintervall IN [20, 200, 2100]
     result_status: HIT-RED
     geolett_id: 5adab8dc-b327-49ed-9336-e85fe2453a05
-  geom_field: app:område
+  geom_field: område
   properties:
-  - app:gjentaksintervall
-  - app:datauttaksdato
+  - gjentaksintervall
+  - datauttaksdato
   themes:
   - samfunnssikkerhet
 
@@ -52,18 +50,17 @@ flom_aktsomhets_omr:
   dataset_id: 60c5024f-bf93-4d7a-888a-5fe001427195
   wfs: http://wfs.geonorge.no/skwms1/wfs.flomaktsomhetsomrader
   wms: https://nve.geodataonline.no/arcgis/services/FlomAktsomhet/MapServer/WMSServer
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Flomaktsomhetsomrader/1.1
   layers:
-  - wfs: app:FlomAktsomhetOmr
+  - wfs: FlomAktsomhetOmr
     wms:
     - Flom_aktsomhetsomrade
     result_status: HIT-YELLOW
     geolett_id: 44ef4297-d5a5-4fab-9db3-d67429d7a5f0
-  geom_field: app:område
+  geom_field: område
   properties:
-  - app:vassOmråde
-  - app:temaKvalitet
-  - app:vannKilde
+  - vassOmråde
+  - temaKvalitet
+  - vannKilde
   themes:
   - samfunnssikkerhet
 
@@ -71,19 +68,18 @@ jord_flomskred_aktsomhets_omr:
   dataset_id: 30e1883e-70e9-4510-9e97-00edbdcddc02
   wfs: https://wfs.geonorge.no/skwms1/wfs.jord_og_flomskred_aktsomhetsomrader
   wms: https://nve.geodataonline.no/arcgis/services/SkredJordFlomAktR1/MapServer/WMSServer
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2
   layers:
-  - wfs: app:PotensieltSkredfareOmr
+  - wfs: PotensieltSkredfareOmr
     wms:
     - Potensielt_Jord-Flomskredfare
     result_status: HIT-RED
     geolett_id: 643479b5-41d9-4d66-8069-18f746141a41
-  geom_field: app:område
+  geom_field: område
   properties:
-  - app:skredType
-  - app:skredfareVurdering
-  - app:temaKvalitet
-  - app:oppdateringsdato
+  - skredType
+  - skredfareVurdering
+  - temaKvalitet
+  - oppdateringsdato
   themes:
   - samfunnssikkerhet
 
@@ -91,19 +87,18 @@ snoskred_aktsomhets_omr:
   dataset_id: 54ada9d8-e6fc-48d6-82b0-5477166a4aaa
   wfs: https://wfs.geonorge.no/skwms1/wfs.snoskredaktsomhetsomrader
   wms: https://nve.geodataonline.no/arcgis/services/SkredSnoAktR/MapServer/WMSServer
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2
   layers:
-  - wfs: app:PotensieltSkredfareOmr
+  - wfs: PotensieltSkredfareOmr
     wms:
     - Snoskred-Aktsomhetsomrader
     result_status: HIT-RED
     geolett_id: 7831236b-c9c1-4d5f-af4b-cac0304d7d6e
-  geom_field: app:område
+  geom_field: område
   properties:
-  - app:skredType
-  - app:skredfareVurdering
-  - app:temaKvalitet
-  - app:oppdateringsdato
+  - skredType
+  - skredfareVurdering
+  - temaKvalitet
+  - oppdateringsdato
   themes:
   - samfunnssikkerhet
 
@@ -111,19 +106,18 @@ steinsprang_aktsomhets_omr:
   dataset_id: 02c6d51c-4e8c-4948-a620-dc046c8cb747
   wfs: https://wfs.geonorge.no/skwms1/wfs.steinsprang_aktsomhetsomrader
   wms: https://nve.geodataonline.no/arcgis/services/SkredSteinAktR/MapServer/WmsServer
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Skredaktsomhet/1.2
   layers:
-  - wfs: app:PotensieltSkredfareOmr
+  - wfs: PotensieltSkredfareOmr
     wms:
     - Steinsprang-AktsomhetOmrader
     result_status: HIT-RED
     geolett_id: 2d405ce6-98ea-40f9-905b-f8a0d5c96224
-  geom_field: app:område
+  geom_field: område
   properties:
-  - app:skredType
-  - app:skredfareVurdering
-  - app:temaKvalitet
-  - app:oppdateringsdato
+  - skredType
+  - skredfareVurdering
+  - temaKvalitet
+  - oppdateringsdato
   themes:
   - samfunnssikkerhet
 
@@ -185,17 +179,16 @@ tilfluktsrom_offentlige:
   title: 'Tilfluktsrom - offentlige'
   wfs: https://wfs.geonorge.no/skwms1/wfs.tilfluktsrom_offentlige
   wms: https://ogc.dsb.no/wms.ashx
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/TilfluktsromOffentlige/20191001
   layers:
-  - wfs: app:Tilfluktsrom
+  - wfs: Tilfluktsrom
     wms:
     - layer_340
     result_status: HIT-RED
-  geom_field: app:posisjon
+  geom_field: posisjon
   properties:
-  - app:romnr
-  - app:plasser
-  - app:adresse
+  - romnr
+  - plasser
+  - adresse
   themes:
   - samfunnssikkerhet
 
@@ -203,19 +196,18 @@ hensynssone_energianlegg:
   dataset_id: 9f71a24b-9997-409f-8e42-ce6f0c62e073
   wfs: https://wfs.geonorge.no/skwms1/wfs.nettanlegg
   wms: https://nve.geodataonline.no/arcgis/services/Nettanlegg2/MapServer/WMSServer
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Nettanlegg/1.0
   layers:
-  - wfs: app:EL_Luftlinje
+  - wfs: EL_Luftlinje
     wms:
     - Distribusjonsnett
     - Regionalnett
     result_status: HIT-RED
     geolett_id: cc04ba06-1ad4-40cc-b961-389786a269ad
-  geom_field: app:linje
+  geom_field: linje
   properties:
-  - app:navn
-  - app:nettnivå
-  - app:spenning
+  - navn
+  - nettnivå
+  - spenning
   themes:
   - samfunnssikkerhet
 
@@ -241,22 +233,21 @@ kulturminner_enkeltminner:
   dataset_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
   wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
   wms: https://kart.ra.no/wms/kulturminner
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/LokaliteterEnkeltminnerOgSikringssoner/20210217
   layers:
-  - wfs: app:Enkeltminne
+  - wfs: Enkeltminne
     wms:
     - Enkeltminner
     result_status: HIT-RED
-  geom_field: app:område
+  geom_field: område
   properties:
-  - app:navn
-  - app:kulturminneId
-  - app:vernelov
-  - app:verneparagraf
-  - app:vernetype
-  - app:vernedato
-  - app:linkAskeladden
-  - app:linkKulturminnesøk
+  - navn
+  - kulturminneId
+  - vernelov
+  - verneparagraf
+  - vernetype
+  - vernedato
+  - linkAskeladden
+  - linkKulturminnesøk
   themes:
   - kulturminner
 
@@ -431,16 +422,15 @@ farled:
   dataset_id: 8ff1538a-a93c-4391-8d6f-3555fc37819c
   wfs: https://wfs.geonorge.no/skwms1/wfs.farled
   wms: https://services.kystverket.no/wms.ashx
-  namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Farled/20210101
   layers:
-  - wfs: app:HovedledOgBiledAreal
+  - wfs: HovedledOgBiledAreal
     wms:
     - group_4
     result_status: HIT-RED
     geolett_id: 0c5dc043-e5b3-4349-8587-9b464d013aaa
-  geom_field: app:lokalisering
+  geom_field: lokalisering
   properties:
-  - app:datauttaksdato
+  - datauttaksdato
   themes:
   - samferdsel
 
@@ -463,19 +453,76 @@ geoteknisk_borehull:
   themes:
   - geologi
 
-# reindrift_flyttlei:
-#   dataset_id: f9c1e228-892f-4f1a-9e4e-b6d6149f373c
-#   wfs: https://wfs02.nibio.no/cgi-bin/rein/flyttlei
-#   wms: https://reindrift.nibio.no/cgi-bin/reindrift
-#   namespace: http://mapserver.gis.umn.edu/mapserver
-#   layers:
-#   - wfs: ms:Flyttlei
-#     wms:
-#     - Flyttlei
-#     result_status: HIT-RED
-#   geom_field: '*:msGeometry'
-#   properties:
-#   - '*:kvalitetssikret'
-#   - '*:beitebrukerstreng'
-#   themes:
-#   - landbruk
+reindrift_flyttlei:
+  dataset_id: f9c1e228-892f-4f1a-9e4e-b6d6149f373c
+  wfs: https://wfs02.nibio.no/cgi-bin/rein/flyttlei
+  wms: https://reindrift.nibio.no/cgi-bin/reindrift
+  layers:
+  - wfs: Flyttlei
+    wms:
+    - Flyttlei
+    result_status: HIT-RED
+  geom_field: msGeometry
+  properties:
+  - distriktnavn
+  - beitebrukerstreng
+  - kvalitetssikret
+  - oppdateringsdato
+  themes:
+  - landbruk
+
+reindrift_trekklei:
+  dataset_id: 95b0d396-a6fe-462b-8753-120efd0b60f3
+  wfs: https://wfs02.nibio.no/cgi-bin/rein/trekklei
+  wms: https://reindrift.nibio.no/cgi-bin/reindrift
+  layers:
+  - wfs: Trekklei
+    wms:
+    - Trekklei
+    result_status: HIT-RED
+  geom_field: msGeometry
+  properties:
+  - distriktnavn
+  - beitebrukerstreng
+  - kvalitetssikret
+  - oppdateringsdato
+  themes:
+  - landbruk
+
+reindrift_oppsamlingsområde:
+  dataset_id: a02e84ec-322c-47a7-a626-ca02d57d1f7e
+  wfs: https://wfs02.nibio.no/cgi-bin/rein/oppsamlingsomrade
+  wms: https://reindrift.nibio.no/cgi-bin/reindrift
+  layers:
+  - wfs: Oppsamlingsomrade
+    wms:
+    - Oppsamling
+    result_status: HIT-RED
+  geom_field: msGeometry
+  properties:
+  - distriktnavn
+  - beitebrukerstreng
+  - kvalitetssikret
+  - oppdateringsdato
+  themes:
+  - landbruk
+
+reindrift_reindriftsanlegg:
+  dataset_id: 8dfa67c5-3099-4353-9ce0-72f9ebd44a2c
+  wfs: https://wfs02.nibio.no/cgi-bin/rein/reindriftsanlegg
+  wms: https://reindrift.nibio.no/cgi-bin/reindrift
+  layers:
+  - wfs: ReindriftsAnleggPunkt
+    wms:
+    - Anlegg
+    result_status: HIT-RED
+  geom_field: msGeometry
+  properties:
+  - distriktnavn
+  - beitebrukerstreng
+  - kodenavn
+  - definisjon
+  - kvalitetssikret
+  - oppdateringsdato
+  themes:
+  - landbruk

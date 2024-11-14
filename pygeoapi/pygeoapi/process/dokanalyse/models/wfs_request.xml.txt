@@ -7,8 +7,8 @@
       <fes:Filter>
          <fes:Intersects>
             <fes:ValueReference>{geomField}</fes:ValueReference>
-               {geometry}
-            </fes:Intersects>
+            {geometry}
+         </fes:Intersects>
       </fes:Filter>
    </wfs:Query>
 </wfs:GetFeature>
