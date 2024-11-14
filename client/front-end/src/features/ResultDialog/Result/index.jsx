@@ -42,6 +42,7 @@ export default function Result({ inputGeometry, result }) {
 
     return (
         <div>
+           
             {
                 result.description ?
                     <div className="section">
@@ -49,7 +50,7 @@ export default function Result({ inputGeometry, result }) {
                     </div> :
                     null
             }
-
+             <GuidanceText result={result} />
             <PossibleActions result={result} />
 
             <div className={styles.grid}>
@@ -88,8 +89,7 @@ export default function Result({ inputGeometry, result }) {
                                 <img src={result.cartography} alt="Tegneregler" />
                             </div> :
                             null
-                    }
-                    <GuidanceText result={result} />
+                    }                    
                     <GuidanceLinks result={result} />
                     <Data result={result} />
                 </div>
