@@ -33,18 +33,18 @@ flomsoner:
   wms: https://nve.geodataonline.no/arcgis/services/Flomsoner1/MapServer/WMSServer
   namespace: http://skjema.geonorge.no/SOSI/produktspesifikasjon/Flomsoner/1.1
   layers:
-  - wfs: app:Analyseområde
+  - wfs: app:FlomAreal
     wms:
-    - FlomsoneAnalyseomraade
+    - Flomsone_20arsflom
     - Flomsone_200arsflom
     - Flomsone_200arsflom_klima
+    type_filter: gjentaksintervall IN [20, 200, 2100]
     result_status: HIT-RED
     geolett_id: 5adab8dc-b327-49ed-9336-e85fe2453a05
   geom_field: app:område
   properties:
-  - app:flomsoneNavn
-  - app:kartlagteFlommer
-  - app:nedbørfelt
+  - app:gjentaksintervall
+  - app:datauttaksdato
   themes:
   - samfunnssikkerhet
 
@@ -277,8 +277,7 @@ naturtyper_ku_verdi:
     - kuverdi_middels_verdi
     - kuverdi_noe_verdi
     result_status: HIT-YELLOW
-    type_filter: Verdikategori = 'Stor verdi' OR Verdikategori = 'Middels verdi' OR
-      Verdikategori = 'Noe verdi'
+    type_filter: Verdikategori = 'Stor verdi' OR Verdikategori = 'Middels verdi' OR Verdikategori = 'Noe verdi'
   properties:
   - Naturtype
   - Verdikategori
@@ -463,3 +462,20 @@ geoteknisk_borehull:
   - maksBoretLengde
   themes:
   - geologi
+
+# reindrift_flyttlei:
+#   dataset_id: f9c1e228-892f-4f1a-9e4e-b6d6149f373c
+#   wfs: https://wfs02.nibio.no/cgi-bin/rein/flyttlei
+#   wms: https://reindrift.nibio.no/cgi-bin/reindrift
+#   namespace: http://mapserver.gis.umn.edu/mapserver
+#   layers:
+#   - wfs: ms:Flyttlei
+#     wms:
+#     - Flyttlei
+#     result_status: HIT-RED
+#   geom_field: '*:msGeometry'
+#   properties:
+#   - '*:kvalitetssikret'
+#   - '*:beitebrukerstreng'
+#   themes:
+#   - landbruk

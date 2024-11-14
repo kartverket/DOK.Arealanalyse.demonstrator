@@ -10,8 +10,14 @@ export default function ProgressBar() {
 
     return (
         <div className={styles.progressBar}>
-            <LinearProgress variant="determinate" value={progress} sx={{ flex: 1 }} />
-            <span className={styles.percent}>{progress} %</span>
+            {
+                progress === 0 ?
+                    <LinearProgress sx={{ flex: 1 }} /> :
+                    <>
+                        <LinearProgress variant="determinate" value={progress} sx={{ flex: 1 }} />
+                        <span className={styles.percent}>{progress} %</span>
+                    </>
+            }
         </div>
     );
 }

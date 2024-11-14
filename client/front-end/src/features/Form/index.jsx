@@ -123,6 +123,7 @@ export default function Form({ onSubmit }) {
                                 <MenuItem value="">Velg...</MenuItem>
                                 <MenuItem value="geologi">Geologi</MenuItem>
                                 <MenuItem value="kulturminner">Kulturminner</MenuItem>
+                                <MenuItem value="landbruk">Landbruk</MenuItem>
                                 <MenuItem value="natur">Natur</MenuItem>
                                 <MenuItem value="samferdsel">Samferdsel</MenuItem>
                                 <MenuItem value="samfunnssikkerhet">Samfunnssikkerhet</MenuItem>

@@ -2,6 +2,7 @@ import re
 from typing import List
 from datetime import datetime, timezone
 
+
 def to_camel_case(text: str) -> str:
     matches = re.findall('[A-ZÆØÅ][^A-ZÆØÅ]*', text)
     words: List[str] = list(map(lambda word: word.strip(' -_'), matches))
@@ -12,6 +13,9 @@ def to_camel_case(text: str) -> str:
 
 
 def parse_string(value: str) -> str | int | float | bool:
+    if value is None:
+        return None
+
     if value.isdigit():
         return int(value)
     elif value.replace('.', '', 1).isdigit() and value.count('.') < 2:
@@ -30,3 +34,27 @@ def should_refresh_cache(file_path: str, cache_days: int) -> bool:
     diff = datetime.now(tz=timezone.utc) - modified
 
     return diff.days > cache_days
+
+
+def evaluate_condition(condition: str, data: dict[str, any]) -> bool:
+    parsed_condition = __parse_condition(condition)
+    result = eval(parsed_condition, data.copy())
+
+    if isinstance(result, (bool)):
+        return result
+
+    raise Exception
+
+
+def __parse_condition(condition: str) -> str:
+    regex = r'(?<!=|>|<)\s*=\s*(?!=)'
+    condition = re.sub(regex, ' == ', condition, 0, re.MULTILINE)
+
+    return __replace_all(
+        condition, {' AND ': ' and ', ' OR ': ' or ', ' IN ': ' in ', ' NOT ': ' not '})
+
+
+def __replace_all(text: str, replacements: dict) -> str:
+    for i, j in replacements.items():
+        text = text.replace(i, j)
+    return text

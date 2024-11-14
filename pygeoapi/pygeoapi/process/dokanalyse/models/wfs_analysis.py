@@ -5,11 +5,12 @@ import xml.etree.ElementTree as ET
 from osgeo import ogr
 from .analysis import Analysis
 from .result_status import ResultStatus
+from ..helpers.common import parse_string, evaluate_condition
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
 from ..helpers.geometry import get_buffered_geometry
 from ..services.api import query_wfs
 
-__DIR_PATH = path.dirname(path.realpath(__file__))
+_DIR_PATH = path.dirname(path.realpath(__file__))
 
 
 class WfsAnalysis(Analysis):
@@ -27,8 +28,9 @@ class WfsAnalysis(Analysis):
         for layer in self.config['layers']:
             layer_name = layer['wfs']
             request_xml = self.__create_request_xml(layer_name, gml)
+
             status_code, wfs_response = await query_wfs(self.config, request_xml)
-            
+                        
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
                 break
@@ -89,7 +91,7 @@ class WfsAnalysis(Analysis):
             self.distance_to_object = distances[0]
 
     def __create_request_xml(self, layer_name, gml) -> str:
-        file_path = path.join(__DIR_PATH, 'wfs_request.xml.txt')
+        file_path = path.join(_DIR_PATH, 'wfs_request.xml.txt')
 
         with open(file_path, 'r') as file:
             file_text = file.read()
@@ -107,24 +109,22 @@ class WfsAnalysis(Analysis):
         members = root.findall('.//wfs:member/*', namespaces=ns)
 
         for member in members:
-            if self.__filter_member(member, layer, ns):
-                data['properties'].append(self.__map_properties(member, ns))
+            props = self.__map_properties(member, ns)
+
+            if self.__filter_member(props, layer):
+                data['properties'].append(props)
                 data['geometries'].append(
                     self.__get_geometry_from_response(member, ns))
 
         return data
 
-    def __filter_member(self, member, layer, ns) -> bool:
-        if 'type_filter' not in layer:
+    def __filter_member(self, props: dict, layer: dict) -> bool:
+        type_filter = layer.get('type_filter')
+
+        if not type_filter:
             return True
 
-        attr_element = member.find(
-            './/' + layer['type_filter']['attribute'], namespaces=ns)
-
-        if attr_element is None:
-            return False
-
-        return attr_element.text == layer['type_filter']['value']
+        return evaluate_condition(type_filter, props)
 
     def __map_properties(self, member, ns) -> dict:
         properties = {}

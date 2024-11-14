@@ -95,7 +95,8 @@ async function createTempMap(inputGeometry, result, wmtsOptions) {
     map.setView(new View({
         padding: [50, 50, 50, 50],
         projection: 'EPSG:25833',
-        maxZoom: baseMap.maxZoom
+        maxZoom: baseMap.maxZoom,
+        constrainResolution: true
     }));
 
     const mapElement = document.createElement('div');

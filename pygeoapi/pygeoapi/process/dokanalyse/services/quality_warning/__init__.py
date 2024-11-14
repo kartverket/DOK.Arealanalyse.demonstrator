@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 from osgeo import ogr
 import aiohttp
 from ...models.quality_measurement import QualityMeasurement
-from ...helpers.common import parse_string
+from ...helpers.common import parse_string, evaluate_condition
 
 _DIR_PATH = path.dirname(path.realpath(__file__))
 
@@ -21,7 +21,7 @@ def get_dataset_quality_warnings(config: List[dict], quality_measurements: List[
         input_filter = qi.get('input_filter')
 
         if input_filter:
-            result = __evaluate_condition(input_filter, kwargs)
+            result = evaluate_condition(input_filter, kwargs)
 
             if not result:
                 continue
@@ -70,6 +70,10 @@ async def get_coverage_quality(quality_indicator: dict, geometry: ogr.Geometry, 
         return
 
     values = await __get_values_from_wfs(wfs, geometry, epsg)
+    
+    if not values:
+        return
+    
     threshold_values = __get_threshold_values(quality_indicator)
 
     should_warn = any(value for value in values if any(
@@ -110,31 +114,6 @@ def __get_threshold_values(quality_indicator: dict) -> List[str]:
     result = list(map(lambda value: parse_string(value), values))
 
     return result
-
-
-def __evaluate_condition(condition: str, data: dict[str, any]) -> bool:
-    parsed_condition = __parse_condition(condition)
-    result = eval(parsed_condition, data)
-
-    if isinstance(result, (bool)):
-        return result
-
-    raise Exception
-
-
-def __parse_condition(condition: str) -> str:
-    regex = r'(?<!=|>|<)\s*=\s*(?!=)'
-    condition = re.sub(regex, ' == ', condition, 0, re.MULTILINE)
-
-    return __replace_all(
-        condition, {' AND ': ' and ', ' OR ': ' or ', ' IN ': ' in ', ' NOT ': ' not '})
-
-
-def __replace_all(text: str, replacements: dict) -> str:
-    for i, j in replacements.items():
-        text = text.replace(i, j)
-    return text
-
 
 async def __query_wfs(url, xml):
     try:
