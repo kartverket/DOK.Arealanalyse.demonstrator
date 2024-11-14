@@ -8,33 +8,38 @@ export default function PossibleActions({ result }) {
                 return <Alert icon={false} severity="success">Ingen tiltak trenger å utføres</Alert>
             case 'NO-HIT-YELLOW':
                 return result.qualityWarning.length > 0 ?
-                    <Alert icon={false} severity="warning">
+                        <div className={styles.content}>
+                        <h3>Mulige tiltak</h3>
                         <ul className={styles.possibleActionsList}>
                             {
                                 result.qualityWarning.map(warning => <li key={warning}>{warning}</li>)
                             }
                         </ul>
-                    </Alert> :
+                        </div>
+                   :
                     null
             case 'HIT-YELLOW':
-                return (
-                    <Alert icon={false} severity="warning">
+                return (                    
+                         <div className={styles.content}>
+                        <h3>Mulige tiltak</h3>
                         <ul className={styles.possibleActionsList}>
                             {
                                 result.possibleActions.map(action => <li key={action}>{action}</li>)
                             }
                         </ul>
-                    </Alert>
+                        </div>
+                   
                 );
             case 'HIT-RED':
-                return (
-                    <Alert icon={false} severity="error">
+                return (                   
+                         <div className={styles.content}>
+                        <h3>Mulige tiltak</h3>
                         <ul className={styles.possibleActionsList}>
                             {
                                 result.possibleActions.map(action => <li key={action}>{action}</li>)
                             }
                         </ul>
-                    </Alert>
+                        </div>                    
                 );
             default:
                 return null;

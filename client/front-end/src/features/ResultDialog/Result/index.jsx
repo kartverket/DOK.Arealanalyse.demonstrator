@@ -46,7 +46,7 @@ export default function Result({ inputGeometry, result }) {
             {
                 result.description ?
                     <div className="section">
-                        <div className="paper" dangerouslySetInnerHTML={{ __html: marked.parse(result.description) }}></div>
+                        <div className={styles.content} dangerouslySetInnerHTML={{ __html: marked.parse(result.description) }}></div>
                     </div> :
                     null
             }
