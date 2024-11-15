@@ -23,7 +23,7 @@ export default function ResultDialog({ inputGeometry }) {
     }
 
     function renderHitAreaOrDistance() {
-        if (result.hitArea !== null) {
+        if (result.hitArea !== null && result.hitArea !== 0) {
             return (
                 <span>
                     Treff: <strong>{getHitAreaPercent(result)}</strong>

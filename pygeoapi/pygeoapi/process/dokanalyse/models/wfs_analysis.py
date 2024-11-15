@@ -1,13 +1,14 @@
 from os import path
 from sys import maxsize
+from io import BytesIO
 from typing import List
-import xml.etree.ElementTree as ET
 from osgeo import ogr
+from lxml import etree as ET
 from .analysis import Analysis
 from .result_status import ResultStatus
-from ..helpers.common import parse_string, evaluate_condition
+from ..helpers.common import parse_string, evaluate_condition, xpath_select_one
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ..helpers.geometry import get_buffered_geometry
+from ..helpers.geometry import get_buffered_geometry, geometry_from_gml
 from ..services.api import query_wfs
 
 _DIR_PATH = path.dirname(path.realpath(__file__))
@@ -30,7 +31,7 @@ class WfsAnalysis(Analysis):
             request_xml = self.__create_request_xml(layer_name, gml)
 
             status_code, wfs_response = await query_wfs(self.config, request_xml)
-                        
+
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
                 break
@@ -69,18 +70,28 @@ class WfsAnalysis(Analysis):
             self.distance_to_object = maxsize
             return
 
-        ns = self.__get_namespaces()
-        root = ET.fromstring(response)
-        members = root.findall('.//wfs:member/*', namespaces=ns)
+        source = BytesIO(response.encode('utf-8'))
+        context = ET.iterparse(source, huge_tree=True)
+        geom_field = self.config['geom_field']
         distances = []
 
-        for member in members:
-            geom_el = member.find(
-                f'./{self.config["geom_field"]}/*', namespaces=ns)
-            gml_str = ET.tostring(geom_el, encoding='unicode')
-            feature_geom = ogr.CreateGeometryFromGML(gml_str)
-            distance = round(self.geometry.Distance(feature_geom))
-            distances.append(distance)
+        for _, elem in context:
+            localname = ET.QName(elem).localname
+
+            if localname != geom_field:
+                continue
+
+            geom_elem = xpath_select_one(elem, './*')
+
+            if geom_elem is None:
+                continue
+
+            gml_str = ET.tostring(geom_elem, encoding='unicode')
+            feature_geom = geometry_from_gml(gml_str)
+
+            if feature_geom:
+                distance = round(self.geometry.Distance(feature_geom))
+                distances.append(distance)
 
         distances.sort()
         self.add_run_algorithm('get distance')
@@ -98,23 +109,27 @@ class WfsAnalysis(Analysis):
 
         return file_text.format(layerName=layer_name, epsg=self.epsg, geomField=self.config['geom_field'], geometry=gml).encode('utf-8')
 
-    def __parse_response(self, wfs_response, layer) -> dict[str, List]:
+    def __parse_response(self, wfs_response: str, layer: dict) -> dict[str, List]:
         data = {
             'properties': [],
             'geometries': []
         }
 
-        ns = self.__get_namespaces()
-        root = ET.fromstring(wfs_response)
-        members = root.findall('.//wfs:member/*', namespaces=ns)
+        source = BytesIO(wfs_response.encode('utf-8'))
+        context = ET.iterparse(source, huge_tree=True)
 
-        for member in members:
-            props = self.__map_properties(member, ns)
+        for _, elem in context:
+            localname = ET.QName(elem).localname
+
+            if localname != 'member':
+                continue
+            
+            props = self.__map_properties(elem)
 
             if self.__filter_member(props, layer):
                 data['properties'].append(props)
                 data['geometries'].append(
-                    self.__get_geometry_from_response(member, ns))
+                    self.__get_geometry_from_response(elem))
 
         return data
 
@@ -126,27 +141,27 @@ class WfsAnalysis(Analysis):
 
         return evaluate_condition(type_filter, props)
 
-    def __map_properties(self, member, ns) -> dict:
-        properties = {}
+    def __map_properties(self, member: ET._Element) -> dict:
+        props = {}
 
         for mapping in self.config['properties']:
-            element = member.find('.//' + mapping, namespaces=ns)
+            path = f'.//*[local-name() = "{mapping}"]/text()'
+            value = xpath_select_one(member, path)
 
-            if element is not None:
-                prop_name = mapping.split(':')[-1]
-                properties[prop_name] = element.text
+            if value:
+                prop_name = mapping
+                props[prop_name] = parse_string(value)
 
-        return properties
+        return props
 
-    def __get_geometry_from_response(self, member, ns) -> ogr.Geometry:
-        selector = './' + self.config['geom_field'] + '/*'
-        geom_el = member.find(selector, namespaces=ns)
-        gml_str = ET.tostring(geom_el, encoding='unicode')
+    def __get_geometry_from_response(self, member) -> ogr.Geometry:
+        geom_field = self.config['geom_field']
+        path = f'.//*[local-name() = "{geom_field}"]/*'
+        geom_elem = xpath_select_one(member, path)
 
-        try:
-            return ogr.CreateGeometryFromGML(gml_str)
-        except:
+        if geom_elem is None:
             return None
 
-    def __get_namespaces(self) -> dict:
-        return {'wfs': 'http://www.opengis.net/wfs/2.0', 'app': self.config['namespace']}
+        gml_str = ET.tostring(geom_elem, encoding='unicode')
+
+        return geometry_from_gml(gml_str)

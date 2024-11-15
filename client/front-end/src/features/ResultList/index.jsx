@@ -57,7 +57,7 @@ export default function ResultList({ data }) {
     }
 
     function renderHitAreaAndDistance(result) {
-        if (result.hitArea !== null) {
+        if (result.hitArea !== null && result.hitArea !== 0) {
             return (
                 <Tooltip
                     title={
@@ -89,6 +89,13 @@ export default function ResultList({ data }) {
 
         if (resultList === undefined) {
             return null;
+        }
+
+        if (resultStatus === 'HIT-RED' || resultStatus === 'HIT-YELLOW') {
+            inPlaceSort(resultList).desc([
+                result => result.hitArea || 0,
+                result => result.themes[0]
+            ]);
         }
 
         if (resultStatus === 'NO-HIT-GREEN') {

@@ -4,9 +4,11 @@ from typing import List
 from osgeo import ogr
 from .analysis import Analysis
 from .result_status import ResultStatus
+from ..helpers.common import to_camel_case
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ..helpers.geometry import get_buffered_geometry, geometry_to_arcgis_geom
+from ..helpers.geometry import get_buffered_geometry, geometry_to_arcgis_geom, geometry_from_json
 from ..services.api import query_arcgis
+
 
 class ArcGisAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
@@ -28,14 +30,14 @@ class ArcGisAnalysis(Analysis):
                 self.add_run_algorithm(f'query {type_filter}')
 
             status_code, arcgis_response = await query_arcgis(self.config, layer_id, type_filter, arcgis_geom, self.epsg)
-            
+
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
                 break
             elif status_code != 200:
                 self.result_status = ResultStatus.ERROR
                 break
-            
+
             self.add_run_algorithm(f'intersect layer {layer_id}')
 
             if arcgis_response is not None:
@@ -83,13 +85,15 @@ class ArcGisAnalysis(Analysis):
         else:
             self.distance_to_object = distances[0]
 
-    def __parse_response(self, arcgis_response) -> dict[str, List]:
+    def __parse_response(self, arcgis_response: dict) -> dict[str, List]:
         data = {
             'properties': [],
             'geometries': []
         }
 
-        for feature in arcgis_response['features']:
+        features: List[dict] = arcgis_response.get('features', [])
+
+        for feature in features:
             data['properties'].append(
                 self.__map_properties(feature, self.config['properties']))
             data['geometries'].append(
@@ -97,18 +101,16 @@ class ArcGisAnalysis(Analysis):
 
         return data
 
-    def __map_properties(self, feature, mappings) -> dict:
-        properties = {}
+    def __map_properties(self, feature: dict, mappings: List[str]) -> dict:
+        props = {}
+        feature_props: dict = feature['properties']
 
         for mapping in mappings:
-            properties[mapping] = feature['properties'].get(
-                mapping, None)
+            props[to_camel_case(mapping)] = feature_props.get(mapping)
 
-        return properties
+        return props
 
     def __get_geometry_from_response(self, feature) -> ogr.Geometry:
-        try:
-            geojson = json.dumps(feature['geometry'])
-            return ogr.CreateGeometryFromJson(geojson)
-        except:
-            return None
+        json_str = json.dumps(feature['geometry'])
+
+        return geometry_from_json(json_str)

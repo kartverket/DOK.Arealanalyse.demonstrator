@@ -4,6 +4,7 @@ from osgeo import ogr
 from .quality_measurement import QualityMeasurement
 from .exceptions import DokAnalysisException
 from .result_status import ResultStatus
+from ..helpers.common import keys_to_camel_case
 from ..helpers.analysis import get_kartkatalog_metadata
 from ..helpers.geometry import get_buffered_geometry, create_run_on_input_geometry_json
 from ..config import get_quality_indicators_config
@@ -34,7 +35,7 @@ class Analysis(ABC):
         self.distance_to_object: int = 0
         self.raster_result: str = None
         self.cartography: str = None
-        self.data: List[dict] = None
+        self.data: List[dict] = []
         self.themes: List[str] = None
         self.run_on_dataset = None
         self.run_algorithm: List[str] = []
@@ -95,10 +96,15 @@ class Analysis(ABC):
                 'A dataset can only have one coverage quality indicator')
 
         self.add_run_algorithm('check coverage')
-        value, warning = await get_coverage_quality(quality_indicators[0], self.run_on_input_geometry, self.epsg)
+        values, warning = await get_coverage_quality(quality_indicators[0], self.run_on_input_geometry, self.epsg)
 
-        self.coverage_status = value
-        self.has_coverage = warning == None
+        if 'ikkeKartlagt' in values:
+            self.coverage_status = 'ikkeKartlagt'
+            has_other_values = any(value != 'ikkeKartlagt' for value in values)
+            self.has_coverage = has_other_values
+        else:
+            self.coverage_status = values[0]
+            self.has_coverage = True
 
         if warning != None:
             self.quality_warning.append(warning)
@@ -124,6 +130,9 @@ class Analysis(ABC):
         hit_area: float = 0
 
         for geometry in self.geometries:
+            if geometry is None:
+                continue
+
             intersection: ogr.Geometry = self.run_on_input_geometry.Intersection(
                 geometry)
 
@@ -186,7 +195,7 @@ class Analysis(ABC):
             'distanceToObject': self.distance_to_object,
             'rasterResult': self.raster_result,
             'cartography': self.cartography,
-            'data': self.data,
+            'data': list(map(lambda entry: keys_to_camel_case(entry), self.data)),
             'themes': self.themes,
             'runOnDataset': self.run_on_dataset,
             'description': self.description,

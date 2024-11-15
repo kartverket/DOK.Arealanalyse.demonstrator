@@ -6,7 +6,7 @@ from osgeo import ogr
 from .analysis import Analysis
 from .result_status import ResultStatus
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ..helpers.geometry import get_buffered_geometry, geometry_to_wkt
+from ..helpers.geometry import get_buffered_geometry, geometry_to_wkt, geometry_from_json
 from ..services.api import query_ogc_api
 
 
@@ -93,19 +93,17 @@ class OgcApiAnalysis(Analysis):
 
         return data
 
-    def __map_properties(self, feature, mappings) -> dict:
-        properties = {}
+    def __map_properties(self, feature: dict, mappings: List[str]) -> dict:
+        props = {}
 
         for mapping in mappings:
             key = mapping.split('.')[-1]
             value = get(feature['properties'], mapping, None)
-            properties[key] = value
+            props[key] = value
 
-        return properties
+        return props
 
     def __get_geometry_from_response(self, feature) -> ogr.Geometry:
-        try:
-            geojson = json.dumps(feature['geometry'])
-            return ogr.CreateGeometryFromJson(geojson)
-        except:
-            return None
+        json_str = json.dumps(feature['geometry'])
+        
+        return geometry_from_json(json_str)

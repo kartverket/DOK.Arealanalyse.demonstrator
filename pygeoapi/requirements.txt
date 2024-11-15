@@ -30,3 +30,6 @@ uvicorn
 pydash
 pillow
 python-socketio[client]
+lxml
+types-lxml
+

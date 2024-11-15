@@ -30,3 +30,4 @@ starlette
 pydash
 pillow
 python-socketio[client]
+lxml

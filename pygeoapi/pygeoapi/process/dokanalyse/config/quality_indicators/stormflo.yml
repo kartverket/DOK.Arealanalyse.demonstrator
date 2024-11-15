@@ -8,7 +8,6 @@ dataset:
     warning_threshold: ikkeKartlagt
     wfs:
       url: https://wfs.geonorge.no/skwms1/wfs.stormflo_havniva
-      namespace: https://skjema.geonorge.no/SOSI/produktspesifikasjon/StormfloHavniva/20240220
-      layer: app:Dekningsområde
-      geom_field: app:område
-      property: app:dekningStatus
+      layer: Dekningsområde
+      geom_field: område
+      property: dekningStatus
