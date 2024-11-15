@@ -5,5 +5,5 @@ dataset:
   - type: object
     quality_dimension_id: stedfestingsnøyaktighet
     quality_warning_text: Data kan være utfordrende å bruke i plan- eller byggesak
-    property: Nøyaktighetsklasse
+    property: nøyaktighetsklasse
     warning_threshold: Mindre god (> 50m)

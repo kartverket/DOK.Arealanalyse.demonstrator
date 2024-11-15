@@ -56,15 +56,17 @@ export default function App() {
             </div>
 
             <div className={styles.content}>
-                <Form onSubmit={start} />
+                <Form onSubmit={start} fetching={fetching} />
                 {
                     fetching && <ProgressBar />
                 }
                 {
-                    data !== null && <ResultList data={data} />
-                }
-                {
-                    data !== null && <ResultDialog inputGeometry={data.inputGeometry} />
+                    data !== null && (
+                        <>
+                            <ResultList data={data} />
+                            <ResultDialog inputGeometry={data.inputGeometry} />
+                        </>
+                    )
                 }
                 <Toaster />
             </div>

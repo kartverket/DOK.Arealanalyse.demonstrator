@@ -8,6 +8,19 @@ from shapely.wkt import dumps
 _EARTH_RADIUS = 6371008.8
 
 
+def geometry_from_gml(gml_str: str) -> ogr.Geometry:
+    try:
+        return ogr.CreateGeometryFromGML(gml_str)
+    except:
+        return None
+    
+def geometry_from_json(json_str: str) -> ogr.Geometry:
+    try:
+        return ogr.CreateGeometryFromJson(json_str)
+    except:
+        return None
+
+
 def create_input_geometry(geo_json: dict) -> tuple[ogr.Geometry, int]:
     epsg = get_epsg(geo_json)
     geometry = ogr.CreateGeometryFromJson(str(geo_json))

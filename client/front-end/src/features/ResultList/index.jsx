@@ -91,6 +91,13 @@ export default function ResultList({ data }) {
             return null;
         }
 
+        if (resultStatus === 'HIT-RED' || resultStatus === 'HIT-YELLOW') {
+            inPlaceSort(resultList).desc([
+                result => result.hitArea || 0,
+                result => result.themes[0]
+            ]);
+        }
+
         if (resultStatus === 'NO-HIT-GREEN') {
             inPlaceSort(resultList).asc([
                 result => result.distanceToObject,

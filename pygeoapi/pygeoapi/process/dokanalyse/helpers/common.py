@@ -1,15 +1,23 @@
 import re
 from typing import List
 from datetime import datetime, timezone
+from lxml import etree as ET
 
 
 def to_camel_case(text: str) -> str:
+    if text[0].islower():
+        return text
+    
     matches = re.findall('[A-ZÆØÅ][^A-ZÆØÅ]*', text)
     words: List[str] = list(map(lambda word: word.strip(' -_'), matches))
     result = words[0].lower() + ''.join(word.capitalize()
                                         for word in words[1:])
 
     return result
+
+
+def keys_to_camel_case(data: dict) -> dict:
+    return {to_camel_case(key): keys_to_camel_case(value) if isinstance(value, dict) else value for key, value in data.items()}
 
 
 def parse_string(value: str) -> str | int | float | bool:
@@ -34,6 +42,22 @@ def should_refresh_cache(file_path: str, cache_days: int) -> bool:
     diff = datetime.now(tz=timezone.utc) - modified
 
     return diff.days > cache_days
+
+
+def xpath_select(element: ET._Element, path: str) -> any:
+    return element.xpath(path)
+
+
+def xpath_select_one(element: ET._Element, path: str) -> any:
+    result = element.xpath(path)
+
+    if len(result) == 0:
+        return None
+
+    if len(result) == 1:
+        return result[0]
+
+    raise Exception('Found more than one element')
 
 
 def evaluate_condition(condition: str, data: dict[str, any]) -> bool:

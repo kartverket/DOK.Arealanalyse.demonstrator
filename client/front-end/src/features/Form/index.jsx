@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react';
-import { Button, Checkbox, FormControl, FormControlLabel, InputAdornment, InputLabel, MenuItem, Paper, Select } from '@mui/material';
+import { Button, Checkbox, CircularProgress, FormControl, FormControlLabel, InputAdornment, InputLabel, MenuItem, Paper, Select } from '@mui/material';
 import { GeometryDialog } from 'features';
 import { IntegerField } from 'components';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import styles from './Form.module.scss';
 
-export default function Form({ onSubmit }) {
+export default function Form({ fetching, onSubmit }) {
     const [state, setState] = useState(getDefaultValues());
     const geometryDialogRef = useRef(null);
 
@@ -39,7 +39,7 @@ export default function Form({ onSubmit }) {
     }
 
     function canSubmit() {
-        return state.inputGeometry !== null;
+        return !fetching && state.inputGeometry !== null;
     }
 
     function getPayload() {
@@ -152,7 +152,7 @@ export default function Form({ onSubmit }) {
                                     />
                                 }
                                 label="Inkluder kun kommunens valgte DOK-data" />
-                        </div>                        
+                        </div>
                         <div>
                             <FormControlLabel
                                 control={
@@ -167,7 +167,7 @@ export default function Form({ onSubmit }) {
                     </div>
                 </div>
                 <div className={styles.row}>
-                    <div>
+                    <div className={styles.submit}>
                         <Button
                             onClick={handleSubmit}
                             variant="contained"
@@ -175,6 +175,9 @@ export default function Form({ onSubmit }) {
                         >
                             Start DOK-analyse
                         </Button>
+                        {
+                            fetching && <CircularProgress size={30} />
+                        }
                     </div>
                 </div>
             </div>

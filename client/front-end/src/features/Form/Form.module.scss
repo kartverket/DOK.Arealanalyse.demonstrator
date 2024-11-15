@@ -36,3 +36,9 @@
     display: grid;
     grid-template-columns: auto auto;
 }
+
+.submit {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
