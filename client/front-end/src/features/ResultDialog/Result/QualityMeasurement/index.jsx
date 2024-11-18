@@ -19,9 +19,9 @@ export default function QualityMeasurement({ result }) {
             <section {...getCollapseProps()}>
                 <ul className={styles.ul}>
                     {
-                        qualityMeasurement.map(measurement => {
+                        qualityMeasurement.map((measurement, index) => {
                             return (
-                                <li key={measurement.qualityDimensionId} className={styles.measurement}>
+                                <li key={index} className={styles.measurement}>
                                     <span className={styles.dimension}>{measurement.qualityDimensionName}:</span>
                                     <span>{measurement.value}</span>
                                     <span>({measurement.comment})</span>

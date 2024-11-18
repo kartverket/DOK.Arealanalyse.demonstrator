@@ -5,7 +5,7 @@ class QualityMeasurement:
         self.value = value
         self.comment = comment
 
-    def to_json(self):
+    def to_dict(self):
         return {
             'qualityDimensionId': self.quality_dimension_id,
             'qualityDimensionName': self.quality_dimension_name,

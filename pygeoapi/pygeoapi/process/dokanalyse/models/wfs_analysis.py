@@ -18,12 +18,12 @@ class WfsAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
-    def get_input_geometry(self) -> str:
+    def create_input_geometry(self) -> str:
         return self.run_on_input_geometry.ExportToGML(['FORMAT=GML3'])
 
     async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
-        gml = self.get_input_geometry()
+        gml = self.create_input_geometry()
         geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
 
         for layer in self.config['layers']:
@@ -134,12 +134,12 @@ class WfsAnalysis(Analysis):
         return data
 
     def __filter_member(self, props: dict, layer: dict) -> bool:
-        type_filter = layer.get('type_filter')
+        filter = layer.get('filter')
 
-        if not type_filter:
+        if not filter:
             return True
 
-        return evaluate_condition(type_filter, props)
+        return evaluate_condition(filter, props)
 
     def __map_properties(self, member: ET._Element) -> dict:
         props = {}

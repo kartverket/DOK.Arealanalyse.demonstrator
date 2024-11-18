@@ -103,9 +103,9 @@ export default function Form({ fetching, onSubmit }) {
                                 onChange={handleChange}
                             >
                                 <MenuItem value="">Velg...</MenuItem>
-                                <MenuItem value="reguleringsplan">Reguleringsplan</MenuItem>
-                                <MenuItem value="ros">ROS</MenuItem>
-                                <MenuItem value="byggesak">Byggesak</MenuItem>
+                                <MenuItem value="Reguleringsplan">Reguleringsplan</MenuItem>
+                                <MenuItem value="Kommuneplan">Kommuneplan</MenuItem>
+                                <MenuItem value="Byggesak">Byggesak</MenuItem>
                             </Select>
                         </FormControl>
                     </div>
@@ -121,12 +121,12 @@ export default function Form({ fetching, onSubmit }) {
                                 onChange={handleChange}
                             >
                                 <MenuItem value="">Velg...</MenuItem>
-                                <MenuItem value="geologi">Geologi</MenuItem>
-                                <MenuItem value="kulturminner">Kulturminner</MenuItem>
-                                <MenuItem value="landbruk">Landbruk</MenuItem>
-                                <MenuItem value="natur">Natur</MenuItem>
-                                <MenuItem value="samferdsel">Samferdsel</MenuItem>
-                                <MenuItem value="samfunnssikkerhet">Samfunnssikkerhet</MenuItem>
+                                <MenuItem value="Geologi">Geologi</MenuItem>
+                                <MenuItem value="Kulturminner">Kulturminner</MenuItem>
+                                <MenuItem value="Landbruk">Landbruk</MenuItem>
+                                <MenuItem value="Natur">Natur</MenuItem>
+                                <MenuItem value="Samferdsel">Samferdsel</MenuItem>
+                                <MenuItem value="Samfunnssikkerhet">Samfunnssikkerhet</MenuItem>
                             </Select>
                         </FormControl>
                     </div>

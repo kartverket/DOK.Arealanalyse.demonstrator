@@ -25,7 +25,7 @@ async def query_wfs(config, xml):
         return 500, None
 
 
-async def query_arcgis(config, layer_id, type_filter, geometry, epsg):
+async def query_arcgis(config, layer_id, filter, geometry, epsg):
     try:
         url = f'{config["arcgis"]}/{layer_id}/query'
 
@@ -33,7 +33,7 @@ async def query_arcgis(config, layer_id, type_filter, geometry, epsg):
             'geometry': geometry,
             'geometryType': 'esriGeometryPolygon',
             'spatialRel': 'esriSpatialRelIntersects',
-            'where': type_filter if type_filter is not None else '1=1',
+            'where': filter if filter is not None else '1=1',
             'inSR': epsg,
             'outSR': epsg,
             'units': 'esriSRUnit_Meter',

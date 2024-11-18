@@ -8,7 +8,10 @@ from ..helpers.common import should_refresh_cache
 __CACHE_DAYS = 7
 
 __CODELISTS = {
-    'fullstendighet_dekning': 'https://register.geonorge.no/api/sosi-kodelister/temadata/fullstendighetsdekningskart/dekningsstatus.json'
+    'arealressursarealtype': 'https://register.geonorge.no/api/sosi-kodelister/fkb/ar5/5.0/arealressursarealtype.json',
+    'fullstendighet_dekning': 'https://register.geonorge.no/api/sosi-kodelister/temadata/fullstendighetsdekningskart/dekningsstatus.json',
+    'typeveg': 'https://register.geonorge.no/api/sosi-kodelister/kartdata/typeveg.json',
+    'vegkategori': 'https://register.geonorge.no/api/sosi-kodelister/kartdata/vegkategori.json'
 }
 
 
@@ -51,16 +54,12 @@ async def __get_codelist(url: str) -> List[dict]:
     entries = []
 
     for item in contained_items:
-        is_valid = item.get('status', False)
-
-        if not is_valid:
-            continue
-
-        entries.append({
-            'value': item.get('codevalue'),
-            'label': item.get('label'),
-            'description': item.get('description')
-        })
+        if item.get('status') == 'Gyldig':
+            entries.append({
+                'value': item.get('codevalue'),
+                'label': item.get('label'),
+                'description': item.get('description')
+            })
 
     return entries
 

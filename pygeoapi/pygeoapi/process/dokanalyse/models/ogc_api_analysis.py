@@ -14,13 +14,13 @@ class OgcApiAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
-    def get_input_geometry(self) -> str:
+    def create_input_geometry(self) -> str:
         return geometry_to_wkt(self.run_on_input_geometry, self.epsg)
 
     async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
         geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
-        wkt_geom = self.get_input_geometry()
+        wkt_geom = self.create_input_geometry()
 
         for layer in self.config['layers']:
             layer_id = layer['ogc_api']

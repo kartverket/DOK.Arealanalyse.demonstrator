@@ -15,7 +15,7 @@ class EmptyAnalysis(Analysis):
     def add_run_algorithm(self):
         raise NotImplementedError
 
-    def get_input_geometry(self):
+    def create_input_geometry(self):
         raise NotImplementedError
 
     def run_queries(self):

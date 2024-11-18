@@ -18,7 +18,7 @@ async def run(data: dict, sio_client: SimpleClient) -> Response:
     include_guidance = data.get('includeGuidance', False)
     include_quality_measurement = data.get('includeQualityMeasurement', False)
     municipality_number, municipality_name = await get_municipality(geometry, epsg)
-
+    
     datasets = await get_dataset_names(data, municipality_number)
     correlation_id = get_correlation_id()
 
@@ -42,7 +42,7 @@ async def run(data: dict, sio_client: SimpleClient) -> Response:
     for task in tasks:
         response.result_list.append(task.result())
 
-    return response.to_json()
+    return response.to_dict()
 
 
 async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffer, context, include_guidance, include_quality_measurement, sio_client) -> Analysis:
@@ -59,7 +59,7 @@ async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffe
     start = time.time()
     correlation_id = get_correlation_id()
 
-    analysis = get_analysis(dataset, config, geometry, epsg, orig_epsg, buffer)
+    analysis = create_analysis(dataset, config, geometry, epsg, orig_epsg, buffer)
     await analysis.run(context, include_guidance, include_quality_measurement)
 
     end = time.time()
@@ -72,7 +72,7 @@ async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffe
     return analysis
 
 
-def get_analysis(dataset, config, geometry, epsg, orig_epsg, buffer) -> Analysis:
+def create_analysis(dataset, config, geometry, epsg, orig_epsg, buffer) -> Analysis:
     dataset_type = get_dataset_type(dataset)
 
     match dataset_type:

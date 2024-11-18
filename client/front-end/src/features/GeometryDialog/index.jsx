@@ -132,6 +132,14 @@ const GeometryDialog = forwardRef(({ onOk }, ref) => {
                                     <Select
                                         labelId="select-file-label"
                                         value={selectedSample}
+                                        MenuProps={{
+                                            sx: {
+                                                '& .MuiMenuItem-root > div > span:last-child': {
+                                                    maxWidth: '480px',
+                                                    textWrap: 'auto'
+                                                }
+                                            }
+                                        }}
                                         label="Velg eksempel"
                                         onChange={handleSampleSelect}
                                     >

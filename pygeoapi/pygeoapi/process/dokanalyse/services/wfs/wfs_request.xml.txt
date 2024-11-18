@@ -3,10 +3,10 @@
    xmlns:fes="http://www.opengis.net/fes/2.0"
    xmlns:gml="http://www.opengis.net/gml/3.2"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-   <wfs:Query typeNames="app:Kommune" srsName="urn:ogc:def:crs:EPSG::{epsg}">
+   <wfs:Query typeNames="{layer}" srsName="urn:ogc:def:crs:EPSG::{epsg}">
       <fes:Filter>
          <fes:Intersects>
-            <fes:ValueReference>app:område</fes:ValueReference>
+            <fes:ValueReference>{geom_field}</fes:ValueReference>
             {geometry}
          </fes:Intersects>
       </fes:Filter>

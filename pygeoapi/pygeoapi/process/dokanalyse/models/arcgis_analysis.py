@@ -4,7 +4,6 @@ from typing import List
 from osgeo import ogr
 from .analysis import Analysis
 from .result_status import ResultStatus
-from ..helpers.common import to_camel_case
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
 from ..helpers.geometry import get_buffered_geometry, geometry_to_arcgis_geom, geometry_from_json
 from ..services.api import query_arcgis
@@ -14,22 +13,22 @@ class ArcGisAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
-    def get_input_geometry(self) -> str:
+    def create_input_geometry(self) -> str:
         return geometry_to_arcgis_geom(self.run_on_input_geometry, self.epsg)
 
     async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
         geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
-        arcgis_geom = self.get_input_geometry()
+        arcgis_geom = self.create_input_geometry()
 
         for layer in self.config['layers']:
             layer_id = layer['arcgis']
-            type_filter = layer.get('type_filter', None)
+            filter = layer.get('filter', None)
 
-            if type_filter is not None:
-                self.add_run_algorithm(f'query {type_filter}')
+            if filter is not None:
+                self.add_run_algorithm(f'query {filter}')
 
-            status_code, arcgis_response = await query_arcgis(self.config, layer_id, type_filter, arcgis_geom, self.epsg)
+            status_code, arcgis_response = await query_arcgis(self.config, layer_id, filter, arcgis_geom, self.epsg)
 
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
@@ -60,9 +59,9 @@ class ArcGisAnalysis(Analysis):
         buffered_geom = get_buffered_geometry(self.geometry, 20000, self.epsg)
         arcgis_geom = geometry_to_arcgis_geom(buffered_geom, self.epsg)
         layer_id = self.config['layers'][0]['arcgis']
-        type_filter = self.config['layers'][0].get('type_filter', None)
+        filter = self.config['layers'][0].get('filter', None)
 
-        _, response = await query_arcgis(self.config, layer_id, type_filter, arcgis_geom, self.epsg)
+        _, response = await query_arcgis(self.config, layer_id, filter, arcgis_geom, self.epsg)
 
         if response is None:
             self.distance_to_object = maxsize
@@ -106,7 +105,7 @@ class ArcGisAnalysis(Analysis):
         feature_props: dict = feature['properties']
 
         for mapping in mappings:
-            props[to_camel_case(mapping)] = feature_props.get(mapping)
+            props[mapping] = feature_props.get(mapping)
 
         return props
 

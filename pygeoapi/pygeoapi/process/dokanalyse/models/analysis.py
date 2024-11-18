@@ -40,7 +40,7 @@ class Analysis(ABC):
         self.run_on_dataset = None
         self.run_algorithm: List[str] = []
         self.result_status: ResultStatus = ResultStatus.NO_HIT_GREEN
-        self.coverage_status: str = None
+        self.coverage_statuses: List[str] = []
         self.has_coverage: bool = True
 
     async def run(self, context, include_guidance, include_quality_measurement) -> None:
@@ -99,12 +99,12 @@ class Analysis(ABC):
         values, warning = await get_coverage_quality(quality_indicators[0], self.run_on_input_geometry, self.epsg)
 
         if 'ikkeKartlagt' in values:
-            self.coverage_status = 'ikkeKartlagt'
             has_other_values = any(value != 'ikkeKartlagt' for value in values)
             self.has_coverage = has_other_values
         else:
-            self.coverage_status = values[0]
             self.has_coverage = True
+
+        self.coverage_statuses = values
 
         if warning != None:
             self.quality_warning.append(warning)
@@ -168,7 +168,7 @@ class Analysis(ABC):
 
     async def __set_quality_measurement(self) -> None:
         dataset_id = self.config.get('dataset_id')
-        self.quality_measurement = await get_quality_measurements(dataset_id, self.coverage_status)
+        self.quality_measurement = await get_quality_measurements(dataset_id, self.coverage_statuses)
 
     def __set_quality_warnings(self, context) -> None:
         config = get_quality_indicators_config(self.config['dataset_id'])
@@ -183,7 +183,7 @@ class Analysis(ABC):
 
         self.quality_warning.extend(warnings)
 
-    def to_json(self) -> dict:
+    def to_dict(self) -> dict:
         return {
             'title': self.title,
             'runOnInputGeometry': self.run_on_input_geometry_json,
@@ -202,12 +202,12 @@ class Analysis(ABC):
             'guidanceText': self.guidance_text,
             'guidanceUri': self.guidance_uri,
             'possibleActions': self.possible_actions,
-            'qualityMeasurement': list(map(lambda item: item.to_json(), self.quality_measurement)),
+            'qualityMeasurement': list(map(lambda item: item.to_dict(), self.quality_measurement)),
             'qualityWarning': self.quality_warning
         }
 
     @abstractmethod
-    def get_input_geometry(self) -> str:
+    def create_input_geometry(self) -> str:
         pass
 
     @abstractmethod

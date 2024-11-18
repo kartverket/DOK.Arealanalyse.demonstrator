@@ -15,9 +15,9 @@ class Response():
         self.result_list = []
         self.report = None
 
-    def to_json(self):
+    def to_dict(self) -> dict:
         result_list = list(
-            map(lambda analysis: analysis.to_json(), self.result_list))
+            map(lambda analysis: analysis.to_dict(), self.result_list))
 
         return {
             'inputGeometry': self.input_geometry,
