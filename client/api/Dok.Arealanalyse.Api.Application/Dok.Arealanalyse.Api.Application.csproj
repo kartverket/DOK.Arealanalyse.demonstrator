@@ -15,6 +15,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Resources\GeoJson\asker.geojson">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\GeoJson\bodø.geojson">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\GeoJson\bærum.geojson">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\GeoJson\config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\GeoJson\drammen.geojson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -27,7 +39,13 @@
     <None Update="Resources\GeoJson\laupsnipa.geojson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\GeoJson\røros.geojson">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\GeoJson\skien-havneterminal.geojson">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\GeoJson\tønsberg.geojson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\GeoJson\ullevål.geojson">
