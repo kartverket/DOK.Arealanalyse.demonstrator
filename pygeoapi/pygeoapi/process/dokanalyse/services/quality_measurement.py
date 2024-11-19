@@ -11,11 +11,7 @@ __SORT_ORDER = [
 ]
 
 
-async def get_quality_measurements(dataset_id: str, coverage_statuses: List[str]) -> List[QualityMeasurement]:
-    codelist = await get_codelist('fullstendighet_dekning')
-    codelist2 = await get_codelist('typeveg')
-    codelist3 = await get_codelist('vegkategori')
-    
+async def get_quality_measurements(dataset_id: str, coverage_statuses: List[str]) -> List[QualityMeasurement]:   
     if dataset_id is None:
         return []
 
@@ -61,6 +57,8 @@ def __add_quality_measurement_for_dok_status(dok_status: dict, quality_measureme
                    item['qualityDimensionName'], item['value'], item['comment']), dok_status['suitability']))
 
     quality_measurements.extend(qms)
+
+
 
 
 def __sort_quality_measurements(quality_measurements: List[QualityMeasurement]) -> List[QualityMeasurement]:

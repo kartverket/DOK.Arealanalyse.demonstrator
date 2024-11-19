@@ -8,9 +8,8 @@ from ..helpers.common import should_refresh_cache
 __CACHE_DAYS = 7
 
 __CODELISTS = {
-    'arealressursarealtype': 'https://register.geonorge.no/api/sosi-kodelister/fkb/ar5/5.0/arealressursarealtype.json',
+    'arealressurs_arealtype': 'https://register.geonorge.no/api/sosi-kodelister/fkb/ar5/5.0/arealressursarealtype.json',
     'fullstendighet_dekning': 'https://register.geonorge.no/api/sosi-kodelister/temadata/fullstendighetsdekningskart/dekningsstatus.json',
-    'typeveg': 'https://register.geonorge.no/api/sosi-kodelister/kartdata/typeveg.json',
     'vegkategori': 'https://register.geonorge.no/api/sosi-kodelister/kartdata/vegkategori.json'
 }
 

@@ -1,21 +1,14 @@
-from os import path
 from io import BytesIO
 from typing import List
 from lxml import etree as ET
 from osgeo import ogr
-import aiohttp
-from ...helpers.common import parse_string, xpath_select_one
-from ...helpers.geometry import geometry_from_gml
-
-_DIR_PATH = path.dirname(path.realpath(__file__))
+from ..http_clients.wfs import query_wfs
+from ..helpers.common import parse_string, xpath_select_one
+from ..helpers.geometry import geometry_from_gml
 
 
 async def get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: int) -> tuple[List[str | int | float | bool], float]:
-    gml = geometry.ExportToGML(['FORMAT=GML3'])
-    request_xml = __create_wfs_request_xml(
-        wfs_config['layer'], wfs_config['geom_field'], gml, epsg)
-
-    response = await __query_wfs(wfs_config['url'], request_xml)
+    response = await query_wfs(wfs_config['url'], wfs_config['layer'], wfs_config['geom_field'], geometry, epsg)
 
     if response is None:
         return [], 0
@@ -51,29 +44,6 @@ async def get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: in
         hit_area_percent = __get_hit_area_percent(geometry, feature_geoms)
 
     return values, hit_area_percent
-
-
-async def __query_wfs(url, xml):
-    try:
-        headers = {'Content-Type': 'application/xml'}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, data=xml, headers=headers) as response:
-                if response.status != 200:
-                    return None
-
-                return await response.text()
-    except:
-        return None
-
-
-def __create_wfs_request_xml(layer, geom_field, geometry, epsg) -> str:
-    file_path = path.join(_DIR_PATH, 'wfs_request.xml.txt')
-
-    with open(file_path, 'r') as file:
-        file_text = file.read()
-
-    return file_text.format(layer=layer, geom_field=geom_field, geometry=geometry, epsg=epsg).encode('utf-8')
 
 
 def __get_hit_area_percent(geometry: ogr.Geometry, feature_geometries: List[ogr.Geometry]) -> float:

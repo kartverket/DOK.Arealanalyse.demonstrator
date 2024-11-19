@@ -6,37 +6,34 @@ from osgeo import ogr
 from .analysis import Analysis
 from .result_status import ResultStatus
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ..helpers.geometry import get_buffered_geometry, geometry_to_wkt, geometry_from_json
-from ..services.api import query_ogc_api
+from ..helpers.geometry import create_buffered_geometry, geometry_from_json, transform_geometry
+from ..http_clients.ogc_api import query_ogc_api
 
 
 class OgcApiAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
-    def create_input_geometry(self) -> str:
-        return geometry_to_wkt(self.run_on_input_geometry, self.epsg)
-
     async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
         geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
-        wkt_geom = self.create_input_geometry()
 
         for layer in self.config['layers']:
-            layer_id = layer['ogc_api']
-            status_code, ogc_api_response = await query_ogc_api(self.config, layer_id, wkt_geom, self.epsg)
-            
+            layer_name = layer['ogc_api']
+            status_code, api_response = await query_ogc_api(
+                self.config['ogc_api'], layer['ogc_api'], self.config['geom_field'], self.run_on_input_geometry, self.epsg)
+
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
                 break
             elif status_code != 200:
                 self.result_status = ResultStatus.ERROR
                 break
-                        
-            self.add_run_algorithm(f'intersect layer {layer_id}')
 
-            if ogc_api_response is not None:
-                response = self.__parse_response(ogc_api_response)
+            self.add_run_algorithm(f'intersect layer {layer_name}')
+
+            if api_response is not None:
+                response = self.__parse_response(api_response)
 
                 if len(response['properties']) > 0:
                     geolett_data = await get_geolett_data(layer.get('geolett_id', None))
@@ -52,11 +49,10 @@ class OgcApiAnalysis(Analysis):
         self.geolett = geolett_data
 
     async def set_distance_to_object(self) -> None:
-        buffered_geom = get_buffered_geometry(self.geometry, 20000, self.epsg)
-        wkt_geom = geometry_to_wkt(buffered_geom, self.epsg)
-        layer_id = self.config['layers'][0]['ogc_api']
+        buffered_geom = create_buffered_geometry(self.geometry, 20000, self.epsg)
+        layer_name = self.config['layers'][0]['ogc_api']
 
-        _, response = await query_ogc_api(self.config, layer_id, wkt_geom, self.epsg)
+        _, response = await query_ogc_api(self.config['ogc_api'], layer_name, self.config['geom_field'], buffered_geom, self.epsg)
 
         if response is None:
             self.distance_to_object = maxsize
@@ -68,7 +64,7 @@ class OgcApiAnalysis(Analysis):
             feature_geom = self.__get_geometry_from_response(feature)
 
             if feature_geom is not None:
-                distance = round(self.geometry.Distance(feature_geom))
+                distance = round(self.run_on_input_geometry.Distance(feature_geom))
                 distances.append(distance)
 
         distances.sort()
@@ -105,5 +101,7 @@ class OgcApiAnalysis(Analysis):
 
     def __get_geometry_from_response(self, feature) -> ogr.Geometry:
         json_str = json.dumps(feature['geometry'])
+        geometry = geometry_from_json(json_str)
         
-        return geometry_from_json(json_str)
+        return transform_geometry(geometry, 4326, 25833)
+        

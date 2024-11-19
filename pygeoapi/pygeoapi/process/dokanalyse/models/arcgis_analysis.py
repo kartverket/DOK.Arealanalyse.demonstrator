@@ -5,30 +5,27 @@ from osgeo import ogr
 from .analysis import Analysis
 from .result_status import ResultStatus
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ..helpers.geometry import get_buffered_geometry, geometry_to_arcgis_geom, geometry_from_json
-from ..services.api import query_arcgis
+from ..helpers.geometry import create_buffered_geometry, geometry_from_json
+from ..http_clients.arcgis import query_arcgis
 
 
 class ArcGisAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
-    def create_input_geometry(self) -> str:
-        return geometry_to_arcgis_geom(self.run_on_input_geometry, self.epsg)
-
     async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
         geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
-        arcgis_geom = self.create_input_geometry()
 
         for layer in self.config['layers']:
-            layer_id = layer['arcgis']
+            layer_name = layer['arcgis']
             filter = layer.get('filter', None)
 
             if filter is not None:
                 self.add_run_algorithm(f'query {filter}')
 
-            status_code, arcgis_response = await query_arcgis(self.config, layer_id, filter, arcgis_geom, self.epsg)
+            status_code, api_response = await query_arcgis(
+                self.config['arcgis'], layer_name, filter, self.run_on_input_geometry, self.epsg)
 
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
@@ -37,10 +34,10 @@ class ArcGisAnalysis(Analysis):
                 self.result_status = ResultStatus.ERROR
                 break
 
-            self.add_run_algorithm(f'intersect layer {layer_id}')
+            self.add_run_algorithm(f'intersect layer {layer_name}')
 
-            if arcgis_response is not None:
-                response = self.__parse_response(arcgis_response)
+            if api_response is not None:
+                response = self.__parse_response(api_response)
 
                 if len(response['properties']) > 0:
                     geolett_data = await get_geolett_data(layer.get('geolett_id', None))
@@ -56,12 +53,11 @@ class ArcGisAnalysis(Analysis):
         self.geolett = geolett_data
 
     async def set_distance_to_object(self) -> None:
-        buffered_geom = get_buffered_geometry(self.geometry, 20000, self.epsg)
-        arcgis_geom = geometry_to_arcgis_geom(buffered_geom, self.epsg)
-        layer_id = self.config['layers'][0]['arcgis']
+        buffered_geom = create_buffered_geometry(self.geometry, 20000, self.epsg)
+        layer_name = self.config['layers'][0]['arcgis']
         filter = self.config['layers'][0].get('filter', None)
 
-        _, response = await query_arcgis(self.config, layer_id, filter, arcgis_geom, self.epsg)
+        _, response = await query_arcgis(self.config['arcgis'], layer_name, filter, buffered_geom, self.epsg)
 
         if response is None:
             self.distance_to_object = maxsize
@@ -73,7 +69,7 @@ class ArcGisAnalysis(Analysis):
             feature_geom = self.__get_geometry_from_response(feature)
 
             if feature_geom is not None:
-                distance = round(self.geometry.Distance(feature_geom))
+                distance = round(self.run_on_input_geometry.Distance(feature_geom))
                 distances.append(distance)
 
         distances.sort()

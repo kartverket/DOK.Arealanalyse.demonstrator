@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from typing import List
 import aiohttp
-from ..helpers.common import parse_string, should_refresh_cache
+from ..helpers.common import should_refresh_cache
 
 __CACHE_DAYS = 7
 __API_URL = 'https://register.geonorge.no/api/dok-statusregisteret.json'

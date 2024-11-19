@@ -1,5 +1,5 @@
 from .analysis import Analysis
-from ..helpers.analysis import get_kartkatalog_metadata
+from ..services.kartkatalog import get_kartkatalog_metadata
 
 
 class EmptyAnalysis(Analysis):
@@ -8,14 +8,12 @@ class EmptyAnalysis(Analysis):
         self.result_status = result_status
 
     async def run(self):
-        self.title = self.geolett['tittel'] if self.geolett else self.config.get('title')
+        self.title = self.geolett['tittel'] if self.geolett else self.config.get(
+            'title')
         self.themes = self.config.get('themes', [])
-        self.run_on_dataset = await get_kartkatalog_metadata(self.config)
+        self.run_on_dataset = await get_kartkatalog_metadata(self.config.get('dataset_id'))
 
     def add_run_algorithm(self):
-        raise NotImplementedError
-
-    def create_input_geometry(self):
         raise NotImplementedError
 
     def run_queries(self):
@@ -23,4 +21,3 @@ class EmptyAnalysis(Analysis):
 
     def set_distance_to_object(self):
         return NotImplementedError
-    

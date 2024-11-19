@@ -3,22 +3,30 @@ import asyncio
 from socketio import SimpleClient
 from ..config import get_dataset_config
 from .dataset import get_dataset_names, get_dataset_type
+from .fact_sheet import create_fact_sheet
 from .municipality import get_municipality
 from ..helpers.geometry import create_input_geometry, get_epsg
-from ..models import Analysis, ArcGisAnalysis, EmptyAnalysis, OgcApiAnalysis, WfsAnalysis, Response, ResultStatus
+from ..models.analysis import Analysis
+from ..models.arcgis_analysis import ArcGisAnalysis
+from ..models.empty_analysis import EmptyAnalysis
+from ..models.ogc_api_analysis import OgcApiAnalysis
+from ..models.wfs_analysis import WfsAnalysis
+from ..models.analysis_response import AnalysisResponse
+from ..models.result_status import ResultStatus
+from ..models.constants import DEFAULT_EPSG
 from ....middleware.correlation_id_middleware import get_correlation_id
 
 
-async def run(data: dict, sio_client: SimpleClient) -> Response:
+async def run(data: dict, sio_client: SimpleClient) -> AnalysisResponse:
     geo_json = data.get('inputGeometry')
-    geometry, epsg = create_input_geometry(geo_json)
+    geometry = create_input_geometry(geo_json)
     orig_epsg = get_epsg(geo_json)
     buffer = data.get('requestedBuffer', 0)
     context = data.get('context')
     include_guidance = data.get('includeGuidance', False)
     include_quality_measurement = data.get('includeQualityMeasurement', False)
-    municipality_number, municipality_name = await get_municipality(geometry, epsg)
-    
+    municipality_number, municipality_name = await get_municipality(geometry, DEFAULT_EPSG)
+
     datasets = await get_dataset_names(data, municipality_number)
     correlation_id = get_correlation_id()
 
@@ -33,11 +41,13 @@ async def run(data: dict, sio_client: SimpleClient) -> Response:
     async with asyncio.TaskGroup() as tg:
         for dataset, should_analyze in datasets.items():
             task = tg.create_task(run_analysis(
-                dataset, should_analyze, geometry, epsg, orig_epsg, buffer, context, include_guidance, include_quality_measurement, sio_client))
+                dataset, should_analyze, geometry, DEFAULT_EPSG, orig_epsg, buffer, context, include_guidance, include_quality_measurement, sio_client))
             tasks.append(task)
 
-    response = Response.create(
-        geo_json, geometry, epsg, orig_epsg, buffer, municipality_number, municipality_name)
+    fact_sheet = await create_fact_sheet(geometry, orig_epsg, buffer)
+
+    response = AnalysisResponse.create(
+        geo_json, geometry, DEFAULT_EPSG, orig_epsg, buffer, fact_sheet, municipality_number, municipality_name)
 
     for task in tasks:
         response.result_list.append(task.result())
@@ -59,8 +69,15 @@ async def run_analysis(dataset, should_analyze, geometry, epsg, orig_epsg, buffe
     start = time.time()
     correlation_id = get_correlation_id()
 
-    analysis = create_analysis(dataset, config, geometry, epsg, orig_epsg, buffer)
-    await analysis.run(context, include_guidance, include_quality_measurement)
+    analysis = create_analysis(
+        dataset, config, geometry, epsg, orig_epsg, buffer)
+
+    try:
+        await analysis.run(context, include_guidance, include_quality_measurement)
+    except Exception as error:
+        print(error)
+        analysis.set_default_data()
+        analysis.result_status = ResultStatus.ERROR
 
     end = time.time()
     print(f'"{dataset}": {round(end - start, 2)} sek.')

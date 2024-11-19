@@ -4,10 +4,18 @@ from datetime import datetime, timezone
 from lxml import etree as ET
 
 
+def from_camel_case(value):
+    regex = r"([A-Z])"
+    subst = " \\1"
+    result = re.sub(regex, subst, value, 0)
+
+    return result.capitalize()
+
+
 def to_camel_case(text: str) -> str:
     if text[0].islower():
         return text
-    
+
     matches = re.findall('[A-ZÆØÅ][^A-ZÆØÅ]*', text)
     words: List[str] = list(map(lambda word: word.strip(' -_'), matches))
     result = words[0].lower() + ''.join(word.capitalize()
@@ -34,6 +42,13 @@ def parse_string(value: str) -> str | int | float | bool:
         return False
 
     return value
+
+
+def parse_date_string(value: str) -> datetime:
+    try:
+        return datetime.fromisoformat(value)
+    except:
+        return None
 
 
 def should_refresh_cache(file_path: str, cache_days: int) -> bool:

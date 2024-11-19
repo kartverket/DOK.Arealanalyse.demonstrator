@@ -1,10 +1,10 @@
 import aiohttp
 from lxml import etree as ET
 from osgeo import ogr, osr
-from ..wfs import query_wfs
-from ...helpers.common import xpath_select
+from ..http_clients.wfs import query_wfs
 
 __WFS_URL = 'https://wfs.geonorge.no/skwms1/wfs.administrative_enheter'
+
 
 async def get_municipality(geometry: ogr.Geometry, epsg: int) -> tuple[str, str]:
     return await __get_municipality_from_wfs(geometry, epsg)
@@ -22,8 +22,8 @@ async def __get_municipality_from_wfs(geometry: ogr.Geometry, epsg: int) -> tupl
     spatial_ref: osr.SpatialReference = geometry.GetSpatialReference()
     centroid.AssignSpatialReference(spatial_ref)
 
-    response = await query_wfs(__WFS_URL, 'Kommune', centroid, epsg, 'område')
-    
+    _, response = await query_wfs(__WFS_URL, 'Kommune', 'område', centroid, epsg)
+
     if response is None:
         return None
 
@@ -56,4 +56,3 @@ async def __fetch_municipality(x: float, y: float, epsg: int) -> tuple[str, str]
                 return municipality_number, municipality_name
     except:
         return None
-

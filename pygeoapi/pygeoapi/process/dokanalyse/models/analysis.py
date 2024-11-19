@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from typing import List
 from osgeo import ogr
 from .quality_measurement import QualityMeasurement
+from .dataset import Dataset
 from .exceptions import DokAnalysisException
 from .result_status import ResultStatus
 from ..helpers.common import keys_to_camel_case
-from ..helpers.analysis import get_kartkatalog_metadata
-from ..helpers.geometry import get_buffered_geometry, create_run_on_input_geometry_json
+from ..helpers.geometry import create_buffered_geometry, create_run_on_input_geometry_json
 from ..config import get_quality_indicators_config
+from ..services.kartkatalog import get_kartkatalog_metadata
 from ..services.quality_warning import get_dataset_quality_warnings, get_object_quality_warnings, get_coverage_quality
 from ..services.quality_measurement import get_quality_measurements
 
@@ -37,7 +38,7 @@ class Analysis(ABC):
         self.cartography: str = None
         self.data: List[dict] = []
         self.themes: List[str] = None
-        self.run_on_dataset = None
+        self.run_on_dataset: Dataset = None
         self.run_algorithm: List[str] = []
         self.result_status: ResultStatus = ResultStatus.NO_HIT_GREEN
         self.coverage_statuses: List[str] = []
@@ -52,7 +53,7 @@ class Analysis(ABC):
             await self.run_queries()
 
             if self.result_status == ResultStatus.TIMEOUT or self.result_status == ResultStatus.ERROR:
-                await self.__set_default_data()
+                await self.set_default_data()
                 return
 
             self.__set_geometry_areas()
@@ -67,7 +68,7 @@ class Analysis(ABC):
         self.run_on_input_geometry_json = create_run_on_input_geometry_json(
             self.run_on_input_geometry, self.epsg, self.orig_epsg)
 
-        await self.__set_default_data()
+        await self.set_default_data()
 
         if include_guidance and self.geolett is not None:
             self.__set_guidance_data()
@@ -79,6 +80,12 @@ class Analysis(ABC):
 
     def add_run_algorithm(self, algorithm) -> None:
         self.run_algorithm.append(algorithm)
+
+    async def set_default_data(self) -> None:
+        self.title = self.geolett['tittel'] if self.geolett else self.config.get(
+            'title')
+        self.themes = self.config.get('themes', [])
+        self.run_on_dataset = await get_kartkatalog_metadata(self.config.get('dataset_id'))
 
     async def __run_coverage_analysis(self) -> None:
         config = get_quality_indicators_config(self.config['dataset_id'])
@@ -113,7 +120,7 @@ class Analysis(ABC):
         self.add_run_algorithm('set input_geometry')
 
         if self.buffer > 0:
-            buffered_geom = get_buffered_geometry(
+            buffered_geom = create_buffered_geometry(
                 self.geometry, self.buffer, self.epsg)
             self.add_run_algorithm('add buffer')
             self.run_on_input_geometry = buffered_geom
@@ -145,12 +152,6 @@ class Analysis(ABC):
                 hit_area += intersection.GetArea()
 
         self.hit_area = hit_area
-
-    async def __set_default_data(self) -> None:
-        self.title = self.geolett['tittel'] if self.geolett else self.config.get(
-            'title')
-        self.themes = self.config.get('themes', [])
-        self.run_on_dataset = await get_kartkatalog_metadata(self.config)
 
     def __set_guidance_data(self) -> None:
         if self.result_status != ResultStatus.NO_HIT_GREEN:
@@ -197,7 +198,7 @@ class Analysis(ABC):
             'cartography': self.cartography,
             'data': list(map(lambda entry: keys_to_camel_case(entry), self.data)),
             'themes': self.themes,
-            'runOnDataset': self.run_on_dataset,
+            'runOnDataset': self.run_on_dataset.to_dict() if self.run_on_dataset is not None else None,
             'description': self.description,
             'guidanceText': self.guidance_text,
             'guidanceUri': self.guidance_uri,
@@ -205,10 +206,6 @@ class Analysis(ABC):
             'qualityMeasurement': list(map(lambda item: item.to_dict(), self.quality_measurement)),
             'qualityWarning': self.quality_warning
         }
-
-    @abstractmethod
-    def create_input_geometry(self) -> str:
-        pass
 
     @abstractmethod
     async def run_queries(self) -> None:

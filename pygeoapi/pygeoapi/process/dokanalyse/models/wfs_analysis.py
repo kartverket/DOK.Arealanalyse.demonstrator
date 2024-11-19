@@ -1,4 +1,3 @@
-from os import path
 from sys import maxsize
 from io import BytesIO
 from typing import List
@@ -8,29 +7,27 @@ from .analysis import Analysis
 from .result_status import ResultStatus
 from ..helpers.common import parse_string, evaluate_condition, xpath_select_one
 from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ..helpers.geometry import get_buffered_geometry, geometry_from_gml
-from ..services.api import query_wfs
-
-_DIR_PATH = path.dirname(path.realpath(__file__))
+from ..helpers.geometry import create_buffered_geometry, geometry_from_gml
+from ..http_clients.wfs import query_wfs
 
 
 class WfsAnalysis(Analysis):
     def __init__(self, config, geometry, epsg, orig_epsg, buffer):
         super().__init__(config, geometry, epsg, orig_epsg, buffer)
 
-    def create_input_geometry(self) -> str:
-        return self.run_on_input_geometry.ExportToGML(['FORMAT=GML3'])
-
     async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
-        gml = self.create_input_geometry()
         geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
 
         for layer in self.config['layers']:
             layer_name = layer['wfs']
-            request_xml = self.__create_request_xml(layer_name, gml)
+            filter = layer.get('filter', None)
 
-            status_code, wfs_response = await query_wfs(self.config, request_xml)
+            if filter is not None:
+                self.add_run_algorithm(f'query {filter}')
+
+            status_code, api_response = await query_wfs(
+                self.config['wfs'], layer['wfs'], self.config['geom_field'], self.run_on_input_geometry, self.epsg)
 
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
@@ -41,8 +38,8 @@ class WfsAnalysis(Analysis):
 
             self.add_run_algorithm(f'intersect {layer_name}')
 
-            if wfs_response is not None:
-                response = self.__parse_response(wfs_response, layer)
+            if api_response is not None:
+                response = self.__parse_response(api_response, layer)
 
                 if len(response['properties']) > 0:
                     geolett_data = await get_geolett_data(layer.get('geolett_id', None))
@@ -59,12 +56,10 @@ class WfsAnalysis(Analysis):
         self.geolett = geolett_data
 
     async def set_distance_to_object(self) -> None:
-        buffered_geom = get_buffered_geometry(self.geometry, 20000, self.epsg)
-        gml = buffered_geom.ExportToGML(['FORMAT=GML3'])
+        buffered_geom = create_buffered_geometry(self.geometry, 20000, self.epsg)
         layer = self.config['layers'][0]
-        request_xml = self.__create_request_xml(layer['wfs'], gml)
 
-        _, response = await query_wfs(self.config, request_xml)
+        _, response = await query_wfs(self.config['wfs'], layer['wfs'], self.config['geom_field'], buffered_geom, self.epsg)
 
         if response is None:
             self.distance_to_object = maxsize
@@ -90,7 +85,7 @@ class WfsAnalysis(Analysis):
             feature_geom = geometry_from_gml(gml_str)
 
             if feature_geom:
-                distance = round(self.geometry.Distance(feature_geom))
+                distance = round(self.run_on_input_geometry.Distance(feature_geom))
                 distances.append(distance)
 
         distances.sort()
@@ -100,14 +95,6 @@ class WfsAnalysis(Analysis):
             self.distance_to_object = maxsize
         else:
             self.distance_to_object = distances[0]
-
-    def __create_request_xml(self, layer_name, gml) -> str:
-        file_path = path.join(_DIR_PATH, 'wfs_request.xml.txt')
-
-        with open(file_path, 'r') as file:
-            file_text = file.read()
-
-        return file_text.format(layerName=layer_name, epsg=self.epsg, geomField=self.config['geom_field'], geometry=gml).encode('utf-8')
 
     def __parse_response(self, wfs_response: str, layer: dict) -> dict[str, List]:
         data = {
@@ -123,7 +110,7 @@ class WfsAnalysis(Analysis):
 
             if localname != 'member':
                 continue
-            
+
             props = self.__map_properties(elem)
 
             if self.__filter_member(props, layer):

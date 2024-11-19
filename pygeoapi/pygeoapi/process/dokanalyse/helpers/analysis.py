@@ -1,18 +1,23 @@
-from ..services.api import fetch_geolett_data, fetch_local_geolett_data, fetch_kartkatalog_metadata
+from os import path
+import json
+from typing import List
+import aiohttp
+from async_lru import alru_cache
 from ..services.legend import create_legend
 
-LOCAL_GEOLETT_IDS = [
+
+__LOCAL_GEOLETT_IDS = [
     '0c5dc043-e5b3-4349-8587-9b464d013aaa'
 ]
 
 
-def get_raster_result(wms_url, wms_layers):
+def get_raster_result(wms_url: str, wms_layers: List[str]) -> str:
     layers = ','.join(wms_layers)
 
     return f'{wms_url}?layers={layers}'
 
 
-async def get_cartography_url(wms_url, wms_layers):
+async def get_cartography_url(wms_url: str, wms_layers: List[str]) -> str:
     urls = []
 
     for wms_layer in wms_layers:
@@ -27,38 +32,40 @@ async def get_cartography_url(wms_url, wms_layers):
     return data_url
 
 
-async def get_geolett_data(id):
+async def get_geolett_data(id: str) -> dict:
     if id is None:
         return None
 
-    if id in LOCAL_GEOLETT_IDS:
-        geolett = fetch_local_geolett_data()
+    if id in __LOCAL_GEOLETT_IDS:
+        geolett = __fetch_local_geolett_data()
     else:
-        geolett = await fetch_geolett_data()
+        geolett = await __fetch_geolett_data()
 
     result = list(filter(lambda item: item['id'] == id, geolett))
 
     return result[0] if len(result) > 0 else None
 
 
-async def get_kartkatalog_metadata(config):
-    dataset_id = config.get('dataset_id')
+@alru_cache(maxsize=32, ttl=86400*7)
+async def __fetch_geolett_data() -> dict:
+    try:
+        url = 'https://register.geonorge.no/geolett/api/'
 
-    if dataset_id is None:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    return None
+
+                return await response.json()
+    except:
         return None
 
-    metadata = await fetch_kartkatalog_metadata(dataset_id)
 
-    if metadata is None:
-        return None
+def __fetch_local_geolett_data() -> dict:
+    dir_path = path.dirname(path.realpath(__file__))
 
-    updated = metadata.get(
-        'DateUpdated', metadata.get('DateMetadataUpdated', None))
+    file_path = path.join(
+        path.dirname(dir_path), 'resources/geolett.local.json')
 
-    return {
-        'datasetId': dataset_id,
-        'title': metadata['NorwegianTitle'],
-        'description': metadata['Abstract'],
-        'datasetDescriptionUri': 'https://kartkatalog.geonorge.no/metadata/' + dataset_id,
-        'updated': updated
-    }
+    with open(file_path, 'r') as file:
+        return json.load(file)
