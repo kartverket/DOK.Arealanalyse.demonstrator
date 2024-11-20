@@ -87,33 +87,25 @@
         display: flex;
         align-items: center;
         padding: 6px 12px;
+        height: max-content;
         border-radius: 4px;
         background-color: rgb(255, 224, 180);
 
         ul {
             margin: 0;
             padding: 0;
-            list-style: none;
             font-size: 14px;
 
             li {
-                margin-bottom: 3px;
-                display: grid;
-                grid-template-columns: auto auto;
-                justify-content: start;
-                align-items: center;
+                margin-left: 18px;
+
+                &:only-child {
+                    list-style: none;
+                    margin-left: 4px;
+                }
 
                 &:last-child {
                     margin-bottom: 0;
-                }
-
-                &::before {
-                    content: '';
-                    background: url('../../assets/gfx/icon-hit-yellow.svg') no-repeat center;
-                    width: 24px;
-                    height: 24px;
-                    background-size: 24px;
-                    margin-right: 4px;
                 }
             }
         }

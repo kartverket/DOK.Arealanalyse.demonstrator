@@ -7,7 +7,7 @@ from ..utils.helpers.common import parse_string, xpath_select_one
 from ..utils.helpers.geometry import geometry_from_gml
 
 
-async def get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: int) -> tuple[List[str | int | float | bool], float]:
+async def get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: int) -> tuple[List[str], float]:
     _, response = await query_wfs(wfs_config['url'], wfs_config['layer'], wfs_config['geom_field'], geometry, epsg)
 
     if response is None:
@@ -28,8 +28,7 @@ async def get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: in
         localname = ET.QName(elem).localname
 
         if localname == 'member':
-            value_str = xpath_select_one(elem, prop_path)
-            value = parse_string(value_str)
+            value = xpath_select_one(elem, prop_path)
             values.append(value)
 
             if value == 'ikkeKartlagt':
@@ -43,7 +42,9 @@ async def get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: in
     if len(feature_geoms) > 0:
         hit_area_percent = __get_hit_area_percent(geometry, feature_geoms)
 
-    return values, hit_area_percent
+    distinct_values = list(set(values))
+    
+    return distinct_values, hit_area_percent
 
 
 def __get_hit_area_percent(geometry: ogr.Geometry, feature_geometries: List[ogr.Geometry]) -> float:

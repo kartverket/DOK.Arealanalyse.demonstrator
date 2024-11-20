@@ -4,6 +4,7 @@ dataset:
   quality_indicators:
   - type: coverage
     quality_dimension_id: fullstendighet_dekning
+    quality_dimension_name: Fullstendighetsdekning
     quality_warning_text: Området er ikke kartlagt
     warning_threshold: ikkeKartlagt
     wfs:

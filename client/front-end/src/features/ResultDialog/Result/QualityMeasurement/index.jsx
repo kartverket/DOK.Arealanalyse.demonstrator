@@ -5,7 +5,6 @@ export default function QualityMeasurement({ result }) {
     const { getCollapseProps, getToggleProps, isExpanded } = useCollapse();
     const qualityMeasurement = result.qualityMeasurement || [];
 
-
     if (!qualityMeasurement.length) {
         return null;
     }
@@ -24,7 +23,11 @@ export default function QualityMeasurement({ result }) {
                                 <li key={index} className={styles.measurement}>
                                     <span className={styles.dimension}>{measurement.qualityDimensionName}:</span>
                                     <span>{measurement.value}</span>
-                                    <span>({measurement.comment})</span>
+                                    {
+                                        measurement.comment !== null && (
+                                            <span>({measurement.comment})</span>
+                                        )
+                                    }
                                 </li>
                             )
                         })

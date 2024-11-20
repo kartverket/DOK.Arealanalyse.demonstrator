@@ -9,8 +9,18 @@ from ..utils.helpers.common import keys_to_camel_case
 from ..utils.helpers.geometry import create_buffered_geometry, create_run_on_input_geometry_json
 from ..config import get_quality_indicators_config
 from ..services.kartkatalog import get_kartkatalog_metadata
-from ..services.quality_warning import get_dataset_quality, get_object_quality, get_coverage_quality
 from ..services.quality_measurement import get_quality_measurements
+from ..services.quality.coverage_quality import get_coverage_quality
+from ..services.quality.dataset_quality import get_dataset_quality
+from ..services.quality.object_quality import get_object_quality
+
+_QMS_SORT_ORDER = [
+    'fullstendighet_dekning',
+    'stedfestingsnøyaktighet',
+    'egnethet_reguleringsplan',
+    'egnethet_kommuneplan',
+    'egnethet_byggesak'
+]
 
 
 class Analysis(ABC):
@@ -75,9 +85,7 @@ class Analysis(ABC):
             self.__set_guidance_data()
 
         if include_quality_measurement:
-            await self.__set_quality_measurement()
-
-        await self.__set_quality_warnings(context)
+            await self.__set_quality_measurements(context)
 
     def add_run_algorithm(self, algorithm) -> None:
         self.run_algorithm.append(algorithm)
@@ -104,17 +112,12 @@ class Analysis(ABC):
                 'A dataset can only have one coverage quality indicator')
 
         self.add_run_algorithm('check coverage')
-        values, warning = await get_coverage_quality(quality_indicators[0], self.run_on_input_geometry, self.epsg)
+        measurements, warning, has_coverage = await get_coverage_quality(quality_indicators[0], self.run_on_input_geometry, self.epsg)
 
-        if 'ikkeKartlagt' in values:
-            has_other_values = any(value != 'ikkeKartlagt' for value in values)
-            self.has_coverage = has_other_values
-        else:
-            self.has_coverage = True
+        self.quality_measurement.extend(measurements)
+        self.has_coverage = has_coverage
 
-        self.coverage_statuses = values
-
-        if warning != None:
+        if warning is not None:
             self.quality_warning.append(warning)
 
     def __set_input_geometry(self) -> None:
@@ -168,29 +171,35 @@ class Analysis(ABC):
         for line in self.geolett['muligeTiltak'].splitlines():
             self.possible_actions.append(line.lstrip('- '))
 
-    async def __set_quality_measurement(self) -> None:
-        self.quality_measurement = await get_quality_measurements(self.dataset_id, self.coverage_statuses)
-
-    async def __set_quality_warnings(self, context) -> None:
+    async def __set_quality_measurements(self, context) -> None:
         config = get_quality_indicators_config(self.dataset_id)
 
         if config is None:
             return
 
-        warnings = []
-        result = get_object_quality(config, self.data)
+        dataset_qms, dataset_warnings = await get_dataset_quality(self.dataset_id, config, context=context, themes=self.themes)
+        object_qms, object_warnings = get_object_quality(config, self.data)
 
-        print(result)
+        self.quality_measurement.extend(dataset_qms)
+        self.quality_measurement.extend(object_qms)
+        self.quality_warning.extend(dataset_warnings)
+        self.quality_warning.extend(object_warnings)
 
-        # warnings.extend(warning)
-        res = await get_dataset_quality(self.dataset_id, config, context=context, themes=self.themes)
-        print(res)
-        
-        #warnings.extend(w)
+    def __sort_quality_measurements(self) -> List[QualityMeasurement]:
+        qms: List[QualityMeasurement] = []
 
-        self.quality_warning.extend(warnings)
+        for id in _QMS_SORT_ORDER:
+            result = [
+                qm for qm in self.quality_measurement if qm.quality_dimension_id == id]
+
+            if len(result) > 0:
+                qms.extend(result)
+
+        return qms
 
     def to_dict(self) -> dict:
+        sorted_qms = self.__sort_quality_measurements()
+
         return {
             'title': self.title,
             'runOnInputGeometry': self.run_on_input_geometry_json,
@@ -209,7 +218,7 @@ class Analysis(ABC):
             'guidanceText': self.guidance_text,
             'guidanceUri': self.guidance_uri,
             'possibleActions': self.possible_actions,
-            'qualityMeasurement': list(map(lambda item: item.to_dict(), self.quality_measurement)),
+            'qualityMeasurement': list(map(lambda item: item.to_dict(), sorted_qms)),
             'qualityWarning': self.quality_warning
         }
 
