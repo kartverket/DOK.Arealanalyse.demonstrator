@@ -10,7 +10,7 @@ namespace Dok.Arealanalyse.Api.Application.Services;
 
 public partial class GmlConvertService : IGmlConvertService
 {
-    private static readonly string[] GmlGeometryElementNames =
+    private static readonly string[] _gmlGeometryElementNames =
     [
         "MultiPolygon",
         "MultiSurface",
@@ -89,7 +89,7 @@ public partial class GmlConvertService : IGmlConvertService
     private static List<XElement> GetSurfaceGeometryElements(XElement featureMember)
     {
         return featureMember.Descendants()
-            .Where(element => GmlGeometryElementNames.Contains(element.Name.LocalName) &&
+            .Where(element => _gmlGeometryElementNames.Contains(element.Name.LocalName) &&
                 element.Parent.Name.Namespace != element.Parent.GetNamespaceOfPrefix("gml"))
             .ToList();
     }

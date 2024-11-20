@@ -39,6 +39,9 @@
     <None Update="Resources\GeoJson\laupsnipa.geojson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\GeoJson\gamvik.geojson">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\GeoJson\røros.geojson">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
