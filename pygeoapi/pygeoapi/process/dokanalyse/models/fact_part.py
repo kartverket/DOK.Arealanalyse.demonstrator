@@ -1,7 +1,7 @@
 from typing import List
 from osgeo import ogr
 from .dataset import Dataset
-from ..helpers.geometry import create_run_on_input_geometry_json
+from ..utils.helpers.geometry import create_run_on_input_geometry_json
 
 class FactPart:
     def __init__(self, run_on_input_geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int, run_on_dataset: Dataset, run_algorithm: List[str], data: any):

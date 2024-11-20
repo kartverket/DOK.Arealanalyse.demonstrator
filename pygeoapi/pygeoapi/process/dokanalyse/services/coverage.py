@@ -3,12 +3,12 @@ from typing import List
 from lxml import etree as ET
 from osgeo import ogr
 from ..http_clients.wfs import query_wfs
-from ..helpers.common import parse_string, xpath_select_one
-from ..helpers.geometry import geometry_from_gml
+from ..utils.helpers.common import parse_string, xpath_select_one
+from ..utils.helpers.geometry import geometry_from_gml
 
 
 async def get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: int) -> tuple[List[str | int | float | bool], float]:
-    response = await query_wfs(wfs_config['url'], wfs_config['layer'], wfs_config['geom_field'], geometry, epsg)
+    _, response = await query_wfs(wfs_config['url'], wfs_config['layer'], wfs_config['geom_field'], geometry, epsg)
 
     if response is None:
         return [], 0

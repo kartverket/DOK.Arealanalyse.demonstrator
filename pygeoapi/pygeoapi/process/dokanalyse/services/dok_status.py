@@ -3,7 +3,8 @@ import json
 from pathlib import Path
 from typing import List
 import aiohttp
-from ..helpers.common import should_refresh_cache
+from ..utils.helpers.common import should_refresh_cache
+from ..utils.constants import FILE_SHARE_BASE_DIR
 
 __CACHE_DAYS = 7
 __API_URL = 'https://register.geonorge.no/api/dok-statusregisteret.json'
@@ -28,7 +29,7 @@ async def get_dok_status_for_dataset(dataset_id) -> dict:
     dok_status_all = await get_dok_status()
 
     for dok_status in dok_status_all:
-        if dok_status.get('datasetId') == dataset_id:
+        if dok_status.get('dataset_id') == dataset_id:
             return dok_status
 
     return None
@@ -36,7 +37,7 @@ async def get_dok_status_for_dataset(dataset_id) -> dict:
 
 async def get_dok_status() -> List[dict]:
     file_path = Path(
-        path.join(Path.home(), 'dokanalyse/resources/dok-status.json'))
+        path.join(FILE_SHARE_BASE_DIR, 'resources/dok-status.json'))
 
     if not file_path.exists() or should_refresh_cache(file_path, __CACHE_DAYS):
         file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -72,14 +73,14 @@ async def __get_dok_status() -> List[dict]:
             id, name = __CATEGEORY_MAPPINGS.get(key)
 
             suitability.append({
-                'qualityDimensionId': id,
-                'qualityDimensionName': name,
+                'quality_dimension_id': id,
+                'quality_dimension_name': name,
                 'value': value,
                 'comment': __VALUE_MAPPINGS.get(value)
             })
 
         datasets.append({
-            'datasetId': dataset_id,
+            'dataset_id': dataset_id,
             'suitability': suitability
         })
 

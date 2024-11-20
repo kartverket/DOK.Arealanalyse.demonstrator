@@ -4,8 +4,8 @@ from osgeo import ogr
 from ..codelist import get_codelist
 from ...http_clients.ogc_api import query_ogc_api
 from ...services.kartkatalog import get_kartkatalog_metadata
-from ...helpers.geometry import geometry_from_json
-from ...helpers.common import from_camel_case
+from ...utils.helpers.geometry import geometry_from_json
+from ...utils.helpers.common import from_camel_case
 from ...models.fact_part import FactPart
 
 __DATASET_ID = '900206a8-686f-4591-9394-327eb02d0899'

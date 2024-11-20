@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { prettyPrintJson } from 'pretty-print-json';
 import { getCrsName, getEpsgCode } from 'utils/helpers';
-import { IconButton, Tooltip } from '@mui/material';
+import { IconButton } from '@mui/material';
 import { Check, ContentCopy } from '@mui/icons-material';
 import styles from './GeoJson.module.scss';
 

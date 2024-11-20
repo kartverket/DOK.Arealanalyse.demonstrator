@@ -24,11 +24,15 @@ ARG ADD_DEB_PACKAGES="\
     python3-pytest \
     python3-pyld"
 ARG SOCKET_IO_URL="https://dok-arealanalyse.azurewebsites.net/ws"
+ARG FILE_SHARE_BASE_DIR="/mnt/dokanalyse"
+ARG AR5_DB_PATH="/mnt/dokanalyse/filegdb/ar5.gdb"
 
 ENV TZ=${TZ} \
     LANG=${LANG} \
     DEBIAN_FRONTEND="noninteractive" \
     SOCKET_IO_URL=${SOCKET_IO_URL} \
+    FILE_SHARE_BASE_DIR=${FILE_SHARE_BASE_DIR} \
+    AR5_DB_PATH=${AR5_DB_PATH} \        
     DEB_BUILD_DEPS="\
     curl \
     unzip" \

@@ -5,6 +5,7 @@ from ..models.quality_measurement import QualityMeasurement
 
 __SORT_ORDER = [
     'fullstendighet_dekning',
+    'stedfestingsnøyaktighet'
     'egnethet_reguleringsplan',
     'egnethet_kommuneplan',
     'egnethet_byggesak',
@@ -53,8 +54,8 @@ async def __add_quality_measurement_for_coverage(coverage_statuses: List[str], q
 
 
 def __add_quality_measurement_for_dok_status(dok_status: dict, quality_measurements: List[QualityMeasurement]) -> None:
-    qms = list(map(lambda item: QualityMeasurement(item['qualityDimensionId'],
-                   item['qualityDimensionName'], item['value'], item['comment']), dok_status['suitability']))
+    qms = list(map(lambda item: QualityMeasurement(item['quality_dimension_id'],
+                   item['quality_dimension_name'], item['value'], item['comment']), dok_status['suitability']))
 
     quality_measurements.extend(qms)
 

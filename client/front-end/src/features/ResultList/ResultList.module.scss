@@ -38,20 +38,28 @@
             margin-right: 10px;
         }
 
-        &.success::before {
-            background-image: url('../../assets/gfx/icon-success.svg');
+        &.noHitGreen::before {
+            background-image: url('../../assets/gfx/icon-no-hit-green.svg');
         }
 
-        &.warning::before {
-            background-image: url('../../assets/gfx/icon-warning.svg');
+        &.noHitYellow::before {
+            background-image: url('../../assets/gfx/icon-no-hit-yellow.svg');
         }
 
-        &.redwarning::before {
-            background-image: url('../../assets/gfx/icon-error.svg');
+        &.hitYellow::before {
+            background-image: url('../../assets/gfx/icon-hit-yellow.svg');
+        }
+
+        &.hitRed::before {
+            background-image: url('../../assets/gfx/icon-hit-red.svg');
+        }
+
+        &.timeout::before {
+            background-image: url('../../assets/gfx/icon-timeout.svg');
         }
 
         &.error::before {
-            background-image: url('../../assets/gfx/icon-redwarning.svg');
+            background-image: url('../../assets/gfx/icon-fail.svg');
         }
 
         &.noStatus::before {
@@ -61,11 +69,18 @@
 
     .title {
         grid-column: span 2;
-        //white-space: pre-line;
     }
 
     &.hasWarnings .title {
         grid-column: span 1;
+    }
+
+    &.hasFailed {
+        cursor: default;
+
+        .title {
+            color: #d32f2f;
+        }
     }
 
     .warnings {
@@ -94,7 +109,7 @@
 
                 &::before {
                     content: '';
-                    background: url('../../assets/gfx/icon-warning.svg') no-repeat center;
+                    background: url('../../assets/gfx/icon-hit-yellow.svg') no-repeat center;
                     width: 24px;
                     height: 24px;
                     background-size: 24px;

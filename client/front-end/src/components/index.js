@@ -1,3 +1,4 @@
+export { default as Heading } from './Heading';
 export { default as HiddenInput } from './HiddenInput';
 export { default as IntegerField } from './IntegerField';
 export { default as ProgressBar } from './ProgressBar';

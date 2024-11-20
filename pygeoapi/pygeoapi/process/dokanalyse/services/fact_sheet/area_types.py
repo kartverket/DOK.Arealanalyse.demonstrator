@@ -1,10 +1,9 @@
-import os
 from osgeo import ogr
 from ..codelist import get_codelist
 from ..kartkatalog import get_kartkatalog_metadata
 from ...models.fact_part import FactPart
+from ...utils.constants import AR5_DB_PATH
 
-__DB_PATH = os.environ.get('AR5_DB_PATH', '/mnt/dokanalyse/filegdb/ar5.gdb')
 __DATASET_ID = '166382b4-82d6-4ea9-a68e-6fd0c87bf788'
 __LAYER_NAME = 'fkb_ar5_omrade'
 
@@ -17,7 +16,7 @@ async def get_area_types(geometry: ogr.Geometry, epsg: int, orig_epsg: int, buff
 
 async def __get_data(geometry: ogr.Geometry) -> dict:
     driver: ogr.Driver = ogr.GetDriverByName('OpenFileGDB')
-    data_source: ogr.DataSource = driver.Open(__DB_PATH, 0)
+    data_source: ogr.DataSource = driver.Open(AR5_DB_PATH, 0)
     layer: ogr.Layer = data_source.GetLayerByName(__LAYER_NAME)
     layer.SetSpatialFilter(0, geometry)
 

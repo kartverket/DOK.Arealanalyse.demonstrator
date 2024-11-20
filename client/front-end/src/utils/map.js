@@ -1,4 +1,4 @@
-import { Feature, Map, View } from 'ol';
+import { Feature, Map as OlMap, View } from 'ol';
 import GeoJSON from 'ol/format/GeoJSON';
 import TileLayer from 'ol/layer/Tile';
 import TileWMS from 'ol/source/TileWMS';
@@ -20,7 +20,7 @@ export async function createMap(inputGeometry, result, wmtsOptions) {
 
     featuresLayer.set('id', 'features');
 
-    const map = new Map({
+    const map = new OlMap({
         controls: defaultControls().extend([new FullScreen()]),
         interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
         layers: [
@@ -45,7 +45,7 @@ export async function createOutlineMap(geometry, wmtsOptions) {
 
     featuresLayer.set('id', 'features');
 
-    const map = new Map({
+    const map = new OlMap({
         interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
         layers: [
             await createBaseMapLayer(wmtsOptions),
@@ -62,7 +62,11 @@ export async function createOutlineMap(geometry, wmtsOptions) {
     return map;
 }
 
-export async function getMapImage(inputGeometry, result, wmtsOptions) {
+export async function createMapImage(inputGeometry, result, wmtsOptions) {
+    // if (MAP_IMAGES.has(result._tempId)) {
+    //     return 
+    // }
+    // if (MAP_IMAGES[result._tempId])
     const [map, mapElement] = await createTempMap(inputGeometry, result, wmtsOptions);
 
     return new Promise((resolve) => {
@@ -70,7 +74,7 @@ export async function getMapImage(inputGeometry, result, wmtsOptions) {
             const base64 = exportToPngImage(map);
             map.dispose();
             mapElement.remove();
-
+            //MAP_IMAGES[result._tempId] = base64;
             resolve(base64);
         })
     });
@@ -84,7 +88,7 @@ export function getLayer(map, id) {
 async function createTempMap(inputGeometry, result, wmtsOptions) {
     const featuresLayer = createFeaturesLayer(inputGeometry, result);
 
-    const map = new Map({
+    const map = new OlMap({
         layers: [
             await createBaseMapLayer(wmtsOptions),
             createWmsLayer(result.rasterResult),

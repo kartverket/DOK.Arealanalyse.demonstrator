@@ -3,7 +3,7 @@ dataset:
   - type: dataset
     quality_dimension_id: egnethet_reguleringsplan
     quality_warning_text: Datasettet er lite egnet for reguleringsplan
-    warning_threshold: 1 OR 2
+    warning_threshold: 0 OR 1 OR 2
     input_filter: context = 'Reguleringsplan'
 
   - type: dataset

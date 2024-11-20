@@ -3,7 +3,8 @@ import json
 from pathlib import Path
 import aiohttp
 from ..models.dataset import Dataset
-from ..helpers.common import should_refresh_cache
+from ..utils.helpers.common import should_refresh_cache
+from ..utils.constants import FILE_SHARE_BASE_DIR
 
 __CACHE_DAYS = 7
 
@@ -22,7 +23,7 @@ async def get_kartkatalog_metadata(dataset_id: str) -> Dataset:
 
 async def __get_kartkatalog_metadata(dataset_id: str) -> dict:
     file_path = Path(
-        path.join(Path.home(), f'dokanalyse/resources/kartkatalog/{dataset_id}.json'))
+        path.join(FILE_SHARE_BASE_DIR, f'resources/kartkatalog/{dataset_id}.json'))
 
     if not file_path.exists() or should_refresh_cache(file_path, __CACHE_DAYS):
         file_path.parent.mkdir(parents=True, exist_ok=True)

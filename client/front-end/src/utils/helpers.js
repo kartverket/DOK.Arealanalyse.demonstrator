@@ -32,3 +32,7 @@ export function parseJson(json) {
       return null;
    }
 }
+
+export function createRandomId() {
+   return `_${Math.floor(Math.random() * Math.floor(Math.random() * Date.now()))}`;
+}

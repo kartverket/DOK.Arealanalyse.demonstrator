@@ -3,7 +3,7 @@ from typing import List
 from lxml import etree as ET
 from osgeo import ogr
 from ...http_clients.wfs import query_wfs
-from ...helpers.common import parse_string
+from ...utils.helpers.common import parse_string
 from ...services.kartkatalog import get_kartkatalog_metadata
 from ...models.fact_part import FactPart
 

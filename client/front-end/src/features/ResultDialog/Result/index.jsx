@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react';
-import { getMapImage } from 'utils/map';
 import { CircularProgress } from '@mui/material';
 import { marked } from 'marked';
 import { useMap } from 'context/MapContext';
@@ -16,7 +15,7 @@ import styles from './Result.module.scss';
 export default function Result({ inputGeometry, result }) {
     const [mapBase64, setMapBase64] = useState(null);
     const [showInteractiveMap, setShowInteractiveMap] = useState(false);
-    const { wmtsOptions } = useMap();
+    const { createMapImage } = useMap();
 
     const shouldShowMap = useCallback(
         () => {
@@ -33,16 +32,16 @@ export default function Result({ inputGeometry, result }) {
             }
 
             (async () => {
-                const base64 = await getMapImage(inputGeometry, result, wmtsOptions);
+                const base64 = await createMapImage(inputGeometry, result);
                 setMapBase64(base64);
             })();
         },
-        [shouldShowMap, inputGeometry, result, wmtsOptions]
+        [shouldShowMap, createMapImage, inputGeometry, result]
     );
 
     return (
         <div>
-           
+
             {
                 result.description ?
                     <div className="section">
@@ -50,7 +49,7 @@ export default function Result({ inputGeometry, result }) {
                     </div> :
                     null
             }
-             <GuidanceText result={result} />
+            <GuidanceText result={result} />
             <PossibleActions result={result} />
 
             <div className={styles.grid}>
@@ -89,7 +88,7 @@ export default function Result({ inputGeometry, result }) {
                                 <img src={result.cartography} alt="Tegneregler" />
                             </div> :
                             null
-                    }                    
+                    }
                     <GuidanceLinks result={result} />
                     {
                         result.data.length > 0 && (

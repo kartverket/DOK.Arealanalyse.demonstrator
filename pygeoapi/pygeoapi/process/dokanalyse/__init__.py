@@ -1,10 +1,10 @@
-import logging
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 from .services import analyses
-from .helpers.request import request_is_valid
-from .helpers.socket_io import get_client
+from .utils.helpers.request import request_is_valid
+from .utils.socket_io import get_client
+from .utils.logger import setup_logger
 
-LOGGER = logging.getLogger(__name__)
+setup_logger()
 
 PROCESS_METADATA = {
     'version': '0.1.0',
@@ -112,7 +112,7 @@ PROCESS_METADATA = {
             },
             'minOccurs': 0,
             'maxOccurs': 1
-        }
+        }      
     },
     'example': {
         'inputs': {

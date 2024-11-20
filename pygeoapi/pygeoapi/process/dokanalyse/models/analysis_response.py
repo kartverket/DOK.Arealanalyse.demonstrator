@@ -2,7 +2,7 @@ from typing import List
 from osgeo import ogr
 from .analysis import Analysis
 from .fact_sheet import FactSheet
-from ..helpers.geometry import add_geojson_crs, create_buffered_geometry
+from ..utils.helpers.geometry import add_geojson_crs, create_buffered_geometry
 
 
 class AnalysisResponse():

@@ -7,7 +7,7 @@ __WFS_URL = 'https://wfs.geonorge.no/skwms1/wfs.administrative_enheter'
 
 
 async def get_municipality(geometry: ogr.Geometry, epsg: int) -> tuple[str, str]:
-    return await __get_municipality_from_wfs(geometry, epsg)
+    return await __get_municipality_from_rest_api(geometry, epsg)
 
 
 async def __get_municipality_from_rest_api(geometry: ogr.Geometry, epsg: int) -> tuple[str, str]:

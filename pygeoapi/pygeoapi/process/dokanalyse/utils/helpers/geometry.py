@@ -4,7 +4,7 @@ from math import pi
 from re import search
 from shapely import wkt
 from shapely.wkt import dumps
-from ..models.constants import DEFAULT_EPSG, EARTH_RADIUS, WGS84_EPSG
+from ...utils.constants import DEFAULT_EPSG, EARTH_RADIUS, WGS84_EPSG
 
 
 def geometry_from_gml(gml_str: str) -> ogr.Geometry:

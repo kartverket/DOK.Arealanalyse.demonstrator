@@ -1,7 +1,7 @@
 import aiohttp
 import asyncio
 from osgeo import ogr
-from ..helpers.geometry import geometry_to_arcgis_geom
+from ..utils.helpers.geometry import geometry_to_arcgis_geom
 
 
 async def query_arcgis(url: str, layer: str, filter: str, geometry: ogr.Geometry, epsg: int, timeout: int = 20) -> tuple[int, dict]:

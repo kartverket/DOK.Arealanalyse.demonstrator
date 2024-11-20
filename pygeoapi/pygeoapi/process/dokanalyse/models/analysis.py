@@ -5,21 +5,22 @@ from .quality_measurement import QualityMeasurement
 from .dataset import Dataset
 from .exceptions import DokAnalysisException
 from .result_status import ResultStatus
-from ..helpers.common import keys_to_camel_case
-from ..helpers.geometry import create_buffered_geometry, create_run_on_input_geometry_json
+from ..utils.helpers.common import keys_to_camel_case
+from ..utils.helpers.geometry import create_buffered_geometry, create_run_on_input_geometry_json
 from ..config import get_quality_indicators_config
 from ..services.kartkatalog import get_kartkatalog_metadata
-from ..services.quality_warning import get_dataset_quality_warnings, get_object_quality_warnings, get_coverage_quality
+from ..services.quality_warning import get_dataset_quality, get_object_quality, get_coverage_quality
 from ..services.quality_measurement import get_quality_measurements
 
 
 class Analysis(ABC):
-    def __init__(self, config: dict, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int):
-        self.config: dict = config
-        self.geometry: ogr.Geometry = geometry
+    def __init__(self, dataset_id: str, config: dict, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int):
+        self.dataset_id = dataset_id
+        self.config = config
+        self.geometry = geometry
         self.run_on_input_geometry: ogr.Geometry = None
-        self.epsg: int = epsg
-        self.orig_epsg: int = orig_epsg
+        self.epsg = epsg
+        self.orig_epsg = orig_epsg
         self.geometries: List[ogr.Geometry] = []
         self.geolett: dict = None
         self.title: str = None
@@ -29,7 +30,7 @@ class Analysis(ABC):
         self.possible_actions: List[str] = []
         self.quality_measurement: List[QualityMeasurement] = []
         self.quality_warning: List[str] = []
-        self.buffer: int = buffer or 0
+        self.buffer = buffer or 0
         self.input_geometry_area: ogr.Geometry = None
         self.run_on_input_geometry_json: dict = None
         self.hit_area: float = None
@@ -76,7 +77,7 @@ class Analysis(ABC):
         if include_quality_measurement:
             await self.__set_quality_measurement()
 
-        self.__set_quality_warnings(context)
+        await self.__set_quality_warnings(context)
 
     def add_run_algorithm(self, algorithm) -> None:
         self.run_algorithm.append(algorithm)
@@ -85,10 +86,10 @@ class Analysis(ABC):
         self.title = self.geolett['tittel'] if self.geolett else self.config.get(
             'title')
         self.themes = self.config.get('themes', [])
-        self.run_on_dataset = await get_kartkatalog_metadata(self.config.get('dataset_id'))
+        self.run_on_dataset = await get_kartkatalog_metadata(self.dataset_id)
 
     async def __run_coverage_analysis(self) -> None:
-        config = get_quality_indicators_config(self.config['dataset_id'])
+        config = get_quality_indicators_config(self.dataset_id)
 
         if config is None:
             return
@@ -168,19 +169,24 @@ class Analysis(ABC):
             self.possible_actions.append(line.lstrip('- '))
 
     async def __set_quality_measurement(self) -> None:
-        dataset_id = self.config.get('dataset_id')
-        self.quality_measurement = await get_quality_measurements(dataset_id, self.coverage_statuses)
+        self.quality_measurement = await get_quality_measurements(self.dataset_id, self.coverage_statuses)
 
-    def __set_quality_warnings(self, context) -> None:
-        config = get_quality_indicators_config(self.config['dataset_id'])
+    async def __set_quality_warnings(self, context) -> None:
+        config = get_quality_indicators_config(self.dataset_id)
 
         if config is None:
             return
 
         warnings = []
-        warnings.extend(get_object_quality_warnings(config, self.data))
-        warnings.extend(get_dataset_quality_warnings(
-            config, self.quality_measurement, context=context, themes=self.themes))
+        result = get_object_quality(config, self.data)
+
+        print(result)
+
+        # warnings.extend(warning)
+        res = await get_dataset_quality(self.dataset_id, config, context=context, themes=self.themes)
+        print(res)
+        
+        #warnings.extend(w)
 
         self.quality_warning.extend(warnings)
 

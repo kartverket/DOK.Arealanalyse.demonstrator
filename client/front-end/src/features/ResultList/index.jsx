@@ -19,8 +19,16 @@ export default function ResultList({ data }) {
             classNames.push(styles.hasWarnings);
         }
 
-        if (result.resultStatus === 'NO-HIT-YELLOW') {
-            classNames.push(styles.warning);
+        switch (result.resultStatus) {
+            case 'NO-HIT-YELLOW':
+                classNames.push(styles.warning);
+                break;
+            case 'TIMEOUT':
+            case 'ERROR':
+                classNames.push(styles.hasFailed)
+                break;
+            default:
+                break;
         }
 
         return classNames.join(' ');
@@ -126,6 +134,30 @@ export default function ResultList({ data }) {
         );
     }
 
+    function renderErrorResults(resultStatus) {
+        const resultList = data.resultList[resultStatus];
+
+        if (resultList === undefined) {
+            return null;
+        }
+
+        return (
+            <div className={styles.resultGroup}>
+                <Paper sx={{ marginBottom: '18px' }}>
+                    {
+                        resultList.map((result, index) => (
+                            <div key={index} className={getResultRowClassName(result)}>
+                                {renderThemeName(result)}
+                                {renderTitle(result)}
+                            </div>
+                        ))
+                    }
+                </Paper>
+            </div>
+        );
+    }
+
+
     function renderNotRelevant() {
         const resultList = data.resultList['NOT-RELEVANT'] || [];
 
@@ -155,6 +187,8 @@ export default function ResultList({ data }) {
                 {renderResults('HIT-YELLOW')}
                 {renderResults('NO-HIT-YELLOW')}
                 {renderResults('NO-HIT-GREEN')}
+                {renderErrorResults('TIMEOUT')}
+                {renderErrorResults('ERROR')}
             </div>
 
             {renderNotRelevant()}

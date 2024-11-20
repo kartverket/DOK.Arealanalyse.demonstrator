@@ -3,17 +3,38 @@ from typing import List
 from osgeo import ogr
 from .coverage import get_values_from_wfs
 from ..models.quality_measurement import QualityMeasurement
-from ..helpers.common import parse_string, evaluate_condition
+from ..utils.helpers.common import parse_string, evaluate_condition
+from .dok_status import get_dok_status_for_dataset
 
 
-def get_dataset_quality_warnings(config: List[dict], quality_measurements: List[QualityMeasurement], **kwargs) -> List[str]:
+async def get_dataset_quality(dataset_id, config: List[dict], **kwargs) -> List[dict]:
+    quality_measurements = await __get_dataset_quality_measurements(dataset_id)
+
     quality_indicators: List[dict] = [
         entry for entry in config if entry['type'] == 'dataset']
 
-    warnings: List[str] = []
+    measurements: List[dict] = []
 
-    for qi in quality_indicators:
-        quality_dimension_id = qi['quality_dimension_id']
+    for qm in quality_measurements:
+        quality_dimension_id = qm['quality_dimension_id']
+        value = qm['value']
+
+        measurement = {
+            'id': quality_dimension_id,
+            'values': [{
+                'value': value,
+                'comment': qm['comment']
+            }],
+            'warning_text': None
+        }
+
+        qi = next(
+            (qi for qi in quality_indicators if qi['quality_dimension_id'] == quality_dimension_id), None)
+
+        if qi is None:
+            measurements.append(measurement)
+            continue
+
         input_filter = qi.get('input_filter')
 
         if input_filter:
@@ -22,41 +43,49 @@ def get_dataset_quality_warnings(config: List[dict], quality_measurements: List[
             if not result:
                 continue
 
-        qm = next(
-            (qm for qm in quality_measurements if qm.quality_dimension_id == quality_dimension_id), None)
-
-        if qm is None:
-            continue
-
         threshold_values = __get_threshold_values(qi)
-        should_warn = qm.value in threshold_values
+        should_warn = value in threshold_values
 
         if should_warn:
-            warnings.append(qi.get('quality_warning_text'))
+            measurement['warning_text'] = qi.get('quality_warning_text')
 
-    return warnings
+        measurements.append(measurement)
+
+    return measurements
 
 
-def get_object_quality_warnings(config: dict, data: List[dict]) -> List[str]:
+def get_object_quality(config: dict, data: List[dict]) -> List[dict]:
     if data is None or len(data) == 0:
         return []
 
     quality_indicators: List[dict] = [
         entry for entry in config if entry['type'] == 'object']
 
-    warnings: List[str] = []
+    measurements: List[dict] = []
 
     for qi in quality_indicators:
         prop = qi['property']
         threshold_values = __get_threshold_values(qi)
+        values: List[dict] = []
 
-        should_warn = any(entry[prop] for entry in data if any(
-            value for value in threshold_values if value == entry[prop]))
+        for entry in data:
+            values.append({
+                'value': entry[prop],
+                'comment': None
+            })
 
-        if should_warn:
-            warnings.append(qi['quality_warning_text'])
+        distinct = list({value['value']: value for value in values}.values())
 
-    return warnings
+        should_warn = any(value['value'] for value in distinct if any(
+            t_value for t_value in threshold_values if t_value == value['value']))
+
+        measurements.append({
+            'id': qi['quality_dimension_id'],
+            'values': distinct,
+            'warning_text': qi['quality_warning_text'] if should_warn else None
+        })
+
+    return measurements
 
 
 async def get_coverage_quality(quality_indicator: dict, geometry: ogr.Geometry, epsg: int) -> tuple[List[str], str | None]:
@@ -84,6 +113,17 @@ async def get_coverage_quality(quality_indicator: dict, geometry: ogr.Geometry, 
     warning = warning_text if should_warn else None
 
     return values, warning
+
+
+async def __get_dataset_quality_measurements(dataset_id: str) -> List[dict]:
+    qms: List[dict] = []
+
+    dok_status = await get_dok_status_for_dataset(dataset_id)
+
+    if dok_status is not None:
+        qms.extend(dok_status.get('suitability'))
+
+    return qms
 
 
 def __get_threshold_values(quality_indicator: dict) -> List[str]:

@@ -19,6 +19,9 @@ export default function AboutDataset({ result }) {
                <li>
                   Oppdatert: {dayjs(result.runOnDataset.updated).format('DD.MM.YYYY')}
                </li>
+               <li>
+                  Eier: {result.runOnDataset.owner}
+               </li>               
             </ul>
          </section>
       </div>

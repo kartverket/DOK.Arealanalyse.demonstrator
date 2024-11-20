@@ -1,24 +1,20 @@
 export function getResultClassNames(result, styles) {
-    const classNames = [];
-
     switch (result.resultStatus) {
         case 'NO-HIT-GREEN':
-            classNames.push(styles.success);
-            break;
+            return styles.noHitGreen;
         case 'NO-HIT-YELLOW':
-            classNames.push(styles.redwarning);
-            break;
+            return styles.noHitYellow;
         case 'HIT-YELLOW':
-            classNames.push(styles.warning);
-            break;
+            return styles.hitYellow;
         case 'HIT-RED':
-            classNames.push(styles.error);
-            break;
+            return styles.hitRed;
+        case 'TIMEOUT':
+            return styles.timeout;
+        case 'ERROR':
+            return styles.error;
         default:
-            break;
+            return '';
     }
-
-    return classNames.join(' ');
 }
 
 export function getResultTitle(result) {
@@ -35,6 +31,10 @@ export function getResultTitle(result) {
             return `Området har treff i ${datasetTitle}`;
         case 'HIT-RED':
             return `Området er i konflikt med ${datasetTitle}`;
+        case 'TIMEOUT':
+            return `Tidsavbrudd: ${datasetTitle}`
+        case 'ERROR':
+            return `En feil har oppstått: ${datasetTitle}`
         default:
             return '';
     }

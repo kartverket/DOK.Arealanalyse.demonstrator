@@ -17,7 +17,7 @@ export default function Form({ fetching, onSubmit }) {
             theme: '',
             includeGuidance: true,
             includeQualityMeasurement: true,
-            includeFilterChosenDOK: true
+            includeFilterChosenDOK: false
         };
     }
 

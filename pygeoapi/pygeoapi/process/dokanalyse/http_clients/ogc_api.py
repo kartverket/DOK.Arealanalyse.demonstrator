@@ -1,8 +1,8 @@
 import aiohttp
 import asyncio
 from osgeo import ogr
-from ..helpers.geometry import geometry_to_wkt
-from ..models.constants import WGS84_EPSG
+from ..utils.helpers.geometry import geometry_to_wkt
+from ..utils.constants import WGS84_EPSG
 
 async def query_ogc_api(base_url: str, layer: str, geom_field: str, geometry: ogr.Geometry, epsg: int, out_epsg: int = 4326, timeout: int = 20) -> tuple[int, dict]:
     wkt_str = geometry_to_wkt(geometry, epsg)

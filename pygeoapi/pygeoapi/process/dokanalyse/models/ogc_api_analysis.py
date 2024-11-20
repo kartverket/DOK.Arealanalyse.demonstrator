@@ -5,14 +5,15 @@ from pydash import get
 from osgeo import ogr
 from .analysis import Analysis
 from .result_status import ResultStatus
-from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ..helpers.geometry import create_buffered_geometry, geometry_from_json, transform_geometry
+from ..services.geolett import get_geolett_data
+from ..services.raster_result import get_raster_result, get_cartography_url
+from ..utils.helpers.geometry import create_buffered_geometry, geometry_from_json, transform_geometry
 from ..http_clients.ogc_api import query_ogc_api
 
 
 class OgcApiAnalysis(Analysis):
-    def __init__(self, config, geometry, epsg, orig_epsg, buffer):
-        super().__init__(config, geometry, epsg, orig_epsg, buffer)
+    def __init__(self, dataset_id, config, geometry, epsg, orig_epsg, buffer):
+        super().__init__(dataset_id, config, geometry, epsg, orig_epsg, buffer)
 
     async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]

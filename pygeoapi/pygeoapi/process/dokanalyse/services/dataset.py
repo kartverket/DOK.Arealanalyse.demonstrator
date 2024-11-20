@@ -4,7 +4,8 @@ import json
 from typing import List
 import aiohttp
 from ..config import get_config, get_dataset_config
-from ..helpers.common import should_refresh_cache
+from ..utils.helpers.common import should_refresh_cache
+from ..utils.constants import FILE_SHARE_BASE_DIR
 
 __CACHE_DAYS = 7
 
@@ -61,7 +62,7 @@ async def __get_kartgrunnlag(municipality_number: str) -> List[str]:
         return []
 
     file_path = Path(path.join(
-        Path.home(), 'dokanalyse/resources/dok-datasets', f'{municipality_number}.json'))
+        FILE_SHARE_BASE_DIR, 'resources/dok-datasets', f'{municipality_number}.json'))
 
     if not file_path.exists() or should_refresh_cache(file_path, __CACHE_DAYS):
         file_path.parent.mkdir(parents=True, exist_ok=True)

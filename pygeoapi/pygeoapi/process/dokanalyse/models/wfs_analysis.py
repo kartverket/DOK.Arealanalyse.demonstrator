@@ -5,15 +5,16 @@ from osgeo import ogr
 from lxml import etree as ET
 from .analysis import Analysis
 from .result_status import ResultStatus
-from ..helpers.common import parse_string, evaluate_condition, xpath_select_one
-from ..helpers.analysis import get_geolett_data, get_raster_result, get_cartography_url
-from ..helpers.geometry import create_buffered_geometry, geometry_from_gml
+from ..services.geolett import get_geolett_data
+from ..services.raster_result import get_raster_result, get_cartography_url
+from ..utils.helpers.common import parse_string, evaluate_condition, xpath_select_one
+from ..utils.helpers.geometry import create_buffered_geometry, geometry_from_gml
 from ..http_clients.wfs import query_wfs
 
 
 class WfsAnalysis(Analysis):
-    def __init__(self, config, geometry, epsg, orig_epsg, buffer):
-        super().__init__(config, geometry, epsg, orig_epsg, buffer)
+    def __init__(self, dataset_id, config, geometry, epsg, orig_epsg, buffer):
+        super().__init__(dataset_id, config, geometry, epsg, orig_epsg, buffer)
 
     async def run_queries(self) -> None:
         first_layer = self.config['layers'][0]
@@ -56,7 +57,8 @@ class WfsAnalysis(Analysis):
         self.geolett = geolett_data
 
     async def set_distance_to_object(self) -> None:
-        buffered_geom = create_buffered_geometry(self.geometry, 20000, self.epsg)
+        buffered_geom = create_buffered_geometry(
+            self.geometry, 20000, self.epsg)
         layer = self.config['layers'][0]
 
         _, response = await query_wfs(self.config['wfs'], layer['wfs'], self.config['geom_field'], buffered_geom, self.epsg)
@@ -85,7 +87,8 @@ class WfsAnalysis(Analysis):
             feature_geom = geometry_from_gml(gml_str)
 
             if feature_geom:
-                distance = round(self.run_on_input_geometry.Distance(feature_geom))
+                distance = round(
+                    self.run_on_input_geometry.Distance(feature_geom))
                 distances.append(distance)
 
         distances.sort()

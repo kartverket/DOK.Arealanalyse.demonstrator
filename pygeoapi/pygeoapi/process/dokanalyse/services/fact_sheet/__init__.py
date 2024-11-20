@@ -4,8 +4,8 @@ from osgeo import ogr
 from .area_types import get_area_types
 from .buildings import get_buildings
 from .roads import get_roads
-from ...helpers.geometry import create_buffered_geometry
-from ...models.constants import DEFAULT_EPSG
+from ...utils.helpers.geometry import create_buffered_geometry
+from ...utils.constants import DEFAULT_EPSG
 from ...models.fact_part import FactPart
 from ...models.fact_sheet import FactSheet
 
