@@ -1,10 +1,11 @@
 from .analysis import Analysis
+from .result_status import ResultStatus
 from ..services.kartkatalog import get_kartkatalog_metadata
 
 
 class EmptyAnalysis(Analysis):
-    def __init__(self, dataset_id, config, result_status):
-        super().__init__(config, dataset_id, None, None, None, 0)
+    def __init__(self, dataset_id: str, config: dict, result_status: ResultStatus):
+        super().__init__(dataset_id, config, None, None, None, 0)
         self.result_status = result_status
 
     async def run(self):
