@@ -1,4 +1,4 @@
-FROM ubuntu:mantic 
+FROM debian:bookworm
 
 ARG TZ="Etc/UTC"
 ARG LANG="en_US.UTF-8"
@@ -53,13 +53,10 @@ WORKDIR /pygeoapi
 ADD . /pygeoapi
 ADD ./requirements-prod.txt /pygeoapi/requirements.txt
 
-RUN \
-    apt-get update -y \
-    && apt-get upgrade -y \
-    && apt-get --no-install-recommends install -y ${DEB_PACKAGES} ${DEB_BUILD_DEPS}
-
-RUN \
-    localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
+RUN apt update -y \
+    && apt upgrade -y \
+    && apt --no-install-recommends install -y ${DEB_PACKAGES} ${DEB_BUILD_DEPS} \
+    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
     && echo "For ${TZ} date=$(date)" && echo "Locale=$(locale)"  \
     && mkdir /schemas.opengis.net \
     && curl -O http://schemas.opengis.net/SCHEMAS_OPENGIS_NET.zip \
@@ -70,8 +67,8 @@ RUN \
     && cp /pygeoapi/docker/default.config.yml /pygeoapi/local.config.yml \
     && cp /pygeoapi/docker/entrypoint.sh /entrypoint.sh  \
     && chmod +x /entrypoint.sh \
-    && apt-get remove --purge -y gcc ${DEB_BUILD_DEPS} \
-    && apt-get clean \
+    && apt remove --purge -y gcc ${DEB_BUILD_DEPS} \
+    && apt clean \
     && apt autoremove -y  \
     && rm -rf /var/lib/apt/lists/*
 

@@ -19,7 +19,6 @@ SQLAlchemy<2.0.0
 tinydb
 typing-extensions
 unicodecsv
-gdal==3.7.1
 asyncio
 nest-asyncio
 aiohttp

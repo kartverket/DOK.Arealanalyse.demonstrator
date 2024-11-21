@@ -36,17 +36,16 @@ server:
     encoding: utf-8
     gzip: false
     languages:
-        - en-US
+      - en-US
     cors: true
     pretty_print: true
     limit: 10
     map:
         url: https://tile.openstreetmap.org/{z}/{x}/{y}.png
         attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-    
+
 logging:
-    level: INFO
-    logfile: /tmp/pygeoapi.log
+    level: WARNING
 
 metadata:
     identification:
@@ -56,11 +55,11 @@ metadata:
             en: OGC API er en ny generasjon standarder fra Open Geospatial Consortium. På denne serveren tilbys testimplementasjoner av Arealanalyse
         keywords:
             en:
-                - OGC
-                - Geospatial
-                - Geodata
-                - Data
-                - API
+              - OGC
+              - Geospatial
+              - Geodata
+              - Data
+              - API
         keywords_type: theme
         terms_of_service: https://creativecommons.org/licenses/by/4.0/
         url: https://example.org

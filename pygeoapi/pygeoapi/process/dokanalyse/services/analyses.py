@@ -33,7 +33,6 @@ async def run(data: dict, sio_client: SimpleClient) -> AnalysisResponse:
     include_quality_measurement = data.get('includeQualityMeasurement', False)
     municipality_number, municipality_name = await get_municipality(geometry, DEFAULT_EPSG)
 
-    # datasets = {'stormflo': True}
     datasets = await get_dataset_names(data, municipality_number)
     correlation_id = get_correlation_id()
 
@@ -71,7 +70,7 @@ async def run_analysis(dataset: str, should_analyze: bool, geometry: ogr.Geometr
         return None
 
     if not should_analyze:
-        analysis = EmptyAnalysis(config, ResultStatus.NOT_RELEVANT)
+        analysis = EmptyAnalysis(config.get('dataset_id'), config, ResultStatus.NOT_RELEVANT)
         await analysis.run()
         return analysis
 

@@ -3,15 +3,15 @@ from ..services.kartkatalog import get_kartkatalog_metadata
 
 
 class EmptyAnalysis(Analysis):
-    def __init__(self, config, result_status):
-        super().__init__(config, None, None, None, 0)
+    def __init__(self, dataset_id, config, result_status):
+        super().__init__(config, dataset_id, None, None, None, 0)
         self.result_status = result_status
 
     async def run(self):
         self.title = self.geolett['tittel'] if self.geolett else self.config.get(
             'title')
         self.themes = self.config.get('themes', [])
-        self.run_on_dataset = await get_kartkatalog_metadata(self.config.get('dataset_id'))
+        self.run_on_dataset = await get_kartkatalog_metadata(self.dataset_id)
 
     def add_run_algorithm(self):
         raise NotImplementedError
