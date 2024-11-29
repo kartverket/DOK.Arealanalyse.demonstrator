@@ -31,8 +31,8 @@ const RoadsInfo = ({ factList }) => {
           {
             label: "Lengde (meter)",
             data: factList.data.map((item) => item.length),
-            backgroundColor: "rgba(75, 192, 192, 0.6)", // Farge på stolpene
-            borderColor: "rgba(75, 192, 192, 1)", // Kantfarge på stolpene
+            backgroundColor: "rgba(75, 192, 192, 0.6)",
+            borderColor: "rgba(75, 192, 192, 1)", 
             borderWidth: 1,
           },
         ],
