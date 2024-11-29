@@ -1,0 +1,25 @@
+.roads {
+ display: flex; 
+ width: 100%;
+ gap: 40px;
+ align-items: center;
+ justify-content: flex-start;   
+}
+
+.chart {  
+    width: 50%;
+    height: 350px;
+}
+.colors {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    white-space: nowrap;
+    gap: 10px;
+    > span {
+        white-space: nowrap;
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+    }    
+}

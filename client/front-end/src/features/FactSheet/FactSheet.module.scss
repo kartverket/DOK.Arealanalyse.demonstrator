@@ -1,0 +1,16 @@
+.factsheet {
+    height: 150px;
+    overflow: hidden;
+    background-color: white;
+    margin: 10px 0;
+    border-radius: 4px;
+    padding: 20px;
+    &.expanded {
+        height: auto;
+        overflow: hidden;
+    }
+}
+.dialog {
+    width: 90vw;
+    height: 90vh;
+}
