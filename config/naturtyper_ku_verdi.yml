@@ -1,0 +1,42 @@
+---
+
+type: dataset
+dataset_id: 64cbb884-a19d-4356-a114-380cfe4a7314
+name: naturtyper_ku_verdi
+
+arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_kuverdi/MapServer
+wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_kuverdi/MapServer/WMSServer
+layers:
+- arcgis: '0'
+  wms:
+  - kuverdi_svært_stor_verdi
+  result_status: HIT-RED
+  geolett_id: 3dd08517-af52-45db-a6ed-ac29b5d98fc4
+  filter: Verdikategori = 'Svært stor verdi'
+- arcgis: '0'
+  wms:
+  - kuverdi_stor_verdi
+  - kuverdi_middels_verdi
+  - kuverdi_noe_verdi
+  result_status: HIT-YELLOW
+  filter: Verdikategori = 'Stor verdi' OR Verdikategori = 'Middels verdi' OR Verdikategori = 'Noe verdi'
+properties:
+- Naturtype
+- Verdikategori
+- Opphav
+- Nøyaktighetsklasse
+- Faktaark
+themes:
+- natur
+---
+
+type: quality
+dataset_id: 64cbb884-a19d-4356-a114-380cfe4a7314
+
+indicators:
+- type: object
+  quality_dimension_id: stedfestingsnøyaktighet
+  quality_dimension_name: Stedfestingsnøyaktighet
+  quality_warning_text: Data kan være utfordrende å bruke i plan- eller byggesak
+  property: Nøyaktighetsklasse
+  warning_threshold: Mindre god (> 50m)

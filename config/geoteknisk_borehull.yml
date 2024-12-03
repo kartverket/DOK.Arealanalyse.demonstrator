@@ -1,0 +1,22 @@
+---
+
+type: dataset
+dataset_id: bf45a463-434d-4b4d-84dc-9325780ab5fb
+name: geoteknisk_borehull
+title: Geoteknisk borehull
+
+ogc_api: https://ogcapitest.ngu.no/rest/services/grunnundersokelser_utvidet/collections
+wms: https://geo.ngu.no/geoserver/nadag/ows
+layers:
+- ogc_api: geotekniskborehull
+  wms:
+  - GB_filter_komplette_data
+  result_status: HIT-YELLOW
+geom_field: posisjon
+properties:
+- kvikkleirePåvisning
+- antallBorehullUndersøkelser
+- høyde
+- maksBoretLengde
+themes:
+- geologi

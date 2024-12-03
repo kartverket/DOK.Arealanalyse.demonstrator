@@ -1,0 +1,22 @@
+---
+
+type: dataset
+dataset_id: 9f71a24b-9997-409f-8e42-ce6f0c62e073
+name: hensynssone_energianlegg
+
+wfs: https://wfs.geonorge.no/skwms1/wfs.nettanlegg
+wms: https://nve.geodataonline.no/arcgis/services/Nettanlegg2/MapServer/WMSServer
+layers:
+- wfs: EL_Luftlinje
+  wms:
+  - Distribusjonsnett
+  - Regionalnett
+  result_status: HIT-RED
+  geolett_id: cc04ba06-1ad4-40cc-b961-389786a269ad
+geom_field: linje
+properties:
+- navn
+- nettnivå
+- spenning
+themes:
+- samfunnssikkerhet

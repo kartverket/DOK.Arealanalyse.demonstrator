@@ -1,0 +1,21 @@
+---
+
+type: dataset
+dataset_id: a02e84ec-322c-47a7-a626-ca02d57d1f7e
+name: reindrift_oppsamlingsområde
+
+wfs: https://wfs02.nibio.no/cgi-bin/rein/oppsamlingsomrade
+wms: https://reindrift.nibio.no/cgi-bin/reindrift
+layers:
+- wfs: Oppsamlingsomrade
+  wms:
+  - Oppsamling
+  result_status: HIT-RED
+geom_field: msGeometry
+properties:
+- distriktnavn
+- beitebrukerstreng
+- kvalitetssikret
+- oppdateringsdato
+themes:
+- landbruk

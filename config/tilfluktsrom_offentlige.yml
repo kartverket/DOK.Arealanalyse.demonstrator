@@ -1,0 +1,21 @@
+---
+
+type: dataset
+dataset_id: dbae9aae-10e7-4b75-8d67-7f0e8828f3d8
+name: tilfluktsrom_offentlige
+title: Tilfluktsrom - offentlige
+
+wfs: https://wfs.geonorge.no/skwms1/wfs.tilfluktsrom_offentlige
+wms: https://ogc.dsb.no/wms.ashx
+layers:
+- wfs: Tilfluktsrom
+  wms:
+  - layer_340
+  result_status: HIT-RED
+geom_field: posisjon
+properties:
+- romnr
+- plasser
+- adresse
+themes:
+- samfunnssikkerhet

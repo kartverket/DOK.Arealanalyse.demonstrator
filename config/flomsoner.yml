@@ -1,0 +1,23 @@
+---
+
+type: dataset
+dataset_id: e95008fc-0945-4d66-8bc9-e50ab3f50401
+name: flomsoner
+
+wfs: https://wfs.geonorge.no/skwms1/wfs.flomsoner
+wms: https://nve.geodataonline.no/arcgis/services/Flomsoner1/MapServer/WMSServer
+layers:
+- wfs: FlomAreal
+  wms:
+  - Flomsone_20arsflom
+  - Flomsone_200arsflom
+  - Flomsone_200arsflom_klima
+  filter: gjentaksintervall IN [20, 200, 2100]
+  result_status: HIT-RED
+  geolett_id: 5adab8dc-b327-49ed-9336-e85fe2453a05
+geom_field: område
+properties:
+- gjentaksintervall
+- datauttaksdato
+themes:
+- samfunnssikkerhet

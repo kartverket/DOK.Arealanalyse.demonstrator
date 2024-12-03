@@ -1,0 +1,22 @@
+---
+
+type: dataset
+dataset_id: 02c6d51c-4e8c-4948-a620-dc046c8cb747
+name: steinsprang_aktsomhets_omr
+
+wfs: https://wfs.geonorge.no/skwms1/wfs.steinsprang_aktsomhetsomrader
+wms: https://nve.geodataonline.no/arcgis/services/SkredSteinAktR/MapServer/WmsServer
+layers:
+- wfs: PotensieltSkredfareOmr
+  wms:
+  - Steinsprang-AktsomhetOmrader
+  result_status: HIT-RED
+  geolett_id: 2d405ce6-98ea-40f9-905b-f8a0d5c96224
+geom_field: område
+properties:
+- skredType
+- skredfareVurdering
+- temaKvalitet
+- oppdateringsdato
+themes:
+- samfunnssikkerhet

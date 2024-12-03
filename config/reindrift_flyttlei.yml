@@ -1,0 +1,21 @@
+---
+
+type: dataset
+dataset_id: f9c1e228-892f-4f1a-9e4e-b6d6149f373c
+name: reindrift_flyttlei
+
+wfs: https://wfs02.nibio.no/cgi-bin/rein/flyttlei
+wms: https://reindrift.nibio.no/cgi-bin/reindrift
+layers:
+- wfs: Flyttlei
+  wms:
+  - Flyttlei
+  result_status: HIT-RED
+geom_field: msGeometry
+properties:
+- distriktnavn
+- beitebrukerstreng
+- kvalitetssikret
+- oppdateringsdato
+themes:
+- landbruk

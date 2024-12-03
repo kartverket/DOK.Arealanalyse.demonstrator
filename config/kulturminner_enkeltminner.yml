@@ -1,0 +1,25 @@
+---
+
+type: dataset
+dataset_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
+name: kulturminner_enkeltminner
+
+wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
+wms: https://kart.ra.no/wms/kulturminner
+layers:
+- wfs: Enkeltminne
+  wms:
+  - Enkeltminner
+  result_status: HIT-RED
+geom_field: område
+properties:
+- navn
+- kulturminneId
+- vernelov
+- verneparagraf
+- vernetype
+- vernedato
+- linkAskeladden
+- linkKulturminnesøk
+themes:
+- kulturminner

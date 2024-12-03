@@ -1,0 +1,21 @@
+---
+
+type: dataset
+dataset_id: 60c5024f-bf93-4d7a-888a-5fe001427195
+name: flom_aktsomhets_omr
+
+wfs: http://wfs.geonorge.no/skwms1/wfs.flomaktsomhetsomrader
+wms: https://nve.geodataonline.no/arcgis/services/FlomAktsomhet/MapServer/WMSServer
+layers:
+- wfs: FlomAktsomhetOmr
+  wms:
+  - Flom_aktsomhetsomrade
+  result_status: HIT-YELLOW
+  geolett_id: 44ef4297-d5a5-4fab-9db3-d67429d7a5f0
+geom_field: område
+properties:
+- vassOmråde
+- temaKvalitet
+- vannKilde
+themes:
+- samfunnssikkerhet

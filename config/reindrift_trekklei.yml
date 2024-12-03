@@ -1,0 +1,21 @@
+---
+
+type: dataset
+dataset_id: 95b0d396-a6fe-462b-8753-120efd0b60f3
+name: reindrift_trekklei
+
+wfs: https://wfs02.nibio.no/cgi-bin/rein/trekklei
+wms: https://reindrift.nibio.no/cgi-bin/reindrift
+layers:
+- wfs: Trekklei
+  wms:
+  - Trekklei
+  result_status: HIT-RED
+geom_field: msGeometry
+properties:
+- distriktnavn
+- beitebrukerstreng
+- kvalitetssikret
+- oppdateringsdato
+themes:
+- landbruk

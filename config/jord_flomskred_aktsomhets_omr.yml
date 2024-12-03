@@ -1,0 +1,22 @@
+---
+
+type: dataset
+dataset_id: 30e1883e-70e9-4510-9e97-00edbdcddc02
+name: jord_flomskred_aktsomhets_omr
+
+wfs: https://wfs.geonorge.no/skwms1/wfs.jord_og_flomskred_aktsomhetsomrader
+wms: https://nve.geodataonline.no/arcgis/services/SkredJordFlomAktR1/MapServer/WMSServer
+layers:
+- wfs: PotensieltSkredfareOmr
+  wms:
+  - Potensielt_Jord-Flomskredfare
+  result_status: HIT-RED
+  geolett_id: 643479b5-41d9-4d66-8069-18f746141a41
+geom_field: område
+properties:
+- skredType
+- skredfareVurdering
+- temaKvalitet
+- oppdateringsdato
+themes:
+- samfunnssikkerhet

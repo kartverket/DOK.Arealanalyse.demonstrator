@@ -1,0 +1,21 @@
+---
+
+type: dataset
+dataset_id: a8456aed-441a-40c4-831f-46bcbe4e6ff1
+name: arter_nasjonal_forvaltningsinteresse
+
+arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/artnasjonal2/MapServer
+wms: https://kart.miljodirektoratet.no/arcgis/services/artnasjonal2/MapServer/WMSServer
+layers:
+- arcgis: '2'
+  wms:
+  - Alle_arter_av_sarlig_stor_forv_int_omr
+  result_status: HIT-RED
+properties:
+- AntallObservasjoner
+- Gruppe
+- NorskNavn
+- Status
+- Faktaark
+themes:
+- natur

@@ -1,0 +1,23 @@
+---
+
+type: dataset
+dataset_id: 8dfa67c5-3099-4353-9ce0-72f9ebd44a2c
+name: reindrift_reindriftsanlegg
+
+wfs: https://wfs02.nibio.no/cgi-bin/rein/reindriftsanlegg
+wms: https://reindrift.nibio.no/cgi-bin/reindrift
+layers:
+- wfs: ReindriftsAnleggPunkt
+  wms:
+  - Anlegg
+  result_status: HIT-RED
+geom_field: msGeometry
+properties:
+- distriktnavn
+- beitebrukerstreng
+- kodenavn
+- definisjon
+- kvalitetssikret
+- oppdateringsdato
+themes:
+- landbruk

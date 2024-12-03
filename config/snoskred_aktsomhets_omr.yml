@@ -1,0 +1,22 @@
+---
+
+type: dataset
+dataset_id: 54ada9d8-e6fc-48d6-82b0-5477166a4aaa
+name: snoskred_aktsomhets_omr
+
+wfs: https://wfs.geonorge.no/skwms1/wfs.snoskredaktsomhetsomrader
+wms: https://nve.geodataonline.no/arcgis/services/SkredSnoAktR/MapServer/WMSServer
+layers:
+- wfs: PotensieltSkredfareOmr
+  wms:
+  - Snoskred-Aktsomhetsomrader
+  result_status: HIT-RED
+  geolett_id: 7831236b-c9c1-4d5f-af4b-cac0304d7d6e
+geom_field: område
+properties:
+- skredType
+- skredfareVurdering
+- temaKvalitet
+- oppdateringsdato
+themes:
+- samfunnssikkerhet
