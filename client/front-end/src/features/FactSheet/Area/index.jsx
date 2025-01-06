@@ -20,6 +20,20 @@ const Area = ({ factList }) => {
   if (!factList?.data?.areaTypes) {
     return <p>Laster data...</p>;
   }
+  const colorMap = {
+    "Bebygd": "#E86474",//tegneregel nibio
+    "Skog": "#9ECC73",//tegneregel nibio
+    "Åpen fastmark": "#D9D9D9", //tegneregel nibio
+    "Samferdsel": "#E86474",//tegneregel nibio
+    "Fulldyrka jord": "#FFCD56", //tegneregel nibio
+    "Ferskvann": "#91E7FF", //tegneregel nibio
+    "Hav": "#D2FFFF", //tegneregel nibio
+    "Ikke kartlagt" : "#CCCCCC",
+    "Innmarksbeite": "#FFFA56", //tegneregel nibio
+    "Myr": "#73DFE1", //tegneregel nibio
+    "Overflatedyrka jord": "#FFCD56", //tegneregel nibio
+    "Snøisbre": "#ffffff", //tegneregel nibio  
+  };
 
   const piechart = {
     labels: factList.data.areaTypes.map((item) => item.areaType),
@@ -27,20 +41,9 @@ const Area = ({ factList }) => {
       {
         label: "Areal (m²)",
         data: factList.data.areaTypes.map((item) => item.area),
-        backgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-          "#E7E9ED",
-          "#C9CBCF",
-          "#9BD0F5",
-          "#FDB45C",
-          "#46BFBD",
-          "#F7464A",
-        ],
+        backgroundColor: factList.data.areaTypes.map(
+          (item) => colorMap[item.areaType] || "#E7E9ED"
+        ),
         hoverOffset: 4,
       },
     ],
@@ -85,11 +88,11 @@ const Area = ({ factList }) => {
       <ul className={styles.labels}>
         {factList.data.areaTypes.filter(item => item.area > 0).slice().sort((a, b) => b.area - a.area).map((item, index) => (
           <li className={styles.colors} key={index}>
-            <span
-              style={{               
-                backgroundColor: piechart.datasets[0].backgroundColor[index],                
-              }}
-            ></span>
+           <span
+          style={{
+            backgroundColor: colorMap[item.areaType] || "#E7E9ED",
+          }}
+        ></span>
             <div className={styles.label}>{item.areaType}:</div> {item.area} m²
           </li>
         ))}

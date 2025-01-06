@@ -4,7 +4,8 @@ import Buildings from './Buildings';
 import Roads from './Roads';
 import Area from './Area';
 import style from './FactSheet.module.scss';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
 const FactSheet = ({ municipalityNumber, municipalityName, inputGeometryArea, inputGeometry, factList }) => {
 
@@ -35,11 +36,10 @@ const FactSheet = ({ municipalityNumber, municipalityName, inputGeometryArea, in
         setOpenModal(false);
     };
     return (
-        <div className={`${style.factsheet} ${isExpanded ? style.expanded : ''}`}>
-            <h3>Faktaark</h3>
-            <GeneralInfo number={municipalityNumber} name={municipalityName} area={inputGeometryArea} geo={inputGeometry}  />
-            <a onClick={() => toggleClass()} >Se detaljer</a>
-            <Button onClick={handleOpenModal}>Se detaljer</Button>
+        <div className={style.factsheet}>
+            <h3>Generelt om valgt området</h3>
+            <GeneralInfo number={municipalityNumber} name={municipalityName} area={inputGeometryArea} geo={inputGeometry}  />            
+            <div className={style.factsheetbtn}><a onClick={handleOpenModal}>Flere detaljer</a></div>
             <Dialog open={openModal} sx={{
                 '& .MuiDialog-container': {
                     '& > .MuiPaper-root': {
@@ -49,6 +49,18 @@ const FactSheet = ({ municipalityNumber, municipalityName, inputGeometryArea, in
                 }
             }}onClose={handleCloseModal}>
                 <DialogTitle>Faktaark</DialogTitle>
+                <IconButton
+          aria-label="close"
+          onClick={handleCloseModal}
+          sx={(theme) => ({
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme.palette.grey[500],
+          })}
+        >
+          <CloseIcon />
+        </IconButton>
                 <DialogContent>
                     <GeneralInfo number={municipalityNumber} name={municipalityName} area={inputGeometryArea} geo={inputGeometry}  />
                     <Area factList={areaTypes} />
@@ -58,10 +70,7 @@ const FactSheet = ({ municipalityNumber, municipalityName, inputGeometryArea, in
                 <DialogActions>
                     <Button onClick={handleCloseModal}>Lukk</Button>
                 </DialogActions>
-            </Dialog>
-            <Buildings factList={buildings} />
-            <Roads factList={roads} />
-            <Area factList={areaTypes} />
+            </Dialog>          
         </div>
     );
 };
