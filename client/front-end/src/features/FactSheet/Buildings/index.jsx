@@ -20,6 +20,17 @@ const Buildings = ({ factList }) => {
   if (!factList?.data) {
     return <p>Laster data...</p>;
   }
+  const colorMap = {
+    "Bolig": "#FFFF33", // kmd
+    "Fritidsbolig - hytte": "#FFCC66", //kmd
+    "Industri og lagerbygning": "#CC66FF", //kmd
+    "Kontor- og forretningsbygning": "#CCCCFF", //kmd
+    "Samferdsels- og kommunikasjonsbygning": "#CC9966", //kmd
+    "Hotell og restaurantbygning": "#CC99FF", //kmd
+    "Skole-, kultur-, idrett-, forskningsbygning": "#CC6600", //kmd
+    "Helse- og omsorgsbygning" : "#FF9999", //kmd
+    "Fengsel, beredskapsbygning, mv.": "#333333" //finner ingen tegneregel på denne    
+  };
   const piechart = {
     
     labels: factList.data.map((item) => item.category),
@@ -27,20 +38,9 @@ const Buildings = ({ factList }) => {
       {
         label: "Antall ",
         data: factList.data.map((item) => item.count),        
-        backgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-          "#E7E9ED",
-          "#C9CBCF",
-          "#9BD0F5",
-          "#FDB45C",
-          "#46BFBD",
-          "#F7464A",
-        ],
+        backgroundColor: factList.data.areaTypes.map(
+          (item) => colorMap[item.areaType] || "#E7E9ED"
+        ),
         hoverOffset: 4,
       },
     ],

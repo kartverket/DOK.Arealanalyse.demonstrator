@@ -20,8 +20,20 @@ import styles from "./Roads.module.scss";
 // Registrer Chart.js komponenter
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+const colorMap = {
+  "Kommunal veg": "rgba(244, 164, 96, 1)",// kartverket
+  "Gang og sykkelveg": "rgba(218, 105, 74, 1)",// kartverket
+  "Privat veg": "rgba(89, 187, 171, 1)",// kartverket
+  "Fylkesveg": "rgba(255, 255, 0, 1)", // kartverket
+  "Rundkjøring" : "rgba(153, 102, 255, 0.7)", // ?
+  "Kanalisert veg": "rgba(255, 159, 64, 0.8)", // ?
+  "Fortau": "rgba(89, 187, 171, 0.8)",// kartverket
+  "Gangveg": "rgba(218, 105, 74, 1)",// kartverket x 2?
+  "Gangfelt": "rgba(255, 159, 64, 1)", //?
+};
+
 const RoadsInfo = ({ factList }) => {
-    if (!factList) {
+    if (!factList.data || factList.data.length === 0) {
         return <p>Ingen veier registrert.</p>;
     }
 
@@ -31,8 +43,12 @@ const RoadsInfo = ({ factList }) => {
           {
             label: "Lengde (meter)",
             data: factList.data.map((item) => item.length),
-            backgroundColor: "rgba(75, 192, 192, 0.6)",
-            borderColor: "rgba(75, 192, 192, 1)", 
+            backgroundColor: factList.data.map(
+              (item) => colorMap[item.roadType] || "rgba(201, 203, 207, 0.6)" 
+            ),
+            borderColor: factList.data.map(
+              (item) => colorMap[item.roadType]?.replace("0.6", "1") || "rgba(201, 203, 207, 1)"
+            ), 
             borderWidth: 1,
           },
         ],
@@ -69,7 +85,7 @@ const RoadsInfo = ({ factList }) => {
     return (
         <div className={styles.roads}>
             <div className={styles.lists}>
-            <h4>Fordeling av veityper</h4>
+            <h4>Fordeling av veityper{factList.data.length}</h4>
         <TableContainer>
             <Table sx={{ minWidth: 350 }} size="small" aria-label="oversikt boligtyper">
                 <TableHead>

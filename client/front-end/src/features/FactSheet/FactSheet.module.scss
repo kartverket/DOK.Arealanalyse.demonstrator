@@ -1,5 +1,4 @@
-.factsheet {
-    height: 150px;
+.factsheet {    
     overflow: hidden;
     background-color: white;
     margin: 10px 0;
@@ -13,4 +12,7 @@
 .dialog {
     width: 90vw;
     height: 90vh;
+}
+.factsheetbtn:hover {
+    cursor: pointer;
 }
