@@ -48,7 +48,7 @@ const FactSheet = ({ municipalityNumber, municipalityName, inputGeometryArea, in
                     },
                 }
             }}onClose={handleCloseModal}>
-                <DialogTitle>Faktaark</DialogTitle>
+                <DialogTitle>Detaljer</DialogTitle>
                 <IconButton
           aria-label="close"
           onClick={handleCloseModal}
