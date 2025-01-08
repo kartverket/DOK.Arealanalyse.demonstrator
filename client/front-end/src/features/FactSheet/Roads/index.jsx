@@ -57,11 +57,11 @@ const RoadsInfo = ({ factList }) => {
         responsive: true,
         plugins: {
           legend: {
-            display: true,
+            display: false,
             position: "top",
           },
           title: {
-            display: true,
+            display: false,
             text: "Veitype",
           },
         },
@@ -84,7 +84,7 @@ const RoadsInfo = ({ factList }) => {
     return (
         <div className={styles.roads}>
             <div className={styles.lists}>
-            <h4>Fordeling av veityper{factList.data.length}</h4>
+            <h2>Fordeling av veityper</h2>
         <TableContainer>
             <Table sx={{ minWidth: 350 }} size="small" aria-label="oversikt boligtyper">
                 <TableHead>

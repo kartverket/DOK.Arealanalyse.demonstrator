@@ -16,30 +16,30 @@ import {
   
   ChartJS.register(ArcElement, Tooltip, Legend);
 
-const Buildings = ({ factList }) => {
+const Buildings = ({ factList }) => {  
   if (!factList?.data) {
     return <p>Laster data...</p>;
   }
   const colorMap = {
-    "Bolig": "#995F20", // kmd
-    "Fritidsbolig - hytte": "#D68723", //kmd
-    "Industri og lagerbygning": "#995F20", //kmd
-    "Kontor- og forretningsbygning": "#995F20", //kmd
-    "Samferdsels- og kommunikasjonsbygning": "#995F20", //kmd
-    "Hotell og restaurantbygning": "#995F20", //kmd
-    "Skole-, kultur-, idrett-, forskningsbygning": "#995F20", //kmd
-    "Helse- og omsorgsbygning" : "#995F20", //kmd
-    "Fengsel, beredskapsbygning, mv.": "#995F20" //finner ingen tegneregel på denne    
+    "Bolig": "#C48723", // kmd
+    "Fritidsbolig - hytte": "#DCAA27", //kmd
+    "Industri og lagerbygning": "#74A3D4", //kmd
+    "Kontor- og forretningsbygning": "#74A3D4", //kmd
+    "Samferdsels- og kommunikasjonsbygning": "#74A3D4", //kmd
+    "Hotell og restaurantbygning": "#74A3D4", //kmd
+    "Skole-, kultur-, idrett-, forskningsbygning": "#74A3D4", //kmd
+    "Helse- og omsorgsbygning" : "#74A3D4", //kmd
+    "Fengsel, beredskapsbygning, mv.": "#74A3D4" //finner ingen tegneregel på denne    
   };
-  const piechart = {
-    
-    labels: factList.data.map((item) => item.category),
+  
+  const piechart = {    
+    labels: factList.data.map((item) => item.category),    
     datasets: [
       {
         label: "Antall ",
-        data: factList.data.map((item) => item.count),        
-        backgroundColor: factList.data.areaTypes.map(
-          (item) => colorMap[item.areaType] || "#E7E9ED"
+        data: factList.data.map((item) => item.count),           
+        backgroundColor: factList.data.map(
+          (item) => colorMap[item.category] || "#E7E9ED"
         ),
         hoverOffset: 4,
       },
@@ -55,7 +55,7 @@ const Buildings = ({ factList }) => {
   return (
     <div className={styles.buildings}>
         <div className={styles.area}>
-        <h4>Fordeling av boligtyper</h4>
+        <h2>Fordeling av boligtyper</h2>
         <TableContainer>
             <Table sx={{ minWidth: 350 }} size="small" aria-label="oversikt boligtyper">
                 <TableHead>
@@ -65,7 +65,7 @@ const Buildings = ({ factList }) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {factList.data.slice().sort((a, b) => b.area - a.area).map((item, index) => (
+                    {factList.data.filter(item => item.count > 0).slice().sort((a, b) => b.area - a.area).map((item, index) => (
                         <TableRow key={index}>
                             <TableCell component="th" scope="row">
                                 {item.category}

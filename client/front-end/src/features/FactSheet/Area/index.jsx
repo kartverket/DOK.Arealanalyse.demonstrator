@@ -25,7 +25,7 @@ const Area = ({ factList }) => {
     "Skog": "rgb(158,204,115)",//tegneregel nibio
     "Åpen fastmark": "#D9D9D9", //tegneregel nibio
     "Samferdsel": "rgb(179,120,76)",//tegneregel nibio
-    "Fulldyrka jord": "#FFCD56", //tegneregel nibio
+    "Fulldyrka jord": "#FFD16E", //tegneregel nibio
     "Ferskvann": "#91E7FF", //tegneregel nibio
     "Hav": "#D2FFFF", //tegneregel nibio
     "Ikke kartlagt" : "#CCCCCC",
@@ -58,7 +58,7 @@ const Area = ({ factList }) => {
   return (
     <div className={styles.piechart}>
         <div className={styles.area}>
-        <h4>Fordeling av Areal på Arealtyper</h4>
+        <h2>Fordeling av Areal på Arealtyper</h2>
         <TableContainer>
             <Table sx={{ minWidth: 350 }} size="small" aria-label="oversikt arealtyper">
                 <TableHead>
@@ -68,14 +68,14 @@ const Area = ({ factList }) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {factList.data.areaTypes.slice().sort((a, b) => b.area - a.area).map((item, index) => (
-                        <TableRow key={index}>
-                            <TableCell component="th" scope="row">
-                                {item.areaType}
-                            </TableCell>
-                            <TableCell align="right">{item.area}</TableCell>
-                        </TableRow>
-                    ))}
+                {factList.data.areaTypes.filter(item => item.area > 0).slice().sort((a, b) => b.area - a.area).map((item, index) => (
+                  <TableRow key={index}>
+                      <TableCell component="th" scope="row">
+                          {item.areaType}
+                      </TableCell>
+                      <TableCell align="right">{item.area}</TableCell>
+                  </TableRow>
+                  ))}
                 </TableBody>
             </Table>
         </TableContainer>
