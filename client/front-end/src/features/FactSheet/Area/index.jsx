@@ -21,10 +21,10 @@ const Area = ({ factList }) => {
     return <p>Laster data...</p>;
   }
   const colorMap = {
-    "Bebygd": "#E86474",//tegneregel nibio
-    "Skog": "#9ECC73",//tegneregel nibio
+    "Bebygd": "rgb(252,219,214)",//tegneregel nibio
+    "Skog": "rgb(158,204,115)",//tegneregel nibio
     "Åpen fastmark": "#D9D9D9", //tegneregel nibio
-    "Samferdsel": "#E86474",//tegneregel nibio
+    "Samferdsel": "rgb(179,120,76)",//tegneregel nibio
     "Fulldyrka jord": "#FFCD56", //tegneregel nibio
     "Ferskvann": "#91E7FF", //tegneregel nibio
     "Hav": "#D2FFFF", //tegneregel nibio

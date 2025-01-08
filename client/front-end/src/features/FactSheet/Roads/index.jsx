@@ -17,14 +17,13 @@ import {
 } from "chart.js";
 import styles from "./Roads.module.scss";
 
-// Registrer Chart.js komponenter
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const colorMap = {
   "Kommunal veg": "rgba(244, 164, 96, 1)",// kartverket
   "Gang og sykkelveg": "rgba(218, 105, 74, 1)",// kartverket
   "Privat veg": "rgba(89, 187, 171, 1)",// kartverket
-  "Fylkesveg": "rgba(255, 255, 0, 1)", // kartverket
+  "Fylkesveg": "#FF5050", // kartverket
   "Rundkjøring" : "rgba(153, 102, 255, 0.7)", // ?
   "Kanalisert veg": "rgba(255, 159, 64, 0.8)", // ?
   "Fortau": "rgba(89, 187, 171, 0.8)",// kartverket
@@ -91,7 +90,6 @@ const RoadsInfo = ({ factList }) => {
                 <TableHead>
                     <TableRow>
                         <TableCell><strong>Veitype</strong></TableCell>
-                        <TableCell align="right"><strong>Lengde</strong></TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>

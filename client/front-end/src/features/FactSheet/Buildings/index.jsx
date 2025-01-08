@@ -21,15 +21,15 @@ const Buildings = ({ factList }) => {
     return <p>Laster data...</p>;
   }
   const colorMap = {
-    "Bolig": "#FFFF33", // kmd
-    "Fritidsbolig - hytte": "#FFCC66", //kmd
-    "Industri og lagerbygning": "#CC66FF", //kmd
-    "Kontor- og forretningsbygning": "#CCCCFF", //kmd
-    "Samferdsels- og kommunikasjonsbygning": "#CC9966", //kmd
-    "Hotell og restaurantbygning": "#CC99FF", //kmd
-    "Skole-, kultur-, idrett-, forskningsbygning": "#CC6600", //kmd
-    "Helse- og omsorgsbygning" : "#FF9999", //kmd
-    "Fengsel, beredskapsbygning, mv.": "#333333" //finner ingen tegneregel på denne    
+    "Bolig": "#995F20", // kmd
+    "Fritidsbolig - hytte": "#D68723", //kmd
+    "Industri og lagerbygning": "#995F20", //kmd
+    "Kontor- og forretningsbygning": "#995F20", //kmd
+    "Samferdsels- og kommunikasjonsbygning": "#995F20", //kmd
+    "Hotell og restaurantbygning": "#995F20", //kmd
+    "Skole-, kultur-, idrett-, forskningsbygning": "#995F20", //kmd
+    "Helse- og omsorgsbygning" : "#995F20", //kmd
+    "Fengsel, beredskapsbygning, mv.": "#995F20" //finner ingen tegneregel på denne    
   };
   const piechart = {
     
