@@ -11,6 +11,7 @@ import groupBy from 'lodash.groupby';
 import useSocketIO from 'hooks/useSocketIO';
 import messageHandlers from 'config/messageHandlers';
 import styles from './App.module.scss';
+import FactSheet from 'features/FactSheet';
 
 export default function App() {
     useSocketIO(messageHandlers);
@@ -37,12 +38,13 @@ export default function App() {
                 dispatch(setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.'));
                 console.log(response.code);
             } else {
-                const { resultList } = response;
+                const { resultList, factList } = response;
+
                 resultList.forEach(result => result._tempId = createRandomId());
                 
                 const grouped = groupBy(resultList, result => result.resultStatus);
 
-                setData({ ...response, resultList: grouped });
+                setData({ ...response, resultList: grouped, factList });
             }
         } catch (error) {
             dispatch(setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.'));
@@ -64,11 +66,13 @@ export default function App() {
                 {
                     data !== null && (
                         <>
+                            <FactSheet factList={data.factList} municipalityNumber={data.municipalityNumber} municipalityName={data.municipalityName} inputGeometryArea={data.inputGeometryArea} inputGeometry={data.inputGeometry} />
                             <ResultList data={data} />
                             <ResultDialog inputGeometry={data.inputGeometry} />
                         </>
                     )
                 }
+                
                 <Toaster />
             </div>
         </div>

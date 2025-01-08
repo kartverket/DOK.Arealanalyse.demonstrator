@@ -89,7 +89,7 @@ export default function Result({ inputGeometry, result }) {
                             </div> :
                             null
                     }
-                    <GuidanceLinks result={result} />
+                    <GuidanceLinks result={result} />                  
                     {
                         result.data.length > 0 && (
                             <Data result={result} />
