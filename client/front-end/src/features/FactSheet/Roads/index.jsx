@@ -17,21 +17,13 @@ import {
 } from "chart.js";
 import styles from "./Roads.module.scss";
 
-<<<<<<< HEAD
-// Registrer Chart.js komponenter
-=======
->>>>>>> origin/Factsheet
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const colorMap = {
   "Kommunal veg": "rgba(244, 164, 96, 1)",// kartverket
   "Gang og sykkelveg": "rgba(218, 105, 74, 1)",// kartverket
   "Privat veg": "rgba(89, 187, 171, 1)",// kartverket
-<<<<<<< HEAD
-  "Fylkesveg": "rgba(255, 255, 0, 1)", // kartverket
-=======
   "Fylkesveg": "#FF5050", // kartverket
->>>>>>> origin/Factsheet
   "Rundkjøring" : "rgba(153, 102, 255, 0.7)", // ?
   "Kanalisert veg": "rgba(255, 159, 64, 0.8)", // ?
   "Fortau": "rgba(89, 187, 171, 0.8)",// kartverket
@@ -65,19 +57,11 @@ const RoadsInfo = ({ factList }) => {
         responsive: true,
         plugins: {
           legend: {
-<<<<<<< HEAD
-            display: true,
-            position: "top",
-          },
-          title: {
-            display: true,
-=======
             display: false,
             position: "top",
           },
           title: {
-            display: false,
->>>>>>> origin/Factsheet
+            display: true,
             text: "Veitype",
           },
         },
@@ -100,20 +84,12 @@ const RoadsInfo = ({ factList }) => {
     return (
         <div className={styles.roads}>
             <div className={styles.lists}>
-<<<<<<< HEAD
-            <h4>Fordeling av veityper{factList.data.length}</h4>
-=======
             <h2>Fordeling av veityper</h2>
->>>>>>> origin/Factsheet
         <TableContainer>
             <Table sx={{ minWidth: 350 }} size="small" aria-label="oversikt boligtyper">
                 <TableHead>
                     <TableRow>
                         <TableCell><strong>Veitype</strong></TableCell>
-<<<<<<< HEAD
-                        <TableCell align="right"><strong>Lengde</strong></TableCell>
-=======
->>>>>>> origin/Factsheet
                     </TableRow>
                 </TableHead>
                 <TableBody>

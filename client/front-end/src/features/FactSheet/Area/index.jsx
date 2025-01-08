@@ -21,19 +21,11 @@ const Area = ({ factList }) => {
     return <p>Laster data...</p>;
   }
   const colorMap = {
-<<<<<<< HEAD
-    "Bebygd": "#E86474",//tegneregel nibio
-    "Skog": "#9ECC73",//tegneregel nibio
-    "Åpen fastmark": "#D9D9D9", //tegneregel nibio
-    "Samferdsel": "#E86474",//tegneregel nibio
-    "Fulldyrka jord": "#FFCD56", //tegneregel nibio
-=======
     "Bebygd": "rgb(252,219,214)",//tegneregel nibio
     "Skog": "rgb(158,204,115)",//tegneregel nibio
     "Åpen fastmark": "#D9D9D9", //tegneregel nibio
     "Samferdsel": "rgb(179,120,76)",//tegneregel nibio
     "Fulldyrka jord": "#FFD16E", //tegneregel nibio
->>>>>>> origin/Factsheet
     "Ferskvann": "#91E7FF", //tegneregel nibio
     "Hav": "#D2FFFF", //tegneregel nibio
     "Ikke kartlagt" : "#CCCCCC",
@@ -66,11 +58,7 @@ const Area = ({ factList }) => {
   return (
     <div className={styles.piechart}>
         <div className={styles.area}>
-<<<<<<< HEAD
-        <h4>Fordeling av Areal på Arealtyper</h4>
-=======
         <h2>Fordeling av Areal på Arealtyper</h2>
->>>>>>> origin/Factsheet
         <TableContainer>
             <Table sx={{ minWidth: 350 }} size="small" aria-label="oversikt arealtyper">
                 <TableHead>
@@ -80,16 +68,6 @@ const Area = ({ factList }) => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-<<<<<<< HEAD
-                    {factList.data.areaTypes.slice().sort((a, b) => b.area - a.area).map((item, index) => (
-                        <TableRow key={index}>
-                            <TableCell component="th" scope="row">
-                                {item.areaType}
-                            </TableCell>
-                            <TableCell align="right">{item.area}</TableCell>
-                        </TableRow>
-                    ))}
-=======
                 {factList.data.areaTypes.filter(item => item.area > 0).slice().sort((a, b) => b.area - a.area).map((item, index) => (
                   <TableRow key={index}>
                       <TableCell component="th" scope="row">
@@ -98,7 +76,6 @@ const Area = ({ factList }) => {
                       <TableCell align="right">{item.area}</TableCell>
                   </TableRow>
                   ))}
->>>>>>> origin/Factsheet
                 </TableBody>
             </Table>
         </TableContainer>
