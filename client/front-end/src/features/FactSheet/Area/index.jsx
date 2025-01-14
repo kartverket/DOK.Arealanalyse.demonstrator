@@ -1,108 +1,85 @@
-import React from "react";
-import { Pie } from "react-chartjs-2";
-import styles from "./Area.module.scss";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import {
-    Chart as ChartJS,
-    ArcElement,
-    Tooltip,
-    Legend,
-  } from "chart.js";
-  
-  ChartJS.register(ArcElement, Tooltip, Legend);
+import { useMemo } from 'react';
+import { Pie } from 'react-chartjs-2';
+import { Paper, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { inPlaceSort } from 'fast-sort';
+import { COLOR_MAP, getChartData, chartOptions } from './helpers';
+import styles from './Area.module.scss';
 
-const Area = ({ factList }) => {
-  if (!factList?.data?.areaTypes) {
-    return <p>Laster data...</p>;
-  }
-  const colorMap = {
-    "Bebygd": "rgb(252,219,214)",//tegneregel nibio
-    "Skog": "rgb(158,204,115)",//tegneregel nibio
-    "Åpen fastmark": "#D9D9D9", //tegneregel nibio
-    "Samferdsel": "rgb(179,120,76)",//tegneregel nibio
-    "Fulldyrka jord": "#FFD16E", //tegneregel nibio
-    "Ferskvann": "#91E7FF", //tegneregel nibio
-    "Hav": "#D2FFFF", //tegneregel nibio
-    "Ikke kartlagt" : "#CCCCCC",
-    "Innmarksbeite": "#FFFA56", //tegneregel nibio
-    "Myr": "#73DFE1", //tegneregel nibio
-    "Overflatedyrka jord": "#FFCD56", //tegneregel nibio
-    "Snøisbre": "#ffffff", //tegneregel nibio  
-  };
+export default function Area({ factPart }) {
+    const areaTypes = useMemo(
+        () => {
+            if (!factPart?.data) {
+                return [];
+            }
 
-  const piechart = {
-    labels: factList.data.areaTypes.map((item) => item.areaType),
-    datasets: [
-      {
-        label: "Areal (m²)",
-        data: factList.data.areaTypes.map((item) => item.area),
-        backgroundColor: factList.data.areaTypes.map(
-          (item) => colorMap[item.areaType] || "#E7E9ED"
-        ),
-        hoverOffset: 4,
-      },
-    ],
-  };
-  const options = {
-    plugins: {
-      legend: {
-        display: false, // Skjuler legenden
-      },
-    },
-  };
-  return (
-    <div className={styles.piechart}>
-        <div className={styles.area}>
-        <h2>Fordeling av Areal på Arealtyper</h2>
-        <TableContainer>
-            <Table sx={{ minWidth: 350 }} size="small" aria-label="oversikt arealtyper">
-                <TableHead>
-                    <TableRow>
-                        <TableCell><strong>Arealtype</strong></TableCell>
-                        <TableCell align="right"><strong>Areal (m²)</strong></TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                {factList.data.areaTypes.filter(item => item.area > 0).slice().sort((a, b) => b.area - a.area).map((item, index) => (
-                  <TableRow key={index}>
-                      <TableCell component="th" scope="row">
-                          {item.areaType}
-                      </TableCell>
-                      <TableCell align="right">{item.area}</TableCell>
-                  </TableRow>
-                  ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
-           </div>     
-           <div className={styles.pieContent}>
-           
-      <div className={styles.theChart}>
-        <Pie data={piechart} options={options} />
-      </div>
-      <ul className={styles.labels}>
-        {factList.data.areaTypes.filter(item => item.area > 0).slice().sort((a, b) => b.area - a.area).map((item, index) => (
-          <li className={styles.colors} key={index}>
-           <span
-          style={{
-            backgroundColor: colorMap[item.areaType] || "#E7E9ED",
-          }}
-        ></span>
-            <div className={styles.label}>{item.areaType}:</div> {item.area} m²
-          </li>
-        ))}
-      </ul>
-      </div>
+            const _areaTypes = factPart.data.areaTypes
+                .filter(type => type.area > 0)
+                .map(type => ({
+                    ...type,
+                    area: Math.round(type.area)
+                }))
 
-      
-    
-    </div>
-  );
-};
+            inPlaceSort(_areaTypes).desc(type => type.area);
 
-export default Area;
+            return _areaTypes;
+        },
+        [factPart]
+    );
+
+    const chartData = getChartData(areaTypes);
+
+    function renderContent() {
+        if (areaTypes.length === 0) {
+            return <p>Ingen data tilgjengelig</p>
+        }
+
+        return (
+            <div>
+                <div className={styles.tableContainer}>
+                    <Table size="small" aria-label="Oversikt arealtyper">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Arealtype</TableCell>
+                                <TableCell align="right">Areal (m²)</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {areaTypes.map(type => (
+                                <TableRow key={type.areaType}>
+                                    <TableCell>{type.areaType}</TableCell>
+                                    <TableCell align="right">{type.area.toLocaleString('nb-NO')}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+
+                <div className={styles.chartContainer}>
+                    <div className={styles.chart}>
+                        <Pie data={chartData} options={chartOptions} />
+                    </div>
+
+                    <ul className={styles.labels}>
+                        {areaTypes.map(type => (
+                            <li className={styles.label} key={type.areaType}>
+                                <span className={styles.color}
+                                    style={{
+                                        backgroundColor: COLOR_MAP[type.areaType] || '#E7E9ED'
+                                    }}
+                                ></span>
+                                <span>{type.areaType}:&nbsp;&nbsp;{type.area.toLocaleString('nb-NO')} m²</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <Paper className={styles.container}>
+            <h3>Fordeling av areal per arealtype</h3>
+            {renderContent()}
+        </Paper>
+    );
+}

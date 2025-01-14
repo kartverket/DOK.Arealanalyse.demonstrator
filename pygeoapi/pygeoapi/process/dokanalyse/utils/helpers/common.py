@@ -1,7 +1,16 @@
 import re
+from os import environ
 from typing import List
 from datetime import datetime, timezone
 from lxml import etree as ET
+from ...models.exceptions import DokAnalysisException
+
+
+def get_env_var(var_name) -> str:
+    try:
+        return environ[var_name]
+    except KeyError:
+        raise DokAnalysisException('The environment variable ' + var_name + ' is not set')
 
 
 def from_camel_case(value):
@@ -76,7 +85,7 @@ def xpath_select_one(element: ET._Element, path: str) -> any:
 
 
 def evaluate_condition(condition: str, data: dict[str, any]) -> bool:
-    parsed_condition = __parse_condition(condition)
+    parsed_condition = _parse_condition(condition)
     result = eval(parsed_condition, data.copy())
 
     if isinstance(result, (bool)):
@@ -85,15 +94,30 @@ def evaluate_condition(condition: str, data: dict[str, any]) -> bool:
     raise Exception
 
 
-def __parse_condition(condition: str) -> str:
+def _parse_condition(condition: str) -> str:
     regex = r'(?<!=|>|<)\s*=\s*(?!=)'
     condition = re.sub(regex, ' == ', condition, 0, re.MULTILINE)
 
-    return __replace_all(
+    return _replace_all(
         condition, {' AND ': ' and ', ' OR ': ' or ', ' IN ': ' in ', ' NOT ': ' not '})
 
 
-def __replace_all(text: str, replacements: dict) -> str:
+def _replace_all(text: str, replacements: dict) -> str:
     for i, j in replacements.items():
         text = text.replace(i, j)
     return text
+
+
+__all__ = [
+    'background_tasks',
+    'get_env_var', 
+    'from_camel_case',
+    'to_camel_case',
+    'keys_to_camel_case',
+    'parse_string',
+    'parse_date_string',
+    'should_refresh_cache',
+    'xpath_select',
+    'xpath_select_one',
+    'evaluate_condition'
+]

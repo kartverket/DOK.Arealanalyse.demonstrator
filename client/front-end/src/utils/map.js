@@ -25,7 +25,7 @@ export async function createMap(inputGeometry, result, wmtsOptions) {
         interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
         layers: [
             await createBaseMapLayer(wmtsOptions),
-            createWmsLayer(result.rasterResult),
+            createWmsLayer(result.rasterResult.mapUri),
             featuresLayer
         ]
     });
@@ -63,10 +63,6 @@ export async function createOutlineMap(geometry, wmtsOptions) {
 }
 
 export async function createMapImage(inputGeometry, result, wmtsOptions) {
-    // if (MAP_IMAGES.has(result._tempId)) {
-    //     return 
-    // }
-    // if (MAP_IMAGES[result._tempId])
     const [map, mapElement] = await createTempMap(inputGeometry, result, wmtsOptions);
 
     return new Promise((resolve) => {
@@ -74,7 +70,7 @@ export async function createMapImage(inputGeometry, result, wmtsOptions) {
             const base64 = exportToPngImage(map);
             map.dispose();
             mapElement.remove();
-            //MAP_IMAGES[result._tempId] = base64;
+
             resolve(base64);
         })
     });
@@ -91,7 +87,7 @@ async function createTempMap(inputGeometry, result, wmtsOptions) {
     const map = new OlMap({
         layers: [
             await createBaseMapLayer(wmtsOptions),
-            createWmsLayer(result.rasterResult),
+            createWmsLayer(result.rasterResult.mapUri),
             featuresLayer
         ]
     });
@@ -145,8 +141,7 @@ function createFeature(geoJson, projection) {
     feature.setStyle(new Style({
         stroke: new Stroke({
             color: '#d33333',
-            lineDash: [8, 8],
-            width: 2
+            width: 4
         })
     }));
 

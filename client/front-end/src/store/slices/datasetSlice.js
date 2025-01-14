@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+    status: 'Starter opp...',
     count: 0,
     analyzed: []
 };
@@ -9,6 +10,12 @@ export const datasetSlice = createSlice({
     name: 'dataset',
     initialState,
     reducers: {
+        setStatus: (state, action) => {
+            return {
+                ...state,
+                status: action.payload
+            };
+        },
         setCount: (state, action) => {
             return {
                 ...state,
@@ -30,6 +37,6 @@ export const datasetSlice = createSlice({
     }
 });
 
-export const { setCount, addAnalyzed, resetProgress } = datasetSlice.actions;
+export const { setStatus, setCount, addAnalyzed, resetProgress } = datasetSlice.actions;
 
 export default datasetSlice.reducer;

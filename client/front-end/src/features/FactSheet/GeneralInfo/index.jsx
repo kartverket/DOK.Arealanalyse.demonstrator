@@ -1,15 +1,23 @@
-import React from 'react';
+import { Paper } from '@mui/material';
 import styles from './GeneralInfo.module.scss';
 
-const GeneralInfo = ({ number, name, area }) => {
+export default function GeneralInfo({ municipalityNumber, municipalityName, area }) {
     return (
-        <div className={styles.generalInfo}>        
-            <p><strong>Kommunenavn:</strong> {name}</p>
-            <p><strong>Kommunenummer:</strong> {number}</p>
-            <p><strong>Areal:</strong> {area} m²</p>
-            
-        </div>
+        <Paper className={styles.generalInfo}>
+            <div>
+                <div>
+                    <span className={styles.label}>Kommunenummer:</span>
+                    <span>{municipalityNumber}</span>
+                </div>
+                <div>
+                    <span className={styles.label}>Kommunenavn:</span>
+                    <span>{municipalityName}</span>
+                </div>
+                <div>
+                    <span className={styles.label}>Områdeareal:</span>
+                    <span>{Math.round(area).toLocaleString('nb-NO')} m²</span>
+                </div>
+            </div>
+        </Paper>
     );
-};
-
-export default GeneralInfo;
+}

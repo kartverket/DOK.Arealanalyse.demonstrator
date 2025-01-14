@@ -13,7 +13,7 @@ import MapView from 'features/MapView';
 import styles from './Result.module.scss';
 
 export default function Result({ inputGeometry, result }) {
-    const [mapBase64, setMapBase64] = useState(null);
+    const [mapImageUri, setMapImageUri] = useState(null);
     const [showInteractiveMap, setShowInteractiveMap] = useState(false);
     const { createMapImage } = useMap();
 
@@ -31,9 +31,14 @@ export default function Result({ inputGeometry, result }) {
                 return;
             }
 
+            if (result.rasterResult.imageUri) {
+                setMapImageUri(result.rasterResult.imageUri);
+                return;
+            }
+
             (async () => {
                 const base64 = await createMapImage(inputGeometry, result);
-                setMapBase64(base64);
+                setMapImageUri(base64);
             })();
         },
         [shouldShowMap, createMapImage, inputGeometry, result]
@@ -62,8 +67,8 @@ export default function Result({ inputGeometry, result }) {
                                     showInteractiveMap ?
                                         <MapView inputGeometry={inputGeometry} result={result} /> :
                                         (
-                                            mapBase64 !== null ?
-                                                <img src={mapBase64} role="button" title="Åpne kart" onClick={() => setShowInteractiveMap(true)} alt="Kartutsnitt" /> :
+                                            mapImageUri !== null ?
+                                                <img src={mapImageUri} title="Åpne kart" onClick={() => setShowInteractiveMap(true)} alt="Kartutsnitt" /> :
                                                 <div className={styles.loading}>
                                                     <CircularProgress size={32} />
                                                 </div>
@@ -89,7 +94,7 @@ export default function Result({ inputGeometry, result }) {
                             </div> :
                             null
                     }
-                    <GuidanceLinks result={result} />                  
+                    <GuidanceLinks result={result} />
                     {
                         result.data.length > 0 && (
                             <Data result={result} />

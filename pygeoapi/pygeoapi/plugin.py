@@ -2,7 +2,7 @@
 #
 # Authors: Tom Kralidis <tomkralidis@gmail.com>
 #
-# Copyright (c) 2023 Tom Kralidis
+# Copyright (c) 2024 Tom Kralidis
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -40,6 +40,7 @@ PLUGINS = {
     'provider': {
         'AzureBlobStorage': 'pygeoapi.provider.azure_.AzureBlobStorageProvider',  # noqa
         'CSV': 'pygeoapi.provider.csv_.CSVProvider',
+        'CSWFacade': 'pygeoapi.provider.csw_facade.CSWFacadeProvider',
         'Elasticsearch': 'pygeoapi.provider.elasticsearch_.ElasticsearchProvider',  # noqa
         'ElasticsearchCatalogue': 'pygeoapi.provider.elasticsearch_.ElasticsearchCatalogueProvider',  # noqa
         'ERDDAPTabledap': 'pygeoapi.provider.erddap.TabledapProvider',
@@ -49,16 +50,22 @@ PLUGINS = {
         'Hateoas': 'pygeoapi.provider.hateoas.HateoasProvider',
         'MapScript': 'pygeoapi.provider.mapscript_.MapScriptProvider',
         'MongoDB': 'pygeoapi.provider.mongo.MongoProvider',
-        'MVT': 'pygeoapi.provider.mvt.MVTProvider',
+        'MVT-tippecanoe': 'pygeoapi.provider.mvt_tippecanoe.MVTTippecanoeProvider',  # noqa: E501
+        'MVT-elastic': 'pygeoapi.provider.mvt_elastic.MVTElasticProvider',
+        'MVT-proxy': 'pygeoapi.provider.mvt_proxy.MVTProxyProvider',
         'OracleDB': 'pygeoapi.provider.oracle.OracleProvider',
         'OGR': 'pygeoapi.provider.ogr.OGRProvider',
+        'OpenSearch': 'pygeoapi.provider.opensearch_.OpenSearchProvider',
+        'Parquet': 'pygeoapi.provider.parquet.ParquetProvider',
         'PostgreSQL': 'pygeoapi.provider.postgresql.PostgreSQLProvider',
         'rasterio': 'pygeoapi.provider.rasterio_.RasterioProvider',
         'SensorThings': 'pygeoapi.provider.sensorthings.SensorThingsProvider',
         'SQLiteGPKG': 'pygeoapi.provider.sqlite.SQLiteGPKGProvider',
         'Socrata': 'pygeoapi.provider.socrata.SODAServiceProvider',
+        'TinyDB': 'pygeoapi.provider.tinydb_.TinyDBProvider',
         'TinyDBCatalogue': 'pygeoapi.provider.tinydb_.TinyDBCatalogueProvider',
         'WMSFacade': 'pygeoapi.provider.wms_facade.WMSFacadeProvider',
+        'WMTSFacade': 'pygeoapi.provider.wmts_facade.WMTSFacadeProvider',
         'xarray': 'pygeoapi.provider.xarray_.XarrayProvider',
         'xarray-edr': 'pygeoapi.provider.xarray_edr.XarrayEDRProvider'
     },
@@ -69,7 +76,10 @@ PLUGINS = {
         'Dokanalyse': 'pygeoapi.process.dokanalyse.DokanalyseProcessor'
     },
     'process_manager': {
-        'Dummy': 'pygeoapi.process.manager.dummy.DummyManager'
+        'Dummy': 'pygeoapi.process.manager.dummy.DummyManager',
+        'MongoDB': 'pygeoapi.process.manager.mongodb_.MongoDBManager',
+        'TinyDB': 'pygeoapi.process.manager.tinydb_.TinyDBManager',
+        'PostgreSQL': 'pygeoapi.process.manager.postgresql.PostgreSQLManager'
     }
 }
 

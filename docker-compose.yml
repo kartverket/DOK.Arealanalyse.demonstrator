@@ -1,0 +1,49 @@
+name: dokanalyse
+
+services:
+  front-end:
+    container_name: dokanalyse-front-end
+    image: crdokanalyse.azurecr.io/dokanalyse-front-end:v1
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - internal      
+    restart: always
+    depends_on:
+      - web-api
+      - socket-io
+
+  web-api:
+    container_name: dokanalyse-web-api
+    image: crdokanalyse.azurecr.io/dokanalyse-web-api:v1
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Pygeoapi__ApiUrl=${PYGEOAPI_API_URL}
+    expose:
+      - "5001"
+    networks:
+      - internal      
+    restart: always
+
+  socket-io:
+    container_name: dokanalyse-socket-io
+    image: crdokanalyse.azurecr.io/dokanalyse-socket-io:v1
+    expose:
+      - "5002"
+    networks:
+      - internal      
+    restart: always    
+
+  binary-creator:
+    container_name: dokanalyse-binary-creator
+    image: crdokanalyse.azurecr.io/dokanalyse-binary-creator:v1
+    expose:
+      - "5003"
+    networks:
+      - internal      
+    restart: always
+
+networks:
+  internal:
+    driver: bridge

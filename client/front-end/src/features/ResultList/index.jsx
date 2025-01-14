@@ -183,7 +183,6 @@ export default function ResultList({ data }) {
     return (
         <div className={styles.container}>
             <div>
-                             
                 {renderResults('HIT-RED')}
                 {renderResults('HIT-YELLOW')}
                 {renderResults('NO-HIT-YELLOW')}

@@ -8,6 +8,7 @@ import store from 'store';
 import theme from 'config/theme.config.js';
 import 'config/projections.config';
 import 'config/extents.config';
+import 'config/chartjs.config';
 import 'styles/styles.scss';
 
 const root = document.getElementById('root');

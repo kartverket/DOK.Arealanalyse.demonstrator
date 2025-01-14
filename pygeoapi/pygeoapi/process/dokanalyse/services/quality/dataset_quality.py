@@ -1,17 +1,20 @@
-from typing import List
+from typing import List, Dict
+from uuid import UUID
 from . import get_threshold_values
 from ..dok_status import get_dok_status_for_dataset
 from ...utils.helpers.common import evaluate_condition
 from ...models.quality_measurement import QualityMeasurement
+from ...models.config.quality_indicator import QualityIndicator
+from ...models.config.quality_indicator_type import QualityIndicatorType
 
 
-async def get_dataset_quality(dataset_id, config: List[dict], **kwargs) -> tuple[List[QualityMeasurement], List[str]]:
-    quality_data = await __get_dataset_quality_data(dataset_id, config, kwargs)
+async def get_dataset_quality(dataset_id: UUID, quality_indicators: List[QualityIndicator], **kwargs) -> tuple[List[QualityMeasurement], List[str]]:
+    quality_data = await _get_dataset_quality_data(dataset_id, quality_indicators, kwargs)
     measurements: List[QualityMeasurement] = []
     warnings: List[str] = []
 
     for entry in quality_data:
-        value: dict
+        value: Dict
 
         for value in entry.get('values'):
             measurements.append(QualityMeasurement(entry.get('id'), entry.get(
@@ -25,13 +28,13 @@ async def get_dataset_quality(dataset_id, config: List[dict], **kwargs) -> tuple
     return measurements, warnings
 
 
-async def __get_dataset_quality_data(dataset_id, config: List[dict], data: dict[str, any]) -> List[dict]:
-    quality_measurements = await __get_dataset_quality_measurements(dataset_id)
+async def _get_dataset_quality_data(dataset_id: UUID, quality_indicators: List[QualityIndicator], data: Dict[str, any]) -> List[Dict]:
+    quality_measurements = await _get_dataset_quality_measurements(dataset_id)
 
-    quality_indicators: List[dict] = [
-        entry for entry in config if entry['type'] == 'dataset']
+    dataset_indicators = [
+        indicator for indicator in quality_indicators if indicator.type == QualityIndicatorType.DATASET]
 
-    measurements: List[dict] = []
+    measurements: List[Dict] = []
 
     for qm in quality_measurements:
         id = qm['quality_dimension_id']
@@ -48,20 +51,20 @@ async def __get_dataset_quality_data(dataset_id, config: List[dict], data: dict[
             'warning_text': None
         }
 
-        qi = next(
-            (qi for qi in quality_indicators if qi['quality_dimension_id'] == id), None)
+        di = next(
+            (di for di in dataset_indicators if di.quality_dimension_id == id), None)
 
-        if qi is not None:
-            measurement['warning_text'] = __get_dataset_quality_warning_text(
-                value, qi, data)
+        if di is not None:
+            measurement['warning_text'] = _get_dataset_quality_warning_text(
+                value, di, data)
 
         measurements.append(measurement)
 
     return measurements
 
 
-async def __get_dataset_quality_measurements(dataset_id: str) -> List[dict]:
-    qms: List[dict] = []
+async def _get_dataset_quality_measurements(dataset_id: UUID) -> List[Dict]:
+    qms: List[Dict] = []
 
     dok_status = await get_dok_status_for_dataset(dataset_id)
 
@@ -71,10 +74,10 @@ async def __get_dataset_quality_measurements(dataset_id: str) -> List[dict]:
     return qms
 
 
-def __get_dataset_quality_warning_text(value: any, quality_indicator: dict, data: dict[str, any]) -> str:
-    input_filter = quality_indicator.get('input_filter')
+def _get_dataset_quality_warning_text(value: any, quality_indicator: QualityIndicator, data: Dict[str, any]) -> str:
+    input_filter = quality_indicator.input_filter
 
-    if input_filter:
+    if input_filter is not None:
         result = evaluate_condition(input_filter, data)
 
         if not result:
@@ -83,4 +86,7 @@ def __get_dataset_quality_warning_text(value: any, quality_indicator: dict, data
     threshold_values = get_threshold_values(quality_indicator)
     should_warn = value in threshold_values
 
-    return quality_indicator.get('quality_warning_text') if should_warn else None
+    return quality_indicator.quality_warning_text if should_warn else None
+
+
+__all__ = ['get_dataset_quality']

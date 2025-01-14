@@ -1,9 +1,6 @@
 # Flask-based CORS setup
 flask_cors
 
-# Generate pydantic models from json schema
-datamodel-code-generator
-
 # testing
 pytest
 pytest-cov
@@ -15,6 +12,9 @@ pyld
 starlette
 uvicorn[standard]
 httpx
+
+# Pydantic/Dataclasses models
+polyfactory
 
 # PEP8
 flake8
@@ -28,3 +28,7 @@ wheel
 pyOpenSSL
 ndg-httpsclient
 pyasn1
+
+pre-commit
+
+setuptools

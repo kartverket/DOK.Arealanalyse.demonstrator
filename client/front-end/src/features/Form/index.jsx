@@ -17,7 +17,8 @@ export default function Form({ fetching, onSubmit }) {
             theme: '',
             includeGuidance: true,
             includeQualityMeasurement: true,
-            includeFilterChosenDOK: false
+            includeFilterChosenDOK: false,
+            includeFacts: true
         };
     }
 
@@ -163,6 +164,17 @@ export default function Form({ fetching, onSubmit }) {
                                     />
                                 }
                                 label="Inkluder kvalitetsinformasjon" />
+                        </div>
+                        <div>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="includeFacts"
+                                        checked={state.includeFacts}
+                                        onChange={handleChange}
+                                    />
+                                }
+                                label="Inkluder faktainformasjon" />
                         </div>
                     </div>
                 </div>

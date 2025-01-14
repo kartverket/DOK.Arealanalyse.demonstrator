@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, Dict
 from osgeo import ogr
-from .dataset import Dataset
+from .metadata import Metadata
 from ..utils.helpers.geometry import create_run_on_input_geometry_json
 
 class FactPart:
-    def __init__(self, run_on_input_geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int, run_on_dataset: Dataset, run_algorithm: List[str], data: any):
+    def __init__(self, run_on_input_geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int, run_on_dataset: Metadata, run_algorithm: List[str], data: any):
         self.run_on_input_geometry = run_on_input_geometry
         self.epsg = epsg
         self.orig_epsg = orig_epsg
@@ -14,7 +14,7 @@ class FactPart:
         self.data = data
         self.data_template: str = None
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict:
         return {
             'runOnInputGeometry': create_run_on_input_geometry_json(self.run_on_input_geometry, self.epsg, self.orig_epsg),
             'buffer': self.buffer,

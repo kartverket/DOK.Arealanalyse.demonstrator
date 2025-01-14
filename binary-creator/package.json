@@ -1,0 +1,17 @@
+{
+    "name": "map-image-renderer",
+    "version": "1.0.0",
+    "license": "MIT",
+    "type": "module",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "node src/main.js"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "date-and-time": "^3.6.0",
+        "express": "^4.21.2",
+        "puppeteer-core": "^23.11.1"
+    },
+    "packageManager": "yarn@4.6.0"
+}

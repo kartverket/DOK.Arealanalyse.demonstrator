@@ -1,64 +1,68 @@
 from sys import maxsize
 import json
-from typing import List
+from uuid import UUID
+from typing import List, Dict
 from osgeo import ogr
 from .analysis import Analysis
 from .result_status import ResultStatus
+from .config.dataset_config import DatasetConfig
 from ..services.geolett import get_geolett_data
-from ..services.raster_result import get_raster_result, get_cartography_url
+from ..services.raster_result import get_wms_url, get_cartography_url
 from ..utils.helpers.geometry import create_buffered_geometry, geometry_from_json
 from ..http_clients.arcgis import query_arcgis
 
 
 class ArcGisAnalysis(Analysis):
-    def __init__(self, dataset_id, config, geometry, epsg, orig_epsg, buffer):
+    def __init__(self, dataset_id: UUID, config: DatasetConfig, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int):
         super().__init__(dataset_id, config, geometry, epsg, orig_epsg, buffer)
 
-    async def run_queries(self) -> None:
-        first_layer = self.config['layers'][0]
-        geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
+    async def _run_queries(self) -> None:
+        first_layer = self.config.layers[0]
+        geolett_data = await get_geolett_data(first_layer.geolett_id)
+        self._add_run_algorithm(f'query {self.config.arcgis}')             
 
-        for layer in self.config['layers']:
-            layer_name = layer['arcgis']
-            filter = layer.get('filter', None)
-
-            if filter is not None:
-                self.add_run_algorithm(f'query {filter}')
+        for layer in self.config.layers:
+            if layer.filter is not None:
+                self._add_run_algorithm(f'add filter {layer.filter}')
 
             status_code, api_response = await query_arcgis(
-                self.config['arcgis'], layer_name, filter, self.run_on_input_geometry, self.epsg)
+                self.config.arcgis, layer.arcgis, layer.filter, self.run_on_input_geometry, self.epsg)
 
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
+                self._add_run_algorithm(f'intersects layer {layer.arcgis} (Timeout)')     
                 break
             elif status_code != 200:
                 self.result_status = ResultStatus.ERROR
+                self._add_run_algorithm(f'intersects layer {layer.arcgis} (Error)')
                 break
 
-            self.add_run_algorithm(f'intersect layer {layer_name}')
-
-            if api_response is not None:
+            if api_response:
                 response = self.__parse_response(api_response)
 
                 if len(response['properties']) > 0:
-                    geolett_data = await get_geolett_data(layer.get('geolett_id', None))
+                    self._add_run_algorithm(f'intersects layer {layer.arcgis} (True)')
+                    geolett_data = await get_geolett_data(layer.geolett_id)
+
                     self.data = response['properties']
                     self.geometries = response['geometries']
-                    self.raster_result = get_raster_result(
-                        self.config['wms'], layer['wms'])
+                    self.raster_result_map = get_wms_url(
+                        self.config.wms, layer.wms)
                     self.cartography = await get_cartography_url(
-                        self.config['wms'], layer['wms'])
-                    self.result_status = layer['result_status']
+                        self.config.wms, layer.wms)
+                    self.result_status = layer.result_status
                     break
+
+                self._add_run_algorithm(f'intersects layer {layer.arcgis} (False)')
 
         self.geolett = geolett_data
 
-    async def set_distance_to_object(self) -> None:
-        buffered_geom = create_buffered_geometry(self.geometry, 20000, self.epsg)
-        layer_name = self.config['layers'][0]['arcgis']
-        filter = self.config['layers'][0].get('filter', None)
+    async def _set_distance_to_object(self) -> None:
+        buffered_geom = create_buffered_geometry(
+            self.geometry, 20000, self.epsg)
+        layer = self.config.layers[0]
 
-        _, response = await query_arcgis(self.config['arcgis'], layer_name, filter, buffered_geom, self.epsg)
+        _, response = await query_arcgis(self.config.arcgis, layer.arcgis, layer.filter, buffered_geom, self.epsg)
 
         if response is None:
             self.distance_to_object = maxsize
@@ -70,36 +74,37 @@ class ArcGisAnalysis(Analysis):
             feature_geom = self.__get_geometry_from_response(feature)
 
             if feature_geom is not None:
-                distance = round(self.run_on_input_geometry.Distance(feature_geom))
+                distance = round(
+                    self.run_on_input_geometry.Distance(feature_geom))
                 distances.append(distance)
 
         distances.sort()
-        self.add_run_algorithm('get distance')
+        self._add_run_algorithm('get distance to nearest object')
 
         if len(distances) == 0:
             self.distance_to_object = maxsize
         else:
             self.distance_to_object = distances[0]
 
-    def __parse_response(self, arcgis_response: dict) -> dict[str, List]:
+    def __parse_response(self, arcgis_response: Dict) -> Dict[str, List]:
         data = {
             'properties': [],
             'geometries': []
         }
 
-        features: List[dict] = arcgis_response.get('features', [])
+        features: List[Dict] = arcgis_response.get('features', [])
 
         for feature in features:
             data['properties'].append(
-                self.__map_properties(feature, self.config['properties']))
+                self.__map_properties(feature, self.config.properties))
             data['geometries'].append(
                 self.__get_geometry_from_response(feature))
 
         return data
 
-    def __map_properties(self, feature: dict, mappings: List[str]) -> dict:
+    def __map_properties(self, feature: Dict, mappings: List[str]) -> Dict:
         props = {}
-        feature_props: dict = feature['properties']
+        feature_props: Dict = feature['properties']
 
         for mapping in mappings:
             props[mapping] = feature_props.get(mapping)

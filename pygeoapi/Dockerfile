@@ -1,14 +1,15 @@
-FROM debian:bookworm
+FROM debian:bookworm-slim
 
 ARG TZ="Etc/UTC"
 ARG LANG="en_US.UTF-8"
 ARG ADD_DEB_PACKAGES="\
     libsqlite3-mod-spatialite \
-    libgdal-dev \
+    libgdal-dev \    
     python3-dask \
     python3-elasticsearch \
     python3-fiona \
     python3-gdal \
+    python3-jsonpatch \
     python3-netcdf4 \
     python3-pandas \
     python3-psycopg2 \
@@ -23,18 +24,13 @@ ARG ADD_DEB_PACKAGES="\
     python3-mapscript \
     python3-pytest \
     python3-pyld"
-ARG SOCKET_IO_URL="https://dok-arealanalyse.azurewebsites.net/ws"
-ARG FILE_SHARE_BASE_DIR="/mnt/dokanalyse"
-ARG AR5_DB_PATH="/mnt/dokanalyse/filegdb/ar5.gdb"
 
 ENV TZ=${TZ} \
     LANG=${LANG} \
     DEBIAN_FRONTEND="noninteractive" \
-    SOCKET_IO_URL=${SOCKET_IO_URL} \
-    FILE_SHARE_BASE_DIR=${FILE_SHARE_BASE_DIR} \
-    AR5_DB_PATH=${AR5_DB_PATH} \        
     DEB_BUILD_DEPS="\
     curl \
+    git \
     unzip" \
     DEB_PACKAGES="\
     locales \
@@ -45,13 +41,11 @@ ENV TZ=${TZ} \
     python3-greenlet \
     python3-pip \
     python3-tz \
-    python3-unicodecsv \
     python3-yaml \
     ${ADD_DEB_PACKAGES}"
 
 WORKDIR /pygeoapi
-ADD . /pygeoapi
-ADD ./requirements-prod.txt /pygeoapi/requirements.txt
+COPY . /pygeoapi
 
 RUN apt update -y \
     && apt upgrade -y \
@@ -63,6 +57,7 @@ RUN apt update -y \
     && unzip ./SCHEMAS_OPENGIS_NET.zip "ogcapi/*" -d /schemas.opengis.net \
     && rm -f ./SCHEMAS_OPENGIS_NET.zip \
     && pip3 install --break-system-packages -r requirements-docker.txt \
+    && pip3 install --break-system-packages -r requirements-admin.txt \    
     && pip3 install --break-system-packages -e . \
     && cp /pygeoapi/docker/default.config.yml /pygeoapi/local.config.yml \
     && cp /pygeoapi/docker/entrypoint.sh /entrypoint.sh  \

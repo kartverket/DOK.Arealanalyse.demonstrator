@@ -1,0 +1,10 @@
+.mapImage {
+    padding: 18px;
+    margin-bottom: 24px;
+
+    > div {
+        display: flex;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+}

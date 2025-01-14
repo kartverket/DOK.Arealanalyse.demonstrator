@@ -1,18 +1,22 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Dict
+from uuid import UUID
 from osgeo import ogr
 from .quality_measurement import QualityMeasurement
-from .dataset import Dataset
+from .metadata import Metadata
 from .exceptions import DokAnalysisException
 from .result_status import ResultStatus
+from .config.dataset_config import DatasetConfig
+from .config.quality_indicator_type import QualityIndicatorType
 from ..utils.helpers.common import keys_to_camel_case
 from ..utils.helpers.geometry import create_buffered_geometry, create_run_on_input_geometry_json
-from ..config import get_quality_indicators_config
+from ..utils.helpers.map_image import create_payload_for_analysis
+from ..services.config import get_quality_indicator_configs
 from ..services.kartkatalog import get_kartkatalog_metadata
-from ..services.quality_measurement import get_quality_measurements
 from ..services.quality.coverage_quality import get_coverage_quality
 from ..services.quality.dataset_quality import get_dataset_quality
 from ..services.quality.object_quality import get_object_quality
+from ..services.map_image import create_map_image
 
 _QMS_SORT_ORDER = [
     'fullstendighet_dekning',
@@ -24,7 +28,7 @@ _QMS_SORT_ORDER = [
 
 
 class Analysis(ABC):
-    def __init__(self, dataset_id: str, config: dict, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int):
+    def __init__(self, dataset_id: UUID, config: DatasetConfig, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int):
         self.dataset_id = dataset_id
         self.config = config
         self.geometry = geometry
@@ -32,24 +36,26 @@ class Analysis(ABC):
         self.epsg = epsg
         self.orig_epsg = orig_epsg
         self.geometries: List[ogr.Geometry] = []
-        self.geolett: dict = None
+        self.geolett: Dict = None
         self.title: str = None
         self.description: str = None
         self.guidance_text: str = None
-        self.guidance_uri: List[dict] = []
+        self.guidance_uri: List[Dict] = []
         self.possible_actions: List[str] = []
         self.quality_measurement: List[QualityMeasurement] = []
         self.quality_warning: List[str] = []
         self.buffer = buffer or 0
         self.input_geometry_area: ogr.Geometry = None
-        self.run_on_input_geometry_json: dict = None
+        self.run_on_input_geometry_json: Dict = None
         self.hit_area: float = None
         self.distance_to_object: int = 0
-        self.raster_result: str = None
+        self.raster_result_map: str = None
+        self.raster_result_image: str = None
+        self.raster_result_image_bytes: bytes = None
         self.cartography: str = None
-        self.data: List[dict] = []
+        self.data: List[Dict] = []
         self.themes: List[str] = None
-        self.run_on_dataset: Dataset = None
+        self.run_on_dataset: Metadata = None
         self.run_algorithm: List[str] = []
         self.result_status: ResultStatus = ResultStatus.NO_HIT_GREEN
         self.coverage_statuses: List[str] = []
@@ -61,7 +67,7 @@ class Analysis(ABC):
         await self.__run_coverage_analysis()
 
         if self.has_coverage:
-            await self.run_queries()
+            await self._run_queries()
 
             if self.result_status == ResultStatus.TIMEOUT or self.result_status == ResultStatus.ERROR:
                 await self.set_default_data()
@@ -72,9 +78,9 @@ class Analysis(ABC):
             self.result_status = ResultStatus.NO_HIT_YELLOW
 
         if self.result_status in [ResultStatus.NO_HIT_GREEN, ResultStatus.NO_HIT_YELLOW]:
-            await self.set_distance_to_object()
+            await self._set_distance_to_object()
 
-        self.add_run_algorithm('deliver result')
+        self._add_run_algorithm('deliver result')
 
         self.run_on_input_geometry_json = create_run_on_input_geometry_json(
             self.run_on_input_geometry, self.epsg, self.orig_epsg)
@@ -87,32 +93,39 @@ class Analysis(ABC):
         if include_quality_measurement:
             await self.__set_quality_measurements(context)
 
-    def add_run_algorithm(self, algorithm) -> None:
+        if self.raster_result_map:
+            payload = create_payload_for_analysis(self.geometry, self.buffer, self.raster_result_map)
+            _, result = await create_map_image(payload)
+            self.raster_result_image_bytes = result
+
+    def _add_run_algorithm(self, algorithm) -> None:
         self.run_algorithm.append(algorithm)
 
     async def set_default_data(self) -> None:
-        self.title = self.geolett['tittel'] if self.geolett else self.config.get(
-            'title')
-        self.themes = self.config.get('themes', [])
+        self.title = self.geolett.get(
+            'tittel') if self.geolett else self.config.title
+        self.themes = self.config.themes
         self.run_on_dataset = await get_kartkatalog_metadata(self.dataset_id)
 
     async def __run_coverage_analysis(self) -> None:
-        config = get_quality_indicators_config(self.dataset_id)
-
-        if config is None:
-            return
-
-        quality_indicators: List[dict] = [
-            entry for entry in config if entry['type'] == 'coverage']
+        quality_indicators = get_quality_indicator_configs(self.dataset_id)
 
         if len(quality_indicators) == 0:
             return
-        elif len(quality_indicators) > 1:
+
+        coverage_indicators = [
+            indicator for indicator in quality_indicators if indicator.type == QualityIndicatorType.COVERAGE]
+
+        if len(coverage_indicators) == 0:
+            return
+        elif len(coverage_indicators) > 1:
             raise DokAnalysisException(
                 'A dataset can only have one coverage quality indicator')
 
-        self.add_run_algorithm('check coverage')
-        measurements, warning, has_coverage = await get_coverage_quality(quality_indicators[0], self.run_on_input_geometry, self.epsg)
+        ci = coverage_indicators[0]
+        self._add_run_algorithm(
+            f'check coverage {ci.wfs.url} ({ci.wfs.layer})')
+        measurements, warning, has_coverage = await get_coverage_quality(ci, self.run_on_input_geometry, self.epsg)
 
         self.quality_measurement.extend(measurements)
         self.has_coverage = has_coverage
@@ -121,12 +134,12 @@ class Analysis(ABC):
             self.quality_warning.append(warning)
 
     def __set_input_geometry(self) -> None:
-        self.add_run_algorithm('set input_geometry')
+        self._add_run_algorithm('set input_geometry')
 
         if self.buffer > 0:
             buffered_geom = create_buffered_geometry(
                 self.geometry, self.buffer, self.epsg)
-            self.add_run_algorithm('add buffer')
+            self._add_run_algorithm(f'add buffer ({self.buffer})')
             self.run_on_input_geometry = buffered_geom
         else:
             self.run_on_input_geometry = self.geometry.Clone()
@@ -155,30 +168,34 @@ class Analysis(ABC):
             if geom_type == ogr.wkbPolygon or geom_type == ogr.wkbMultiPolygon:
                 hit_area += intersection.GetArea()
 
-        self.hit_area = hit_area
+        self._add_run_algorithm('calculate hit area')
+        self.hit_area = round(hit_area, 2)
 
     def __set_guidance_data(self) -> None:
         if self.result_status != ResultStatus.NO_HIT_GREEN:
-            self.description = self.geolett['forklarendeTekst']
-            self.guidance_text = self.geolett['dialogtekst']
+            self.description = self.geolett.get('forklarendeTekst')
+            self.guidance_text = self.geolett.get('dialogtekst')
 
-        for link in self.geolett['lenker']:
+        for link in self.geolett.get('lenker', []):
             self.guidance_uri.append({
                 'href': link['href'],
                 'title': link['tittel']
             })
 
-        for line in self.geolett['muligeTiltak'].splitlines():
+        possible_actions: str = self.geolett.get('muligeTiltak', '')
+
+        for line in possible_actions.splitlines():
             self.possible_actions.append(line.lstrip('- '))
 
     async def __set_quality_measurements(self, context) -> None:
-        config = get_quality_indicators_config(self.dataset_id)
+        quality_indicators = get_quality_indicator_configs(self.dataset_id)
 
-        if config is None:
+        if len(quality_indicators) == 0:
             return
 
-        dataset_qms, dataset_warnings = await get_dataset_quality(self.dataset_id, config, context=context, themes=self.themes)
-        object_qms, object_warnings = get_object_quality(config, self.data)
+        dataset_qms, dataset_warnings = await get_dataset_quality(self.dataset_id, quality_indicators, context=context, themes=self.themes)
+        object_qms, object_warnings = get_object_quality(
+            quality_indicators, self.data)
 
         self.quality_measurement.extend(dataset_qms)
         self.quality_measurement.extend(object_qms)
@@ -197,7 +214,7 @@ class Analysis(ABC):
 
         return qms
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict:
         sorted_qms = self.__sort_quality_measurements()
 
         return {
@@ -209,7 +226,10 @@ class Analysis(ABC):
             'hitArea': self.hit_area,
             'resultStatus': self.result_status,
             'distanceToObject': self.distance_to_object,
-            'rasterResult': self.raster_result,
+            'rasterResult': {
+                'imageUri': self.raster_result_image,
+                'mapUri': self.raster_result_map
+            },
             'cartography': self.cartography,
             'data': list(map(lambda entry: keys_to_camel_case(entry), self.data)),
             'themes': self.themes,
@@ -223,9 +243,9 @@ class Analysis(ABC):
         }
 
     @abstractmethod
-    async def run_queries(self) -> None:
+    async def _run_queries(self) -> None:
         pass
 
     @abstractmethod
-    def set_distance_to_object(self) -> None:
+    def _set_distance_to_object(self) -> None:
         pass

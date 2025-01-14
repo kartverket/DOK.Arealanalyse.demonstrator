@@ -1,10 +1,16 @@
+from typing import Dict, Tuple
+import asyncio
+from osgeo import ogr, osr
 from pygeoapi.process.base import BaseProcessor, ProcessorExecuteError
 from .services import analyses
 from .utils.helpers.request import request_is_valid
 from .utils.socket_io import get_client
-from .utils.logger import setup_logger
+from .utils import logger
 
-setup_logger()
+logger.setup()
+
+osr.UseExceptions()
+ogr.UseExceptions()
 
 PROCESS_METADATA = {
     'version': '0.1.0',
@@ -83,6 +89,14 @@ PROCESS_METADATA = {
             },
             'minOccurs': 0,
             'maxOccurs': 1
+        },
+        'includeFactSheet': {
+            'title': 'Inkluder faktainformasjon',
+            'schema': {
+                'type': 'boolean'
+            },
+            'minOccurs': 0,
+            'maxOccurs': 1
         }
     },
     'outputs': {
@@ -112,7 +126,7 @@ PROCESS_METADATA = {
             },
             'minOccurs': 0,
             'maxOccurs': 1
-        }      
+        }
     },
     'example': {
         'inputs': {
@@ -154,7 +168,8 @@ PROCESS_METADATA = {
             'theme': 'Natur',
             'includeGuidance': True,
             'includeQualityMeasurement': True,
-            'includeFilterChosenDOK': True
+            'includeFilterChosenDOK': True,
+            'includeFactSheet': True
         }
     }
 }
@@ -164,7 +179,7 @@ class DokanalyseProcessor(BaseProcessor):
     def __init__(self, processor_def):
         super().__init__(processor_def, PROCESS_METADATA)
 
-    async def execute(self, data):
+    def execute(self, data: Dict, outputs=None) -> Tuple[str, Dict]:
         mimetype = 'application/json'
 
         if not request_is_valid(data):
@@ -173,12 +188,12 @@ class DokanalyseProcessor(BaseProcessor):
         sio_client = get_client()
 
         try:
-            outputs = await analyses.run(data, sio_client)
+            outputs = asyncio.run(analyses.run(data, sio_client))
         finally:
             if sio_client:
                 sio_client.disconnect()
 
-        return mimetype, outputs
+        return mimetype, outputs or None
 
-    def __repr__(self):
-        return '<DokanalyseProcessor> {}'.format(self.name)
+    def __repr__(self) -> str:
+        return f'<DokanalyseProcessor> {self.name}'

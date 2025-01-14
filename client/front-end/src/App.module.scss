@@ -1,52 +1,58 @@
 .app {
-   width: 1600px;
-   margin: 0 auto;
-   min-height: 100vh;
-   display: flex;
-   flex-direction: column;
+    width: 1600px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .content {
-   background-color: #F3F6F9;
-   flex: 1;
-   box-shadow: inset 0px 2px 1px -1px rgba(0, 0, 0, 0.2), inset 0px 1px 1px 0px rgba(0, 0, 0, 0.14), inset 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
-   border-radius: 4px;
-   padding: 24px;
+    background-color: #F3F6F9;
+    flex: 1;
+    box-shadow: inset 0px 2px 1px -1px rgba(0, 0, 0, 0.2), inset 0px 1px 1px 0px rgba(0, 0, 0, 0.14), inset 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    padding: 24px;
 }
 
 .input {
-   display: flex;
-   flex-direction: column;
-   padding: 24px;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
 
-   .row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 24px;
-      border-bottom: 1px solid #e0e0e0;
-      padding-bottom: 24px;
+    .row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 24px;
 
-      &:last-child {
-         border-bottom: 0 none;
-         padding-bottom: 0;
-         margin-bottom: 0;
-      }
+        &:last-child {
+            border-bottom: 0 none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
 
-      .addGeometry {
-         position: relative;
-         margin-right: 48px;
+        .addGeometry {
+            position: relative;
+            margin-right: 48px;
 
-         .icons>* {
-            display: none;
-            position: absolute;
-            top: 6px;
-            right: -30px;
-            z-index: 1;
-         }
-      }
+            .icons>* {
+                display: none;
+                position: absolute;
+                top: 6px;
+                right: -30px;
+                z-index: 1;
+            }
+        }
 
-      >div {
-         margin-right: 24px;
-      }
-   }
+        >div {
+            margin-right: 24px;
+        }
+    }
+}
+
+.progress {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

@@ -1,67 +1,71 @@
 from sys import maxsize
 from io import BytesIO
-from typing import List
+from typing import List, Dict
 from osgeo import ogr
 from lxml import etree as ET
+from uuid import UUID
 from .analysis import Analysis
 from .result_status import ResultStatus
+from .config.dataset_config import DatasetConfig
+from .config.layer import Layer
 from ..services.geolett import get_geolett_data
-from ..services.raster_result import get_raster_result, get_cartography_url
+from ..services.raster_result import get_wms_url, get_cartography_url
 from ..utils.helpers.common import parse_string, evaluate_condition, xpath_select_one
 from ..utils.helpers.geometry import create_buffered_geometry, geometry_from_gml
 from ..http_clients.wfs import query_wfs
 
 
 class WfsAnalysis(Analysis):
-    def __init__(self, dataset_id, config, geometry, epsg, orig_epsg, buffer):
+    def __init__(self, dataset_id: UUID, config: DatasetConfig, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int):
         super().__init__(dataset_id, config, geometry, epsg, orig_epsg, buffer)
 
-    async def run_queries(self) -> None:
-        first_layer = self.config['layers'][0]
-        geolett_data = await get_geolett_data(first_layer.get('geolett_id', None))
+    async def _run_queries(self) -> None:
+        first_layer = self.config.layers[0]
+        geolett_data = await get_geolett_data(first_layer.geolett_id)
+        self._add_run_algorithm(f'query {self.config.wfs}')
 
-        for layer in self.config['layers']:
-            layer_name = layer['wfs']
-            filter = layer.get('filter', None)
-
-            if filter is not None:
-                self.add_run_algorithm(f'query {filter}')
+        for layer in self.config.layers:
+            if layer.filter is not None:
+                self._add_run_algorithm(f'add filter {layer.filter}')
 
             status_code, api_response = await query_wfs(
-                self.config['wfs'], layer['wfs'], self.config['geom_field'], self.run_on_input_geometry, self.epsg)
+                self.config.wfs, layer.wfs, self.config.geom_field, self.run_on_input_geometry, self.epsg)
 
             if status_code == 408:
                 self.result_status = ResultStatus.TIMEOUT
+                self._add_run_algorithm(f'intersects layer {layer.wfs} (Timeout)')
                 break
             elif status_code != 200:
                 self.result_status = ResultStatus.ERROR
+                self._add_run_algorithm(f'intersects layer {layer.wfs} (Error)')
                 break
 
-            self.add_run_algorithm(f'intersect {layer_name}')
-
-            if api_response is not None:
+            if api_response:
                 response = self.__parse_response(api_response, layer)
 
                 if len(response['properties']) > 0:
-                    geolett_data = await get_geolett_data(layer.get('geolett_id', None))
+                    self._add_run_algorithm(f'intersects layer {layer.wfs} (True)')
+                    geolett_data = await get_geolett_data(layer.geolett_id)
 
                     self.geometries = response['geometries']
                     self.data = response['properties']
-                    self.raster_result = get_raster_result(
-                        self.config['wms'], layer['wms'])
+                    self.raster_result_map = get_wms_url(
+                        self.config.wms, layer.wms)
                     self.cartography = await get_cartography_url(
-                        self.config['wms'], layer['wms'])
-                    self.result_status = layer['result_status']
+                        self.config.wms, layer.wms)
+                    self.result_status = layer.result_status
                     break
+
+                self._add_run_algorithm(f'intersects layer {layer.wfs} (False)')            
 
         self.geolett = geolett_data
 
-    async def set_distance_to_object(self) -> None:
+    async def _set_distance_to_object(self) -> None:
         buffered_geom = create_buffered_geometry(
             self.geometry, 20000, self.epsg)
-        layer = self.config['layers'][0]
+        layer = self.config.layers[0]
 
-        _, response = await query_wfs(self.config['wfs'], layer['wfs'], self.config['geom_field'], buffered_geom, self.epsg)
+        _, response = await query_wfs(self.config.wfs, layer.wfs, self.config.geom_field, buffered_geom, self.epsg)
 
         if response is None:
             self.distance_to_object = maxsize
@@ -69,13 +73,12 @@ class WfsAnalysis(Analysis):
 
         source = BytesIO(response.encode('utf-8'))
         context = ET.iterparse(source, huge_tree=True)
-        geom_field = self.config['geom_field']
         distances = []
 
         for _, elem in context:
             localname = ET.QName(elem).localname
 
-            if localname != geom_field:
+            if localname != self.config.geom_field:
                 continue
 
             geom_elem = xpath_select_one(elem, './*')
@@ -92,14 +95,14 @@ class WfsAnalysis(Analysis):
                 distances.append(distance)
 
         distances.sort()
-        self.add_run_algorithm('get distance')
+        self._add_run_algorithm('get distance to nearest object')
 
         if len(distances) == 0:
             self.distance_to_object = maxsize
         else:
             self.distance_to_object = distances[0]
 
-    def __parse_response(self, wfs_response: str, layer: dict) -> dict[str, List]:
+    def __parse_response(self, wfs_response: str, layer: Dict) -> Dict[str, List]:
         data = {
             'properties': [],
             'geometries': []
@@ -123,18 +126,16 @@ class WfsAnalysis(Analysis):
 
         return data
 
-    def __filter_member(self, props: dict, layer: dict) -> bool:
-        filter = layer.get('filter')
-
-        if not filter:
+    def __filter_member(self, props: Dict, layer: Layer) -> bool:
+        if not layer.filter:
             return True
 
-        return evaluate_condition(filter, props)
+        return evaluate_condition(layer.filter, props)
 
-    def __map_properties(self, member: ET._Element) -> dict:
+    def __map_properties(self, member: ET._Element) -> Dict:
         props = {}
 
-        for mapping in self.config['properties']:
+        for mapping in self.config.properties:
             path = f'.//*[local-name() = "{mapping}"]/text()'
             value = xpath_select_one(member, path)
 
@@ -144,8 +145,8 @@ class WfsAnalysis(Analysis):
 
         return props
 
-    def __get_geometry_from_response(self, member) -> ogr.Geometry:
-        geom_field = self.config['geom_field']
+    def __get_geometry_from_response(self, member: ET._Element) -> ogr.Geometry:
+        geom_field = self.config.geom_field
         path = f'.//*[local-name() = "{geom_field}"]/*'
         geom_elem = xpath_select_one(member, path)
 

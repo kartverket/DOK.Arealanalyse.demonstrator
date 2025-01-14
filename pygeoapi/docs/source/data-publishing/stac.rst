@@ -49,7 +49,7 @@ Connection examples
 pygeometa metadata control files
 --------------------------------
 
-pygeoapi's STAC filesystem fuctionality supports `pygeometa`_ MCF files residing
+pygeoapi's STAC filesystem functionality supports `pygeometa`_ MCF files residing
 in the same directory as data files.  If an MCF file is found, it will be used
 as part of generating the STAC item metadata (e.g. a file named ``birds.csv``
 having an associated ``birds.yml`` file).  If no MCF file is found, then
@@ -66,6 +66,7 @@ Data access examples
 --------------------
 
 * STAC root page
+
   * http://localhost:5000/stac
 
 From here, browse the filesystem accordingly.
@@ -156,6 +157,7 @@ File examples
 
   {
       "id": "STAC-Catalog",
+      "type": "Catalog",
       "stac_version": "1.0.0",
       "description": "A description of the STAC Catalog",
       "links": [
@@ -185,6 +187,7 @@ The code above shows the root catalog. The sub-catalogs have an additional ``rel
 
   {
       "id": "dem",
+      "type": "Catalog",
       "stac_version": "1.0.0",
       "description": "Digital Elevation Data",
       "links": [

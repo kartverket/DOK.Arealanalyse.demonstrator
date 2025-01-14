@@ -50,14 +50,15 @@ For more information related to API design rules (the ``api_rules`` property in 
     cors: true  # boolean on whether server should support CORS
     pretty_print: true  # whether JSON responses should be pretty-printed
     limit: 10  # server limit on number of items to return
+    admin: false  # whether to enable the Admin API
 
     templates: # optional configuration to specify a different set of templates for HTML pages. Recommend using absolute paths. Omit this to use the default provided templates
       path: /path/to/jinja2/templates/folder # path to templates folder containing the Jinja2 template HTML files
       static: /path/to/static/folder # path to static folder containing css, js, images and other static files referenced by the template
 
     map:  # leaflet map setup for HTML pages
-        url: https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png
-        attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia maps</a> | Map data &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        url: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+        attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
     ogc_schemas_location: /opt/schemas.opengis.net  # local copy of https://schemas.opengis.net
 
     manager:  # optional OGC API - Processes asynchronous job management
@@ -82,9 +83,33 @@ The ``logging`` section provides directives for logging messages which are usefu
   logging:
       level: ERROR  # the logging level (see https://docs.python.org/3/library/logging.html#logging-levels)
       logfile: /path/to/pygeoapi.log  # the full file path to the logfile
+      logformat: # example for milliseconds:'[%(asctime)s.%(msecs)03d] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'
+      dateformat: # example for milliseconds:'%Y-%m-%dT%H:%M:%S'
 
 .. note::
    If ``level`` is defined and ``logfile`` is undefined, logging messages are output to the server's ``stdout``.
+
+
+``logging.rotation``
+^^^^^^^^^^^^^^^^^^^^
+
+The ``rotation`` supports rotation of disk log files. The ``logfile`` file is opened and used as the stream for logging.
+
+.. code-block:: yaml
+
+  logging:
+      logfile: /path/to/pygeoapi.log  # the full file path to the logfile
+      rotation:
+          mode: # [time|size]
+          when: # [s|m|h|d|w0-w6|midnight]
+          interval: 
+          max_bytes: 
+          backup_count: 
+.. note::
+  Rotation block is not mandatory and defined only when needed. The ``mode`` can be defined by size or time.
+  For RotatingFileHandler_ set mode size and parameters max_bytes and backup_count.
+
+  For TimedRotatingFileHandler_ set mode time and parameters when, interval and backup_count.
 
 
 ``metadata``
@@ -181,6 +206,7 @@ default.
               temporal:  # optional
                   begin: 2000-10-30T18:24:39Z  # start datetime in RFC3339
                   end: 2007-10-30T08:57:29Z  # end datetime in RFC3339
+                  trs: http://www.opengis.net/def/uom/ISO-8601/0/Gregorian  # TRS
           providers:  # list of 1..n required connections information
               # provider name
               # see pygeoapi.plugin for supported providers
@@ -215,7 +241,7 @@ default.
                     option_name: option_value
 
       hello-world:  # name of process
-          type: collection  # REQUIRED (collection, process, or stac-collection)
+          type: process  # REQUIRED (collection, process, or stac-collection)
           processor:
               name: HelloWorld  # Python path of process definition
 
@@ -386,6 +412,26 @@ Below is an example of how to integrate system environment variables in pygeoapi
        bind:
            host: ${MY_HOST}
            port: ${MY_PORT}
+
+Multiple environment variables are supported as follows:
+
+.. code-block:: yaml
+
+   data: ${MY_HOST}:${MY_PORT}
+
+It is also possible to define a default value for a variable in case it does not exist in
+the environment using a syntax like: ``value: ${ENV_VAR:-the default}``
+
+.. code-block:: yaml
+
+   server:
+       bind:
+           host: ${MY_HOST:-localhost}
+           port: ${MY_PORT:-5000}
+   metadata:
+       identification:
+           title:
+               en: This is pygeoapi host ${MY_HOST} and port ${MY_PORT:-5000}, nice to meet you!
 
 
 Hierarchical collections
@@ -600,3 +646,5 @@ At this point, you have the configuration ready to administer the server.
 .. _`JSON-LD`: https://json-ld.org
 .. _`Google Structured Data Testing Tool`: https://search.google.com/structured-data/testing-tool#url=https%3A%2F%2Fdemo.pygeoapi.io%2Fmaster
 .. _`Google Dataset Search`: https://developers.google.com/search/docs/appearance/structured-data/dataset
+.. _RotatingFileHandler: http://docs.python.org/3/library/logging.handlers.html#rotatingfilehandler
+.. _TimedRotatingFileHandler: http://docs.python.org/3/library/logging.handlers.html#timedrotatingfilehandler

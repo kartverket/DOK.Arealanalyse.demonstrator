@@ -1,15 +1,18 @@
 import time
 import logging
 import traceback
-from typing import List
+from typing import List, Dict
+from uuid import UUID, uuid4
 import asyncio
 from socketio import SimpleClient
 from osgeo import ogr
-from ..config import get_dataset_config
-from .dataset import get_dataset_names, get_dataset_type
+from .dataset import get_dataset_ids, get_dataset_type
 from .fact_sheet import create_fact_sheet
 from .municipality import get_municipality
+from ..services.config import get_dataset_config
+from ..services.blob_storage import create_container, upload_image
 from ..utils.helpers.geometry import create_input_geometry, get_epsg
+from ..models.config.dataset_config import DatasetConfig
 from ..models.analysis import Analysis
 from ..models.arcgis_analysis import ArcGisAnalysis
 from ..models.empty_analysis import EmptyAnalysis
@@ -18,12 +21,12 @@ from ..models.wfs_analysis import WfsAnalysis
 from ..models.analysis_response import AnalysisResponse
 from ..models.result_status import ResultStatus
 from ..utils.constants import DEFAULT_EPSG
-from ....middleware.correlation_id_middleware import get_correlation_id
+from ..utils.correlation_id_middleware import get_correlation_id
 
-__LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 
-async def run(data: dict, sio_client: SimpleClient) -> AnalysisResponse:
+async def run(data: Dict, sio_client: SimpleClient) -> AnalysisResponse:
     geo_json = data.get('inputGeometry')
     geometry = create_input_geometry(geo_json)
     orig_epsg = get_epsg(geo_json)
@@ -31,9 +34,10 @@ async def run(data: dict, sio_client: SimpleClient) -> AnalysisResponse:
     context = data.get('context')
     include_guidance = data.get('includeGuidance', False)
     include_quality_measurement = data.get('includeQualityMeasurement', False)
+    include_facts = data.get('includeFacts', True)
     municipality_number, municipality_name = await get_municipality(geometry, DEFAULT_EPSG)
 
-    datasets = await get_dataset_names(data, municipality_number)
+    datasets = await get_dataset_ids(data, municipality_number)
     correlation_id = get_correlation_id()
 
     if correlation_id and sio_client:
@@ -45,13 +49,20 @@ async def run(data: dict, sio_client: SimpleClient) -> AnalysisResponse:
     tasks: List[asyncio.Task] = []
 
     async with asyncio.TaskGroup() as tg:
-        for dataset, should_analyze in datasets.items():
-            task = tg.create_task(run_analysis(
-                dataset, should_analyze, geometry, DEFAULT_EPSG, orig_epsg, buffer,
+        for dataset_id, should_analyze in datasets.items():
+            task = tg.create_task(_run_analysis(
+                dataset_id, should_analyze, geometry, DEFAULT_EPSG, orig_epsg, buffer,
                 context, include_guidance, include_quality_measurement, sio_client))
             tasks.append(task)
 
-    fact_sheet = await create_fact_sheet(geometry, orig_epsg, buffer)
+    fact_sheet = None
+
+    if include_facts:
+        if correlation_id and sio_client:
+            sio_client.emit('create_fact_sheet_api', {
+                            'recipient': correlation_id})
+
+        fact_sheet = await create_fact_sheet(geometry, orig_epsg, buffer)
 
     response = AnalysisResponse.create(
         geo_json, geometry, DEFAULT_EPSG, orig_epsg, buffer, fact_sheet, municipality_number, municipality_name)
@@ -59,48 +70,52 @@ async def run(data: dict, sio_client: SimpleClient) -> AnalysisResponse:
     for task in tasks:
         response.result_list.append(task.result())
 
+    await _upload_binaries(response)
+
     return response.to_dict()
 
 
-async def run_analysis(dataset: str, should_analyze: bool, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int,
-                       context: str, include_guidance: bool, include_quality_measurement: bool, sio_client: SimpleClient) -> Analysis:
-    config = get_dataset_config(dataset)
+async def _run_analysis(dataset_id: UUID, should_analyze: bool, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int,
+                        context: str, include_guidance: bool, include_quality_measurement: bool, sio_client: SimpleClient) -> Analysis:
+    config = get_dataset_config(dataset_id)
 
     if config is None:
         return None
 
     if not should_analyze:
-        analysis = EmptyAnalysis(config.get('dataset_id'), config, ResultStatus.NOT_RELEVANT)
+        analysis = EmptyAnalysis(
+            config.dataset_id, config, ResultStatus.NOT_RELEVANT)
         await analysis.run()
         return analysis
 
     start = time.time()
     correlation_id = get_correlation_id()
 
-    analysis = create_analysis(
-        dataset, config, geometry, epsg, orig_epsg, buffer)
+    analysis = _create_analysis(
+        dataset_id, config, geometry, epsg, orig_epsg, buffer)
 
     try:
         await analysis.run(context, include_guidance, include_quality_measurement)
     except Exception:
-        __LOGGER.error(traceback.format_exc())
+        err = traceback.format_exc()
+        _LOGGER.error(err)
         await analysis.set_default_data()
         analysis.result_status = ResultStatus.ERROR
 
     end = time.time()
-    print(f'"{dataset}": {round(end - start, 2)} sek.')
+    _LOGGER.info('Dataset analyzed: ' + dataset_id + ' - ' +
+                 config.name + ': ' + round(end - start, 2) + ' sec.')
 
     if correlation_id and sio_client:
         sio_client.emit('dataset_analyzed_api', {
-            'dataset': dataset, 'recipient': correlation_id})
+            'dataset': str(dataset_id), 'recipient': correlation_id})
 
     return analysis
 
 
-def create_analysis(dataset: str, config: dict, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int) -> Analysis:
-    dataset_type = get_dataset_type(dataset)
-    dataset_id = config.get('dataset_id')
-    
+def _create_analysis(dataset_id: UUID, config: DatasetConfig, geometry: ogr.Geometry, epsg: int, orig_epsg: int, buffer: int) -> Analysis:
+    dataset_type = get_dataset_type(config)
+
     match dataset_type:
         case 'arcgis':
             return ArcGisAnalysis(dataset_id, config, geometry, epsg, orig_epsg, buffer)
@@ -110,3 +125,49 @@ def create_analysis(dataset: str, config: dict, geometry: ogr.Geometry, epsg: in
             return WfsAnalysis(dataset_id, config, geometry, epsg, orig_epsg, buffer)
         case _:
             return None
+
+
+async def _upload_binaries(response: AnalysisResponse):
+    map_images: Dict[str, bytes] = {}
+
+    if response.fact_sheet and response.fact_sheet.raster_result_image_bytes:
+        map_images['fact_sheet'] = response.fact_sheet.raster_result_image_bytes
+
+    for analysis in response.result_list:
+        if analysis.raster_result_image_bytes:
+            map_images[str(analysis.dataset_id)
+                       ] = analysis.raster_result_image_bytes
+
+    if not map_images:
+        return
+
+    container_name = str(uuid4())
+    await create_container(container_name)
+
+    tasks: List[asyncio.Task[str]] = []
+
+    async with asyncio.TaskGroup() as tg:
+        for key, value in map_images.items():
+            blob_name = f'{str(uuid4())}.png'
+            task = tg.create_task(upload_image(
+                value, container_name, blob_name), name=key)
+            tasks.append(task)
+
+    for task in tasks:
+        task_name = task.get_name()
+
+        if task_name == 'fact_sheet':
+            response.fact_sheet.raster_result_image = task.result()
+            continue
+
+        analysis = _find_analysis(response.result_list, task_name)
+
+        if analysis:
+            analysis.raster_result_image = task.result()
+
+
+def _find_analysis(analyses: List[Analysis], dataset_id: str) -> Analysis:
+    return next((analysis for analysis in analyses if str(analysis.dataset_id) == dataset_id), None)
+
+
+__all__ = ['run']

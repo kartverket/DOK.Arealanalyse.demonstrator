@@ -20,7 +20,7 @@ export async function convert(file, fileType) {
 
 export async function validate(geoJson) {
     const url = `${API_BASE_URL}/validate`;
-    const formData = new FormDat    ();
+    const formData = new FormData();
     const blob = new Blob([JSON.stringify(geoJson)], { type: 'application/json' });
 
     formData.append('file', blob);

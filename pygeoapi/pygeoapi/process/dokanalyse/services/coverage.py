@@ -1,25 +1,24 @@
 from io import BytesIO
-from typing import List
+from typing import List, Tuple
 from lxml import etree as ET
 from osgeo import ogr
+from ..models.config.coverage_wfs import CoverageWfs
 from ..http_clients.wfs import query_wfs
-from ..utils.helpers.common import parse_string, xpath_select_one
+from ..utils.helpers.common import xpath_select_one
 from ..utils.helpers.geometry import geometry_from_gml
 
 
-async def get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: int) -> tuple[List[str], float]:
-    _, response = await query_wfs(wfs_config['url'], wfs_config['layer'], wfs_config['geom_field'], geometry, epsg)
+async def get_values_from_wfs(wfs_config: CoverageWfs, geometry: ogr.Geometry, epsg: int) -> Tuple[List[str], float]:
+    _, response = await query_wfs(wfs_config.url, wfs_config.layer, wfs_config.geom_field, geometry, epsg)
 
     if response is None:
         return [], 0
 
     source = BytesIO(response.encode('utf-8'))
     context = ET.iterparse(source, huge_tree=True)
-    propname = wfs_config['property']
-    geom_field = wfs_config['geom_field']
 
-    prop_path = f'.//*[local-name() = "{propname}"]/text()'
-    geom_path = f'.//*[local-name() = "{geom_field}"]/*'
+    prop_path = f'.//*[local-name() = "{wfs_config.property}"]/text()'
+    geom_path = f'.//*[local-name() = "{wfs_config.geom_field}"]/*'
     values: List[str] = []
     feature_geoms: List[ogr.Geometry] = []
     hit_area_percent = 0
@@ -40,14 +39,14 @@ async def get_values_from_wfs(wfs_config: dict, geometry: ogr.Geometry, epsg: in
                     feature_geoms.append(feature_geom)
 
     if len(feature_geoms) > 0:
-        hit_area_percent = __get_hit_area_percent(geometry, feature_geoms)
+        hit_area_percent = _get_hit_area_percent(geometry, feature_geoms)
 
     distinct_values = list(set(values))
-    
+
     return distinct_values, hit_area_percent
 
 
-def __get_hit_area_percent(geometry: ogr.Geometry, feature_geometries: List[ogr.Geometry]) -> float:
+def _get_hit_area_percent(geometry: ogr.Geometry, feature_geometries: List[ogr.Geometry]) -> float:
     geom_area: float = geometry.GetArea()
     hit_area: float = 0
 
@@ -63,3 +62,6 @@ def __get_hit_area_percent(geometry: ogr.Geometry, feature_geometries: List[ogr.
     percent = (hit_area / geom_area) * 100
 
     return round(percent, 2)
+
+
+__all__ = ['get_values_from_wfs']

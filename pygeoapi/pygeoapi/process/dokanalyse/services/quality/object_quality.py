@@ -1,15 +1,17 @@
-from typing import List
+from typing import List, Dict
 from . import get_threshold_values
 from ...models.quality_measurement import QualityMeasurement
+from ...models.config.quality_indicator import QualityIndicator
+from ...models.config.quality_indicator_type import QualityIndicatorType
 
 
-def get_object_quality(config: dict, data: List[dict]) -> tuple[List[QualityMeasurement], List[str]]:
-    quality_data = __get_object_quality_data(config, data)
+def get_object_quality(quality_indicators: List[QualityIndicator], data: List[Dict]) -> tuple[List[QualityMeasurement], List[str]]:
+    quality_data = _get_object_quality_data(quality_indicators, data)
     measurements: List[QualityMeasurement] = []
     warnings: List[str] = []
 
     for entry in quality_data:
-        value: dict
+        value: Dict
 
         for value in entry.get('values'):
             measurements.append(QualityMeasurement(entry.get('id'), entry.get(
@@ -23,19 +25,19 @@ def get_object_quality(config: dict, data: List[dict]) -> tuple[List[QualityMeas
     return measurements, warnings
 
 
-def __get_object_quality_data(config: dict, data: List[dict]) -> List[dict]:
+def _get_object_quality_data(quality_indicators: List[QualityIndicator], data: List[Dict]) -> List[Dict]:
     if data is None or len(data) == 0:
         return []
 
-    quality_indicators: List[dict] = [
-        entry for entry in config if entry['type'] == 'object']
+    object_indicators = [
+        indicator for indicator in quality_indicators if indicator.type == QualityIndicatorType.OBJECT]
 
-    measurements: List[dict] = []
+    measurements: List[Dict] = []
 
-    for qi in quality_indicators:
-        prop = qi['property']
-        threshold_values = get_threshold_values(qi)
-        values: List[dict] = []
+    for oi in object_indicators:
+        prop = oi.property
+        threshold_values = get_threshold_values(oi)
+        values: List[Dict] = []
 
         for entry in data:
             values.append({
@@ -49,10 +51,13 @@ def __get_object_quality_data(config: dict, data: List[dict]) -> List[dict]:
             t_value for t_value in threshold_values if t_value == value['value']))
 
         measurements.append({
-            'id': qi['quality_dimension_id'],
-            'name': qi['quality_dimension_name'],
+            'id': oi.quality_dimension_id,
+            'name': oi.quality_dimension_name,
             'values': distinct,
-            'warning_text': qi['quality_warning_text'] if should_warn else None
+            'warning_text': oi.quality_warning_text if should_warn else None
         })
 
     return measurements
+
+
+__all__ = ['get_object_quality']

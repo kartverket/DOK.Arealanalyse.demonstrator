@@ -1,10 +1,12 @@
-import os
-from pathlib import Path
+from os import getenv
+from typing import Final
+from ..utils.helpers.common import get_env_var
 
-DEFAULT_EPSG = 25833
-EARTH_RADIUS = 6371008.8
-WGS84_EPSG = 4326
-FILE_SHARE_BASE_DIR = os.environ.get('FILE_SHARE_BASE_DIR', os.path.join(Path.home(), 'dokanalyse'))
-AR5_DB_PATH = os.environ.get('AR5_DB_PATH', '/mnt/dokanalyse/filegdb/ar5.gdb')
-
-
+APP_FILES_DIR: Final[str] = get_env_var('APP_FILES_DIR')
+CACHE_DIR:  Final[str] = f'{APP_FILES_DIR}/cache'
+AR5_FGDB_PATH: Final[str] = getenv('AR5_FGDB_PATH')
+SOCKET_IO_SRV_URL: Final[str] = getenv('SOCKET_IO_SRV_URL')
+BLOB_STORAGE_CONN_STR: Final[str] = getenv('BLOB_STORAGE_CONN_STR')
+MAP_IMAGE_API_URL: Final[str] = getenv('MAP_IMAGE_API_URL')
+DEFAULT_EPSG: Final[int] = 25833
+WGS84_EPSG: Final[int] = 4326

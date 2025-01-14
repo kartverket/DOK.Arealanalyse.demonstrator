@@ -1,38 +1,40 @@
 from os import path
 import json
 from pathlib import Path
+from uuid import UUID
+from typing import Dict
 import aiohttp
-from ..models.dataset import Dataset
+from ..models.metadata import Metadata
 from ..utils.helpers.common import should_refresh_cache
-from ..utils.constants import FILE_SHARE_BASE_DIR
+from ..utils.constants import CACHE_DIR
 
-__CACHE_DAYS = 7
+_API_BASE_URL = 'https://kartkatalog.geonorge.no/api/getdata'
+_CACHE_DAYS = 2
 
-
-async def get_kartkatalog_metadata(dataset_id: str) -> Dataset:
+async def get_kartkatalog_metadata(dataset_id: UUID) -> Metadata:
     if dataset_id is None:
         return None
 
-    metadata = await __get_kartkatalog_metadata(dataset_id)
+    metadata = await _get_kartkatalog_metadata(dataset_id)
 
     if metadata is None:
         return None
 
-    return Dataset.from_dict(metadata)
+    return Metadata.from_dict(metadata)
 
 
-async def __get_kartkatalog_metadata(dataset_id: str) -> dict:
+async def _get_kartkatalog_metadata(dataset_id: UUID) -> Dict:
     file_path = Path(
-        path.join(FILE_SHARE_BASE_DIR, f'resources/kartkatalog/{dataset_id}.json'))
+        path.join(CACHE_DIR, f'kartkatalog/{dataset_id}.json'))
 
-    if not file_path.exists() or should_refresh_cache(file_path, __CACHE_DAYS):
+    if not file_path.exists() or should_refresh_cache(file_path, _CACHE_DAYS):
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        response = await __fetch_kartkatalog_metadata(dataset_id)
+        response = await _fetch_kartkatalog_metadata(dataset_id)
 
         if response is None:
             return None
 
-        metadata = __map_response(dataset_id, response)
+        metadata = _map_response(dataset_id, response)
         json_object = json.dumps(metadata, indent=2)
 
         with file_path.open('w', encoding='utf-8') as file:
@@ -46,15 +48,15 @@ async def __get_kartkatalog_metadata(dataset_id: str) -> dict:
         return metadata
 
 
-def __map_response(dataset_id: str, response: dict) -> dict:
+def _map_response(dataset_id: UUID, response: Dict) -> Dict:
     title = response.get('NorwegianTitle')
     description = response.get('Abstract')
     owner = response.get('ContactOwner', {}).get('Organization')
-    updated = response.get('DateUpdated', response.get('DateMetadataUpdated'))
-    dataset_description_uri = 'https://kartkatalog.geonorge.no/metadata/' + dataset_id
+    updated = response.get('DateUpdated')
+    dataset_description_uri = 'https://kartkatalog.geonorge.no/metadata/' + str(dataset_id)
 
     return {
-        'datasetId': dataset_id,
+        'datasetId': str(dataset_id),
         'title': title,
         'description': description,
         'owner': owner,
@@ -63,9 +65,9 @@ def __map_response(dataset_id: str, response: dict) -> dict:
     }
 
 
-async def __fetch_kartkatalog_metadata(id) -> dict:
+async def _fetch_kartkatalog_metadata(dataset_id: UUID) -> Dict:
     try:
-        url = 'https://kartkatalog.geonorge.no/api/getdata/' + id
+        url = f'{_API_BASE_URL}/{str(dataset_id)}'
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
@@ -75,3 +77,6 @@ async def __fetch_kartkatalog_metadata(id) -> dict:
                 return await response.json()
     except:
         return None
+
+
+__all__ = ['get_kartkatalog_metadata']

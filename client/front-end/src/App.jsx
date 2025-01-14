@@ -5,13 +5,12 @@ import { resetProgress } from 'store/slices/datasetSlice';
 import { useMap } from 'context/MapContext';
 import { analyze } from 'utils/api';
 import { createRandomId } from 'utils/helpers';
-import { Form, ResultDialog, ResultList } from 'features';
+import { FactSheet, Form, ResultDialog, ResultList } from 'features';
 import { Heading, ProgressBar, Toaster } from 'components';
 import groupBy from 'lodash.groupby';
 import useSocketIO from 'hooks/useSocketIO';
 import messageHandlers from 'config/messageHandlers';
 import styles from './App.module.scss';
-import FactSheet from 'features/FactSheet';
 
 export default function App() {
     useSocketIO(messageHandlers);
@@ -19,6 +18,7 @@ export default function App() {
     const [fetching, setFetching] = useState(false);
     const dispatch = useDispatch();
     const correlationId = useSelector(state => state.app.correlationId);
+    const status = useSelector(state => state.dataset.status);
     const { clearCache } = useMap();
 
     function resetState() {
@@ -38,13 +38,12 @@ export default function App() {
                 dispatch(setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.'));
                 console.log(response.code);
             } else {
-                const { resultList, factList } = response;
-
+                const { resultList } = response;
                 resultList.forEach(result => result._tempId = createRandomId());
-                
+
                 const grouped = groupBy(resultList, result => result.resultStatus);
 
-                setData({ ...response, resultList: grouped, factList });
+                setData({ ...response, resultList: grouped });
             }
         } catch (error) {
             dispatch(setErrorMessage('Kunne ikke kjøre DOK-analyse. En feil har oppstått.'));
@@ -61,20 +60,32 @@ export default function App() {
             <div className={styles.content}>
                 <Form onSubmit={start} fetching={fetching} />
                 {
-                    fetching && <ProgressBar />
+                    fetching && (
+                        <div className={styles.progress}>
+                            <span className={styles.status}>{status}</span>
+                            <ProgressBar />
+                        </div>
+                    )
                 }
                 {
                     data !== null && (
                         <>
-                            <FactSheet factList={data.factList} municipalityNumber={data.municipalityNumber} municipalityName={data.municipalityName} inputGeometryArea={data.inputGeometryArea} inputGeometry={data.inputGeometry} />
+                            <FactSheet
+                                inputGeometryArea={data.inputGeometryArea}
+                                municipalityNumber={data.municipalityNumber}
+                                municipalityName={data.municipalityName}
+                                rasterResult={data.factSheetRasterResult?.imageUri}
+                                cartography={data.factSheetCartography}
+                                factList={data.factList}
+                            />
                             <ResultList data={data} />
                             <ResultDialog inputGeometry={data.inputGeometry} />
                         </>
                     )
                 }
-                
                 <Toaster />
             </div>
         </div>
     );
 }
+

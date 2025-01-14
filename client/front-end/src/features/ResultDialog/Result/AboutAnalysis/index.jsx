@@ -10,10 +10,19 @@ export default function AboutAnalysis({ result }) {
             `> 20 000 m`;
     }
 
+    function getInputGeometryArea() {
+        return Math.round(result.inputGeometryArea).toLocaleString('nb-NO');
+    }
+
+    function getHitArea() {
+        return Math.round(result.hitArea).toLocaleString('nb-NO');
+    }
+
     function getHitAreaPercent() {
         const percent = (result.hitArea / result.inputGeometryArea) * 100;
+        const rounded = Math.round((percent + Number.EPSILON) * 100) / 100;
 
-        return Math.round((percent + Number.EPSILON) * 100) / 100;
+        return rounded.toLocaleString('nb-NO');
     }
 
     return (
@@ -42,12 +51,12 @@ export default function AboutAnalysis({ result }) {
                     }
                     {
                         result.inputGeometryArea > 0 && (
-                            <li>Områdeareal: {result.inputGeometryArea.toLocaleString('nb-NO')} m²</li>
+                            <li>Områdeareal: {getInputGeometryArea()} m²</li>
                         )
                     }
                     {
                         result.hitArea !== null && (
-                            <li>Treffareal: {result.hitArea.toLocaleString('nb-NO')} m² ({getHitAreaPercent().toLocaleString('nb-NO')} %)</li>
+                            <li>Treffareal: {getHitArea()} m² ({getHitAreaPercent()} %)</li>
                         )
                     }
                 </ul>

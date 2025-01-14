@@ -1,102 +1,81 @@
-import React from "react";
-import { Pie } from "react-chartjs-2";
-import styles from "./Buildings.module.scss";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import {
-    Chart as ChartJS,
-    ArcElement,
-    Tooltip,
-    Legend,
-  } from "chart.js";
-  
-  ChartJS.register(ArcElement, Tooltip, Legend);
+import { useMemo } from 'react';
+import { Pie } from 'react-chartjs-2';
+import { Paper, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { inPlaceSort } from 'fast-sort';
+import { COLOR_MAP, getChartData, chartOptions } from './helpers';
+import styles from './Buildings.module.scss';
 
-const Buildings = ({ factList }) => {  
-  if (!factList?.data) {
-    return <p>Laster data...</p>;
-  }
-  const colorMap = {
-    "Bolig": "#C48723", // kmd
-    "Fritidsbolig - hytte": "#DCAA27", //kmd
-    "Industri og lagerbygning": "#74A3D4", //kmd
-    "Kontor- og forretningsbygning": "#74A3D4", //kmd
-    "Samferdsels- og kommunikasjonsbygning": "#74A3D4", //kmd
-    "Hotell og restaurantbygning": "#74A3D4", //kmd
-    "Skole-, kultur-, idrett-, forskningsbygning": "#74A3D4", //kmd
-    "Helse- og omsorgsbygning" : "#74A3D4", //kmd
-    "Fengsel, beredskapsbygning, mv.": "#74A3D4" //finner ingen tegneregel på denne    
-  };
-  
-  const piechart = {    
-    labels: factList.data.map((item) => item.category),    
-    datasets: [
-      {
-        label: "Antall ",
-        data: factList.data.map((item) => item.count),           
-        backgroundColor: factList.data.map(
-          (item) => colorMap[item.category] || "#E7E9ED"
-        ),
-        hoverOffset: 4,
-      },
-    ],
-  };
-  const options = {
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-  };  
-  return (
-    <div className={styles.buildings}>
-        <div className={styles.area}>
-        <h2>Fordeling av boligtyper</h2>
-        <TableContainer>
-            <Table sx={{ minWidth: 350 }} size="small" aria-label="oversikt boligtyper">
-                <TableHead>
-                    <TableRow>
-                        <TableCell><strong>Boligtype</strong></TableCell>
-                        <TableCell align="right"><strong>Antall</strong></TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {factList.data.filter(item => item.count > 0).slice().sort((a, b) => b.area - a.area).map((item, index) => (
-                        <TableRow key={index}>
-                            <TableCell component="th" scope="row">
-                                {item.category}
-                            </TableCell>
-                            <TableCell align="right">{item.count}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
-           </div>    
-           <div className={styles.pieContent}>
-      <div className={styles.theChart}>
-        <Pie data={piechart} options={options} />
-      </div>
+export default function Buildings({ factPart }) {
+    const buildings = useMemo(
+        () => {
+            if (!factPart?.data) {
+                return [];
+            }
 
-      <ul className={styles.labels}>
-        {factList.data.filter(item => item.count > 0).slice().sort((a, b) => b.count - a.count).map((item, index) => (
-          <li className={styles.colors} key={index}>
-            <span
-              style={{               
-                backgroundColor: piechart.datasets[0].backgroundColor[index],                
-              }}
-            ></span>
-            <div className={styles.label}>{item.category}:</div> {item.count} stk
-          </li>
-        ))}
-      </ul>
-      </div> 
-    </div>
-  );
-};
+            const _buildings = factPart.data
+                .filter(type => type.count > 0);
 
-export default Buildings;
+            inPlaceSort(_buildings).desc(type => type.count);
+
+            return _buildings;
+        },
+        [factPart]
+    );
+
+    const chartData = getChartData(buildings);
+
+    function renderContent() {
+        if (buildings.length === 0) {
+            return <p>Ingen data tilgjengelig</p>
+        }
+
+        return (
+            <div>
+                <div className={styles.tableContainer}>
+                    <Table size="small" aria-label="Oversikt boligtyper">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Boligtype</TableCell>
+                                <TableCell align="right">Antall</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {buildings.map(type => (
+                                <TableRow key={type.category}>
+                                    <TableCell>{type.category}</TableCell>
+                                    <TableCell align="right">{type.count}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+
+                <div className={styles.chartContainer}>
+                    <div className={styles.chart}>
+                        <Pie data={chartData} options={chartOptions} />
+                    </div>
+
+                    <ul className={styles.labels}>
+                        {buildings.map(type => (
+                            <li className={styles.label} key={type.category}>
+                                <span className={styles.color}
+                                    style={{
+                                        backgroundColor: COLOR_MAP[type.category] || '#E7E9ED'
+                                    }}
+                                ></span>
+                                <span>{type.category}:&nbsp;&nbsp;{type.count} stk.</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <Paper className={styles.container}>
+            <h3>Fordeling av boligtyper</h3>
+            {renderContent()}
+        </Paper>
+    );
+}

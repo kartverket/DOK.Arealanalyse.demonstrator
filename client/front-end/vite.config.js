@@ -8,20 +8,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-   plugins: [
-      react(),
-      jsconfigPaths()
-   ],
-   resolve: {
-      alias: {
-         '@': path.resolve(__dirname, './src'),
-      }
-   },
-   css: {
-      preprocessorOptions: {
-         scss: {
-            api: 'modern-compiler'
-         }
-      }
-   }
+    plugins: [
+        react(),
+        jsconfigPaths()
+    ],
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './src'),
+        }
+    },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                api: 'modern-compiler'
+            }
+        }
+    }
 });

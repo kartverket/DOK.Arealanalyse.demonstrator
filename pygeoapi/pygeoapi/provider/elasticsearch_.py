@@ -1,9 +1,10 @@
 # =================================================================
 #
 # Authors: Tom Kralidis <tomkralidis@gmail.com>
+#          Francesco Bartoli <xbartolone@gmail.com>
 #
 # Copyright (c) 2023 Tom Kralidis
-# Copyright (c) 2021 Francesco Bartoli
+# Copyright (c) 2024 Francesco Bartoli
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -86,7 +87,7 @@ class ElasticsearchProvider(BaseProvider):
 
         LOGGER.debug('Grabbing field information')
         try:
-            self.fields = self.get_fields()
+            self.get_fields()
         except exceptions.NotFoundError as err:
             LOGGER.error(err)
             raise ProviderQueryError(err)
@@ -97,38 +98,40 @@ class ElasticsearchProvider(BaseProvider):
 
         :returns: dict of fields
         """
+        if not self._fields:
+            ii = self.es.indices.get(index=self.index_name,
+                                     allow_no_indices=False)
 
-        fields_ = {}
-        ii = self.es.indices.get(index=self.index_name, allow_no_indices=False)
-
-        LOGGER.debug(f'Response: {ii}')
-        try:
-            if '*' not in self.index_name:
-                p = ii[self.index_name]['mappings']['properties']['properties']
-            else:
-                LOGGER.debug('Wildcard index; setting from first match')
-                index_name_ = list(ii.keys())[0]
-                p = ii[index_name_]['mappings']['properties']['properties']
-        except KeyError:
-            LOGGER.warning('Trying for alias')
-            alias_name = next(iter(ii))
-            p = ii[alias_name]['mappings']['properties']['properties']
-        except IndexError:
-            LOGGER.warning('could not get fields; returning empty set')
-            return {}
-
-        for k, v in p['properties'].items():
-            if 'type' in v:
-                if v['type'] == 'text':
-                    fields_[k] = {'type': 'string'}
-                elif v['type'] == 'date':
-                    fields_[k] = {'type': 'string', 'format': 'date'}
-                elif v['type'] in ('float', 'long'):
-                    fields_[k] = {'type': 'number', 'format': v['type']}
+            LOGGER.debug(f'Response: {ii}')
+            try:
+                if '*' not in self.index_name:
+                    mappings = ii[self.index_name]['mappings']
+                    p = mappings['properties']['properties']
                 else:
-                    fields_[k] = {'type': v['type']}
+                    LOGGER.debug('Wildcard index; setting from first match')
+                    index_name_ = list(ii.keys())[0]
+                    p = ii[index_name_]['mappings']['properties']['properties']
+            except KeyError:
+                LOGGER.warning('Trying for alias')
+                alias_name = next(iter(ii))
+                p = ii[alias_name]['mappings']['properties']['properties']
+            except IndexError:
+                LOGGER.warning('could not get fields; returning empty set')
+                return {}
 
-        return fields_
+            for k, v in p['properties'].items():
+                if 'type' in v:
+                    if v['type'] == 'text':
+                        self._fields[k] = {'type': 'string'}
+                    elif v['type'] == 'date':
+                        self._fields[k] = {'type': 'string', 'format': 'date'}
+                    elif v['type'] in ('float', 'long'):
+                        self._fields[k] = {'type': 'number',
+                                           'format': v['type']}
+                    else:
+                        self._fields[k] = {'type': v['type']}
+
+        return self._fields
 
     @crs_transform
     def query(self, offset=0, limit=10, resulttype='results',
@@ -294,7 +297,7 @@ class ElasticsearchProvider(BaseProvider):
         try:
             LOGGER.debug('querying Elasticsearch')
             if filterq:
-                LOGGER.debug(f'adding cql object: {filterq.model_dump_json()}')
+                LOGGER.debug(f'adding cql object: {filterq.json()}')
                 query = update_query(input_query=query, cql=filterq)
             LOGGER.debug(json.dumps(query, indent=4))
 
@@ -646,16 +649,16 @@ class ESQueryBuilder:
 def _build_query(q, cql):
 
     # this would be handled by the AST with the traverse of CQL model
-    op, node = get_next_node(cql.root)
+    op, node = get_next_node(cql.__root__)
     q.operation = op
     if isinstance(node, list):
         query_list = []
         for elem in node:
             op, next_node = get_next_node(elem)
             if not getattr(next_node, 'between', 0) == 0:
-                property = next_node.between.value.root.root.property
-                lower = next_node.between.lower.root.root
-                upper = next_node.between.upper.root.root
+                property = next_node.between.value.__root__.__root__.property
+                lower = next_node.between.lower.__root__.__root__
+                upper = next_node.between.upper.__root__.__root__
                 query_list.append(Q(
                     {
                         'range':
@@ -666,24 +669,24 @@ def _build_query(q, cql):
                             }
                     }
                 ))
-            if not getattr(next_node, 'root', 0) == 0:
-                scalars = tuple(next_node.root.eq.root)
-                property = scalars[0].root.property
-                value = scalars[1].root.root
+            if not getattr(next_node, '__root__', 0) == 0:
+                scalars = tuple(next_node.__root__.eq.__root__)
+                property = scalars[0].__root__.property
+                value = scalars[1].__root__.__root__
                 query_list.append(Q(
                     {'match': {f'{property}': f'{value}'}}
                 ))
         q.must(query_list)
     elif not getattr(node, 'between', 0) == 0:
-        property = node.between.value.root.root.property
+        property = node.between.value.__root__.__root__.property
         lower = None
         if not getattr(node.between.lower,
-                       'root', 0) == 0:
-            lower = node.between.lower.root.root
+                       '__root__', 0) == 0:
+            lower = node.between.lower.__root__.__root__
         upper = None
         if not getattr(node.between.upper,
-                       'root', 0) == 0:
-            upper = node.between.upper.root.root
+                       '__root__', 0) == 0:
+            upper = node.between.upper.__root__.__root__
         query = Q(
             {
                 'range':
@@ -695,26 +698,26 @@ def _build_query(q, cql):
             }
         )
         q.must(query)
-    elif not getattr(node, 'root', 0) == 0:
+    elif not getattr(node, '__root__', 0) == 0:
         next_op, next_node = get_next_node(node)
         if not getattr(next_node, 'eq', 0) == 0:
-            scalars = tuple(next_node.eq.root)
-            property = scalars[0].root.property
-            value = scalars[1].root.root
+            scalars = tuple(next_node.eq.__root__)
+            property = scalars[0].__root__.property
+            value = scalars[1].__root__.__root__
             query = Q(
                 {'match': {f'{property}': f'{value}'}}
             )
             q.must(query)
     elif not getattr(node, 'intersects', 0) == 0:
-        property = node.intersects.root[0].root.property
+        property = node.intersects.__root__[0].__root__.property
         if property == 'geometry':
-            geom_type = node.intersects.root[
-                1].root.root.root.type
+            geom_type = node.intersects.__root__[
+                1].__root__.__root__.__root__.type
             if geom_type == 'Polygon':
-                coordinates = node.intersects.root[
-                    1].root.root.root.coordinates
+                coordinates = node.intersects.__root__[
+                    1].__root__.__root__.__root__.coordinates
                 coords_list = [
-                    poly_coords.root for poly_coords in coordinates[0]
+                    poly_coords.__root__ for poly_coords in coordinates[0]
                 ]
                 filter_ = Q(
                     {
