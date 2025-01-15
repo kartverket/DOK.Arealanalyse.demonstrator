@@ -11,6 +11,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0.3-bookworm-slim-amd64
 WORKDIR /app
 COPY --from=publish /app/publish /app
 
-EXPOSE 81
+EXPOSE 5001
 
 CMD ["dotnet", "Dok.Arealanalyse.Api.Web.dll"]
