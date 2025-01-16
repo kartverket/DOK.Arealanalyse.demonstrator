@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: 30e1883e-70e9-4510-9e97-00edbdcddc02
+dataset_id: 16a03cf3-b1cd-47a6-95f0-1cd14886e258
 name: jord_flomskred_aktsomhets_omr
 
+metadata_id: 30e1883e-70e9-4510-9e97-00edbdcddc02
 wfs: https://wfs.geonorge.no/skwms1/wfs.jord_og_flomskred_aktsomhetsomrader
 wms: https://nve.geodataonline.no/arcgis/services/SkredJordFlomAktR1/MapServer/WMSServer
 layers:

@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: b2d5aaf8-79ac-40f3-9cd6-fdc30bc42ea1
+dataset_id: d893e564-0a9d-4d3b-8d4f-8485b843b9a0
 name: faresone_skred_bratt_terreng
 
+metadata_id: b2d5aaf8-79ac-40f3-9cd6-fdc30bc42ea1
 arcgis: https://nve.geodataonline.no/arcgis/rest/services/Skredfaresoner1/MapServer
 wms: https://nve.geodataonline.no/arcgis/services/Skredfaresoner1/MapServer/WMSServer
 layers:

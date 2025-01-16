@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
+dataset_id: e4e254b9-d3b6-45af-88a4-54382593e41d
 name: naturtyper_utvalgte_kalksjøer
 
+metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
 arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
 wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
 layers:

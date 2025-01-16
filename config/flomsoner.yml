@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: e95008fc-0945-4d66-8bc9-e50ab3f50401
+dataset_id: 864d00cf-cb14-4926-b06d-60329eb7f016
 name: flomsoner
 
+metadata_id: e95008fc-0945-4d66-8bc9-e50ab3f50401
 wfs: https://wfs.geonorge.no/skwms1/wfs.flomsoner
 wms: https://nve.geodataonline.no/arcgis/services/Flomsoner1/MapServer/WMSServer
 layers:

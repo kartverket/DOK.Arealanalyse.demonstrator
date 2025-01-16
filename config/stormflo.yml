@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: fbb95c67-623f-430a-9fa5-9cfcea8366b3
+dataset_id: 1371a8b9-c2c6-4432-96fe-c6482b32dd07
 name: stormflo
 
+metadata_id: fbb95c67-623f-430a-9fa5-9cfcea8366b3
 wfs: https://wfs.geonorge.no/skwms1/wfs.stormflo_havniva
 wms: https://wms.geonorge.no/skwms1/wms.stormflo_havniva
 layers:
@@ -32,7 +33,7 @@ themes:
 ---
 
 type: quality
-dataset_id: fbb95c67-623f-430a-9fa5-9cfcea8366b3
+dataset_id: 1371a8b9-c2c6-4432-96fe-c6482b32dd07
 
 indicators:
 - type: coverage

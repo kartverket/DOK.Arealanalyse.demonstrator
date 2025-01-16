@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
+dataset_id: fc94ee13-d4c2-4d50-8e0b-f8f44d8c7f03
 name: naturtyper_utvalgte_slåttemark
 
+metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
 arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
 wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
 layers:

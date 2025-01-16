@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
+dataset_id: 41c10b72-a5ca-460f-b1f2-f27376719703
 name: kulturminner_enkeltminner
 
+metadata_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
 wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
 wms: https://kart.ra.no/wms/kulturminner
 layers:

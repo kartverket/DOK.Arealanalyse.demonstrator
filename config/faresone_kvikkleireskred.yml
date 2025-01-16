@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: b2d5aaf8-79ac-40f3-9cd6-fdc30bc42ea1
+dataset_id: c24e0058-f555-4a47-b65b-4f011e64789e
 name: faresone_kvikkleireskred
 
+metadata_id: b2d5aaf8-79ac-40f3-9cd6-fdc30bc42ea1
 arcgis: https://nve.geodataonline.no/arcgis/rest/services/SkredKvikkleire2/MapServer
 wms: https://nve.geodataonline.no/arcgis/services/SkredKvikkleire2/MapServer/WMSServer
 layers:

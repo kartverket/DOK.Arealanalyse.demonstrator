@@ -1,10 +1,11 @@
 ---
 
 type: dataset
-dataset_id: bf45a463-434d-4b4d-84dc-9325780ab5fb
+dataset_id: 727e5e04-f403-4907-8644-ffcd68f3544c
 name: geoteknisk_borehull
 title: Geoteknisk borehull
 
+metadata_id: bf45a463-434d-4b4d-84dc-9325780ab5fb
 ogc_api: https://ogcapitest.ngu.no/rest/services/grunnundersokelser_utvidet/collections
 wms: https://geo.ngu.no/geoserver/nadag/ows
 layers:

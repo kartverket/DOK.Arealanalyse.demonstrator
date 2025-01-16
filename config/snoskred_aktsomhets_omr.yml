@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: 54ada9d8-e6fc-48d6-82b0-5477166a4aaa
+dataset_id: 7914d4d9-8101-432e-ac36-ac086491f758
 name: snoskred_aktsomhets_omr
 
+metadata_id: 54ada9d8-e6fc-48d6-82b0-5477166a4aaa
 wfs: https://wfs.geonorge.no/skwms1/wfs.snoskredaktsomhetsomrader
 wms: https://nve.geodataonline.no/arcgis/services/SkredSnoAktR/MapServer/WMSServer
 layers:

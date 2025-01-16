@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
+dataset_id: 5b2e0a94-cb47-4075-8082-9b35096fbe2c
 name: naturtyper_utvalgte_slåttemyr
 
+metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
 arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
 wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
 layers:

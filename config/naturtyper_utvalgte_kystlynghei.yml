@@ -1,9 +1,10 @@
 ---
 
 type: dataset
-dataset_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
+dataset_id: 7ea189bc-0b59-4742-8260-5bfd3bfaa510
 name: naturtyper_utvalgte_kystlynghei
 
+metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
 arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_utvalgte2/MapServer
 wms: https://kart.miljodirektoratet.no/arcgis/services/naturtyper_utvalgte2/MapServer/WMSServer
 layers:
