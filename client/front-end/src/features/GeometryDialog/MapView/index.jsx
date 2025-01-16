@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useMap } from 'context/MapContext';
 import { createOutlineMap, getLayer } from 'utils/map';
 import { ZoomToExtent } from 'ol/control';
 import baseMap from 'config/baseMap.config';
@@ -8,7 +7,6 @@ import styles from './MapView.module.scss';
 export default function MapView({ geometry }) {
    const [map, setMap] = useState(null);
    const mapElementRef = useRef(null);
-   const { wmtsOptions } = useMap();
 
    useEffect(
       () => {
@@ -17,11 +15,11 @@ export default function MapView({ geometry }) {
          }
 
          (async () => {
-            const olMap = await createOutlineMap(geometry, wmtsOptions);
+            const olMap = await createOutlineMap(geometry);
             setMap(olMap);
          })();
       },
-      [geometry, wmtsOptions]
+      [geometry]
    );
 
    useEffect(

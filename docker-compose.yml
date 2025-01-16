@@ -20,6 +20,8 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Pygeoapi__ApiUrl=${PYGEOAPI_API_URL}
+    ports:
+      - "5001:5001"      
     expose:
       - "5001"
     networks:
@@ -29,6 +31,8 @@ services:
   socket-io:
     container_name: dokanalyse-socket-io
     image: crdokanalyse.azurecr.io/dokanalyse-socket-io:v1
+    ports:
+      - "5002:5002"   
     expose:
       - "5002"
     networks:
@@ -38,6 +42,8 @@ services:
   binary-creator:
     container_name: dokanalyse-binary-creator
     image: crdokanalyse.azurecr.io/dokanalyse-binary-creator:v1
+    ports:
+      - "5003:5003"
     expose:
       - "5003"
     networks:

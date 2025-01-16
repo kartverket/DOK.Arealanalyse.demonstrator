@@ -94,7 +94,8 @@ class Analysis(ABC):
             await self.__set_quality_measurements(context)
 
         if self.raster_result_map:
-            payload = create_payload_for_analysis(self.geometry, self.buffer, self.raster_result_map)
+            payload = create_payload_for_analysis(
+                self.geometry, self.buffer, self.raster_result_map)
             _, result = await create_map_image(payload)
             self.raster_result_image_bytes = result
 
@@ -105,7 +106,7 @@ class Analysis(ABC):
         self.title = self.geolett.get(
             'tittel') if self.geolett else self.config.title
         self.themes = self.config.themes
-        self.run_on_dataset = await get_kartkatalog_metadata(self.dataset_id)
+        self.run_on_dataset = await get_kartkatalog_metadata(self.config.metadata_id)
 
     async def __run_coverage_analysis(self) -> None:
         quality_indicators = get_quality_indicator_configs(self.dataset_id)
@@ -123,9 +124,10 @@ class Analysis(ABC):
                 'A dataset can only have one coverage quality indicator')
 
         ci = coverage_indicators[0]
-        self._add_run_algorithm(
-            f'check coverage {ci.wfs.url} ({ci.wfs.layer})')
+
+        self._add_run_algorithm(f'check coverage {ci.wfs.url}')
         measurements, warning, has_coverage = await get_coverage_quality(ci, self.run_on_input_geometry, self.epsg)
+        self._add_run_algorithm(f'intersects layer {ci.wfs.layer} ({has_coverage})')
 
         self.quality_measurement.extend(measurements)
         self.has_coverage = has_coverage

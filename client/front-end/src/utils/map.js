@@ -2,6 +2,8 @@ import { Feature, Map as OlMap, View } from 'ol';
 import GeoJSON from 'ol/format/GeoJSON';
 import TileLayer from 'ol/layer/Tile';
 import TileWMS from 'ol/source/TileWMS';
+import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS';
+import { WMTSCapabilities } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
 import { Vector as VectorLayer } from 'ol/layer';
 import { defaults as defaultControls, FullScreen } from 'ol/control';
@@ -9,13 +11,13 @@ import { defaults as defaultInteractions, DragRotateAndZoom } from 'ol/interacti
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
 import { getEpsgCode } from './helpers';
-import { createBaseMapLayer } from './baseMap';
 import baseMap from 'config/baseMap.config';
 
 const MAP_WIDTH = 720;
 const MAP_HEIGHT = 480;
+const CACHE_API_URL = import.meta.env.VITE_CACHE_API_URL;
 
-export async function createMap(inputGeometry, result, wmtsOptions) {
+export async function createMap(inputGeometry, result) {
     const featuresLayer = createFeaturesLayer(inputGeometry, result);
 
     featuresLayer.set('id', 'features');
@@ -24,7 +26,7 @@ export async function createMap(inputGeometry, result, wmtsOptions) {
         controls: defaultControls().extend([new FullScreen()]),
         interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
         layers: [
-            await createBaseMapLayer(wmtsOptions),
+            await createWmtsLayer(),
             createWmsLayer(result.rasterResult.mapUri),
             featuresLayer
         ]
@@ -39,8 +41,7 @@ export async function createMap(inputGeometry, result, wmtsOptions) {
     return map;
 }
 
-
-export async function createOutlineMap(geometry, wmtsOptions) {
+export async function createOutlineMap(geometry) {
     const featuresLayer = createOutlineFeaturesLayer(geometry);
 
     featuresLayer.set('id', 'features');
@@ -48,7 +49,7 @@ export async function createOutlineMap(geometry, wmtsOptions) {
     const map = new OlMap({
         interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
         layers: [
-            await createBaseMapLayer(wmtsOptions),
+            await createWmtsLayer(),
             featuresLayer
         ]
     });
@@ -62,8 +63,8 @@ export async function createOutlineMap(geometry, wmtsOptions) {
     return map;
 }
 
-export async function createMapImage(inputGeometry, result, wmtsOptions) {
-    const [map, mapElement] = await createTempMap(inputGeometry, result, wmtsOptions);
+export async function createMapImage(inputGeometry, result) {
+    const [map, mapElement] = await createTempMap(inputGeometry, result);
 
     return new Promise((resolve) => {
         map.once('rendercomplete', () => {
@@ -81,12 +82,12 @@ export function getLayer(map, id) {
         .find(layer => layer.get('id') === id);
 }
 
-async function createTempMap(inputGeometry, result, wmtsOptions) {
+async function createTempMap(inputGeometry, result) {
     const featuresLayer = createFeaturesLayer(inputGeometry, result);
 
     const map = new OlMap({
         layers: [
-            await createBaseMapLayer(wmtsOptions),
+            await  createWmtsLayer(),
             createWmsLayer(result.rasterResult.mapUri),
             featuresLayer
         ]
@@ -116,10 +117,10 @@ function createFeaturesLayer(inputGeometry, result) {
     const source = new VectorSource();
 
     if (result.buffer > 0) {
-        source.addFeature(createFeature(result.runOnInputGeometry, projection));
+        source.addFeature(createFeature(result.runOnInputGeometry, projection, getBufferStyle()));
     }
 
-    source.addFeature(createFeature(inputGeometry, projection));
+    source.addFeature(createFeature(inputGeometry, projection, getOutlineStyle()));
 
     return new VectorLayer({ source });
 }
@@ -128,24 +129,65 @@ function createOutlineFeaturesLayer(geometry) {
     const projection = getProjection(geometry);
     const source = new VectorSource();
 
-    source.addFeature(createFeature(geometry, projection));
+    source.addFeature(createFeature(geometry, projection, getOutlineStyle()));
 
     return new VectorLayer({ source });
 }
 
-function createFeature(geoJson, projection) {
+function createFeature(geoJson, projection, style) {
     const reader = new GeoJSON();
     const geometry = reader.readGeometry(geoJson, { dataProjection: projection, featureProjection: 'EPSG:25833' });
     const feature = new Feature(geometry);
 
-    feature.setStyle(new Style({
-        stroke: new Stroke({
-            color: '#d33333',
-            width: 4
-        })
-    }));
+    feature.setStyle(style);
 
     return feature;
+}
+
+async function createWmtsLayer() {
+    const options = await getWmtsOptions();
+
+    if (options === null) {
+        return null;
+    }
+
+    return new TileLayer({
+        source: new WMTS(options),
+        maxZoom: baseMap.maxZoom
+    });
+}
+
+async function getWmtsOptions() {
+    let xml;
+
+    try {
+        const url = `${CACHE_API_URL}${window.btoa(baseMap.wmtsUrl)}`
+        const response = await fetch(url, { timeout: 10000 });
+        xml = await response.text();
+    } catch {
+        return null;
+    }
+
+    const capabilities = new WMTSCapabilities().read(xml);
+
+    const options = optionsFromCapabilities(capabilities, {
+        layer: baseMap.layer,
+        matrixSet: 'EPSG:3857'
+    });
+
+    const wmtsOptions = {
+        ...options,
+        crossOrigin: 'anonymous',
+        tileLoadFunction: async (imageTile, src) => {
+            if (imageTile.tileCoord[0] > 12) {
+                imageTile.getImage().src = `${CACHE_API_URL}${window.btoa(src)}`;
+            } else {
+                imageTile.getImage().src = src;
+            }
+        }
+    };
+
+    return wmtsOptions;
 }
 
 function createWmsLayer(url) {
@@ -211,4 +253,23 @@ function exportToPngImage(map) {
     mapContext.setTransform(1, 0, 0, 1, 0, 0);
 
     return mapCanvas.toDataURL();
+}
+
+function getOutlineStyle() {
+    return new Style({
+        stroke: new Stroke({
+            color: '#d33333',
+            width: 4
+        })
+    });
+}
+
+function getBufferStyle() {
+    return new Style({
+        stroke: new Stroke({
+            color: '#d33333',
+            lineDash: [8, 8],
+            width: 2
+        })
+    });
 }

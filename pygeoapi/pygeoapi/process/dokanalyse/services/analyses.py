@@ -40,7 +40,7 @@ async def run(data: Dict, sio_client: SimpleClient) -> AnalysisResponse:
     datasets = await get_dataset_ids(data, municipality_number)
     correlation_id = get_correlation_id()
 
-    if correlation_id and sio_client:
+    if datasets and correlation_id and sio_client:
         to_analyze = {key: value for (
             key, value) in datasets.items() if value == True}
         sio_client.emit('datasets_counted_api', {'count': len(

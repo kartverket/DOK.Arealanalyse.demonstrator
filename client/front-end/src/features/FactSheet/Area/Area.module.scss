@@ -4,7 +4,7 @@
     margin-bottom: 24px;
     padding: 18px;
 
-    > div {
+    >div {
         display: flex;
         align-items: center;
         gap: 24px;
@@ -24,17 +24,9 @@
     gap: 24px;
     width: 67%;
 
-    // > div {
-    //     width: 50%;
-    // }
-
-    // > ul {
-    //     width: 50%;
-    // }
-
     .chart {
-        height:360px; 
-        width:360px;
+        height: 360px;
+        width: 360px;
     }
 }
 
@@ -44,7 +36,7 @@
 
     li {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         gap: 10px;
 
         .color {
