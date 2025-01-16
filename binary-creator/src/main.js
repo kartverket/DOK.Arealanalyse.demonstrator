@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { createMapImage } from './services/map-image.js';
 import { getResource } from './services/cache.js';
+import log from './utils/logger.js';
 
 const app = express();
 const port = 5003;
@@ -14,7 +15,7 @@ app.post('/binary/create/map-image', async (req, res) => {
         const { data, error } = await createMapImage(req.body);
 
         if (error !== null) {
-            console.log(error);
+            log.error(error);
             res.status(500).send('Internal server error');
             return;
         }
@@ -28,7 +29,7 @@ app.post('/binary/create/map-image', async (req, res) => {
 
         res.end(img);
     } catch (error) {
-        console.log(error);
+        log.error(error.message);
         res.status(500).send('Internal server error');
     }
 });
@@ -51,7 +52,7 @@ app.get('/binary/cache', async (req, res) => {
 
         res.end(data);
     } catch (error) {
-        console.log(error);
+        log.error(error.message);
         res.status(500).send('Internal server error');
     }
 });

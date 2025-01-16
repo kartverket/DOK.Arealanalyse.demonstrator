@@ -1,6 +1,8 @@
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import puppeteer from 'puppeteer-core';
+import log from '../utils/logger.js';   
+import { getTimeUsed } from '../utils/helpers.js';
 
 const BROWSER_URL = 'http://localhost:9222';
 const FILE_URI = getFileUri();
@@ -10,10 +12,16 @@ let _browser = null;
 export async function createMapImage(inputData) {
     const browser = await getBrowser();
     const page = await browser.newPage();
+    const start = new Date();
 
     try {
         await page.goto(FILE_URI, { waitUntil: 'networkidle0' });
-        return await page.evaluate(data => window.mapRenderer.createMapImage(data), inputData);
+        const result = await page.evaluate(data => window.mapRenderer.createMapImage(data), inputData);
+        const end = new Date();
+
+        log.info(`Generated map image in ${getTimeUsed(start, end)} sec.`);
+
+        return result;
     } catch (error) {
         throw error;
     } finally {

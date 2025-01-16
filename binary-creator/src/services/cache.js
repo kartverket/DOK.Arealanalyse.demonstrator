@@ -1,5 +1,6 @@
 import NodeCache from 'node-cache';
 import 'dotenv/config';
+import log from '../utils/logger.js';   
 
 const cache = new NodeCache({ stdTTL: process.env.CACHE_TTL_SECS });
 
@@ -20,7 +21,9 @@ export async function getResource(base64Str) {
         const url = getUrl(base64Str);
         const response = await fetch(url);
 
-        if (response.status !== 200) {            
+        if (response.status !== 200) {     
+            log.warn(`Could not fetch resource: ${url} (status ${response.status})`);
+
             return { 
                 resource: null, 
                 status: {
@@ -49,7 +52,7 @@ export async function getResource(base64Str) {
             }
         };
     } catch (error) {
-        console.log(error);
+        log.error(error);
 
         return { 
             resource, 
