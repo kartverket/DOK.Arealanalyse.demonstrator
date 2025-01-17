@@ -43,14 +43,12 @@ app.get('/binary/cache', async (req, res) => {
             return;
         }
 
-        const data = Buffer.from(resource.data, 'base64');
-
         res.writeHead(200, {
             'Content-Type': resource.contentType,
-            'Content-Length': data.length
+            'Content-Length': resource.data.length
         });
 
-        res.end(data);
+        res.end(resource.data);
     } catch (error) {
         log.error(error.message);
         res.status(500).send('Internal server error');

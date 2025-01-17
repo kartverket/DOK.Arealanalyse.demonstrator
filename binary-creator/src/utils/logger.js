@@ -1,12 +1,17 @@
+import fs from 'node:fs';
 import SimpleLogger from 'simple-node-logger';
-import 'dotenv/config';
+import config from './config.js';
 
 const options = {
     errorEventName: 'info',
-    logDirectory: process.env.LOG_DIR,
+    logDirectory: config.LOG_DIR,
     fileNamePattern: 'binary-creator-<DATE>.log',
     dateFormat: 'YYYY-MM-DD'
 };
+
+if (!fs.existsSync(config.LOG_DIR)) {
+    fs.mkdirSync(config.LOG_DIR, { recursive: true });
+}
 
 const log = SimpleLogger.createRollingFileLogger(options);
 

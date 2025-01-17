@@ -318,6 +318,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"date-and-time@npm:^3.6.0":
+  version: 3.6.0
+  resolution: "date-and-time@npm:3.6.0"
+  checksum: 10c0/f2691740fdcf5ab893e3798fa98a3838e58f287c10b5ea0265f23ce136c65ad9c2591c5682ee5c736db3b0c447d1ab4ec105717cd0e9a13790fa83a287da9f5e
+  languageName: node
+  linkType: hard
+
 "debug@npm:2.6.9":
   version: 2.6.9
   resolution: "debug@npm:2.6.9"
@@ -804,11 +811,14 @@ __metadata:
   resolution: "map-image-renderer@workspace:."
   dependencies:
     cors: "npm:^2.8.5"
+    date-and-time: "npm:^3.6.0"
     dotenv: "npm:^16.4.7"
     express: "npm:^4.21.2"
+    mime-types: "npm:^2.1.35"
     node-cache: "npm:^5.1.2"
     puppeteer-core: "npm:^23.11.1"
     simple-node-logger: "npm:^21.8.12"
+    uuid: "npm:^11.0.5"
   languageName: unknown
   linkType: soft
 
@@ -847,7 +857,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
+"mime-types@npm:^2.1.35, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
   version: 2.1.35
   resolution: "mime-types@npm:2.1.35"
   dependencies:
@@ -1409,6 +1419,15 @@ __metadata:
   version: 1.0.1
   resolution: "utils-merge@npm:1.0.1"
   checksum: 10c0/02ba649de1b7ca8854bfe20a82f1dfbdda3fb57a22ab4a8972a63a34553cf7aa51bc9081cf7e001b035b88186d23689d69e71b510e610a09a4c66f68aa95b672
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^11.0.5":
+  version: 11.0.5
+  resolution: "uuid@npm:11.0.5"
+  bin:
+    uuid: dist/esm/bin/uuid
+  checksum: 10c0/6f59f0c605e02c14515401084ca124b9cb462b4dcac866916a49862bcf831874508a308588c23a7718269226ad11a92da29b39d761ad2b86e736623e3a33b6e7
   languageName: node
   linkType: hard
 

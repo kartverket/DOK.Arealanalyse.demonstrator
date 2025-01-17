@@ -1,11 +1,11 @@
-FROM node:23-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY src/client-script/. .
 RUN corepack enable && corepack prepare yarn@4.6.0 \
     && yarn install --immutable \
     && yarn build
 
-FROM node:23-bookworm-slim
+FROM node:22-bookworm-slim
 WORKDIR /app
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
