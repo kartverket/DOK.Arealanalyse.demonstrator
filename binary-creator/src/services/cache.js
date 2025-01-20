@@ -1,40 +1,37 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { v4 as uuidv4 } from 'uuid';
+import Keyv from 'keyv';
+import KeyvSqlite from '@keyv/sqlite';
 import mime from 'mime-types';
 import date from 'date-and-time';
-import NodeCache from 'node-cache';
+import { v4 as uuidv4 } from 'uuid';
 import log from '../utils/logger.js';
 import config from '../utils/config.js';
 
-const cache = new NodeCache();
+const keyv = setupCache();
 
-if (!fs.existsSync(config.CACHE_DIR)) {
-    fs.mkdirSync(config.CACHE_DIR, { recursive: true });
-}
-
-export async function getResource(base64Str) {
-    const entry = cache.get(base64Str);
+export async function getResource(url) {
+    const entry = await keyv.get(url);
 
     if (entry === undefined) {
-        return await fetchResource(base64Str);
+        return await fetchResource(url);
     }
 
     if (!fs.existsSync(entry)) {
-        cache.del(base64Str);
+        await keyv.delete(url);
 
-        return await fetchResource(base64Str);
+        return await fetchResource(url);
     } else if (hasCacheExpired(entry)) {
-        cache.del(base64Str);
+        await keyv.delete(url);
         fs.unlinkSync(entry);
 
-        return await fetchResource(base64Str);
+        return await fetchResource(url);
     }
 
     const buffer = loadResource(entry);
 
     if (buffer === null) {
-        return await fetchResource(base64Str);
+        return await fetchResource(url);
     }
 
     return {
@@ -49,9 +46,8 @@ export async function getResource(base64Str) {
     };
 }
 
-async function fetchResource(base64Str) {
+async function fetchResource(url) {
     try {
-        const url = getUrlFromBase64(base64Str);
         const response = await fetch(url);
 
         if (response.status !== 200) {
@@ -71,7 +67,7 @@ async function fetchResource(base64Str) {
         const filePath = createFilePath(blob);
 
         saveResource(filePath, buffer);
-        cache.set(base64Str, filePath);
+        await keyv.set(url, filePath);
 
         return {
             resource: {
@@ -129,6 +125,14 @@ function createFilePath(blob) {
     return filePath;
 }
 
-function getUrlFromBase64(base64Str) {
-    return Buffer.from(base64Str, 'base64').toString('utf8');
+function setupCache() {
+    if (!fs.existsSync(config.CACHE_DIR)) {
+        fs.mkdirSync(config.CACHE_DIR, { recursive: true });
+    }
+    
+    const dbPath = path.join(config.CACHE_DIR, 'database.sqlite');
+    const keyvSqlite = new KeyvSqlite(`sqlite://${dbPath}`);
+    const keyv = new Keyv({ store: keyvSqlite, namespace: 'cache' });
+
+    return keyv;
 }

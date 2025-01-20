@@ -98,7 +98,7 @@ async function getWmtsOptions(wmts) {
     let xml;
     
     try {
-        const url = `${CACHE_API_URL}${window.btoa(wmts.url)}`
+        const url = `${CACHE_API_URL}${encodeURIComponent(wmts.url)}`
         const response = await fetch(url, { timeout: 10000 });
         xml = await response.text();
     } catch {
@@ -115,13 +115,7 @@ async function getWmtsOptions(wmts) {
     const wmtsOptions = {
         ...options,
         crossOrigin: 'anonymous',
-        tileLoadFunction: async (imageTile, src) => {
-            if (imageTile.tileCoord[0] > 12) {
-                imageTile.getImage().src = `${CACHE_API_URL}${window.btoa(src)}`;
-            } else {
-                imageTile.getImage().src = src;
-            }
-        }        
+        tileLoadFunction      
     };
 
     return wmtsOptions;
@@ -135,7 +129,8 @@ function createWmsLayer(url, params = {}) {
                 'VERSION': '1.1.1',
                 ...params
             },
-            crossOrigin: 'anonymous'
+            crossOrigin: 'anonymous',
+            tileLoadFunction            
         })
     });
 }
@@ -156,6 +151,15 @@ function createFeaturesLayer(features, styling) {
     }
 
     return vectorLayer;
+}
+
+
+async function tileLoadFunction(tile, src) {
+    if (tile.tileCoord[0] >= 13) {
+        tile.getImage().src = `${CACHE_API_URL}${encodeURIComponent(src)}`;
+    } else {
+        tile.getImage().src = src;
+    }
 }
 
 function exportToPngImage(map) {

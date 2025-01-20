@@ -36,7 +36,7 @@ app.post('/binary/create/map-image', async (req, res) => {
 
 app.get('/binary/cache', async (req, res) => {
     try {
-        const { resource, status } = await getResource(req.query.base64Url);
+        const { resource, status } = await getResource(req.query.url);
 
         if (resource === null) {
             res.status(status.code).send(status.text);
