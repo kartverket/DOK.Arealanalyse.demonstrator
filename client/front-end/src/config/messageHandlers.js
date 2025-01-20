@@ -13,7 +13,7 @@ messageHandlers.set('dataset_analyzed', message => {
 });
 
 messageHandlers.set('create_fact_sheet', _ => {
-    store.dispatch(setStatus('Lager faktaark...'));
+    store.dispatch(setStatus('Lager faktainformasjon...'));
 });
 
 export default messageHandlers;
