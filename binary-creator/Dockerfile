@@ -7,7 +7,7 @@ RUN corepack enable && corepack prepare yarn@4.6.0 \
 
 FROM node:22-bookworm-slim
 WORKDIR /app
-COPY package.json yarn.lock .yarnrc.yml ./
+COPY package.json yarn.lock .yarnrc.yml .env ./
 COPY .yarn ./.yarn
 COPY src ./src
 RUN corepack enable && corepack prepare yarn@4.6.0 \
