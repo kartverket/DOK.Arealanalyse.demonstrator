@@ -47,8 +47,10 @@ services:
     expose:
       - "5003"
     networks:
-      - internal      
-    restart: always
+      - internal   
+    volumes:
+      - dokanalyse:/mnt/dokanalyse
+    restart: always    
 
 networks:
   internal:
