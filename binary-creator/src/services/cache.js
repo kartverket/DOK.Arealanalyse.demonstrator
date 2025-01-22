@@ -34,10 +34,13 @@ export async function getResource(url) {
         return await fetchResource(url);
     }
 
+    const fileName = path.basename(entry);
+    const contentType = mime.contentType(fileName)
+
     return {
         resource: {
             data: buffer,
-            contentType: mime.contentType(entry)
+            contentType
         },
         status: {
             code: 200,

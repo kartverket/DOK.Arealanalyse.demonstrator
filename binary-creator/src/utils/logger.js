@@ -5,7 +5,7 @@ import config from './config.js';
 const options = {
     errorEventName: 'info',
     logDirectory: config.LOG_DIR,
-    fileNamePattern: 'binary-creator-<DATE>.log',
+    fileNamePattern: 'binary-creator.<DATE>.log',
     dateFormat: 'YYYY-MM-DD'
 };
 
