@@ -90,13 +90,13 @@ async function createWmtsLayer(wmts) {
 
     return new TileLayer({
         source: new WMTS(options),
-        maxZoom: 22,
+        maxZoom: 22
     });
 }
 
 async function getWmtsOptions(wmts) {
     let xml;
-    
+
     try {
         const url = `${CACHE_API_URL}${encodeURIComponent(wmts.url)}`
         const response = await fetch(url, { timeout: 10000 });
@@ -115,7 +115,13 @@ async function getWmtsOptions(wmts) {
     const wmtsOptions = {
         ...options,
         crossOrigin: 'anonymous',
-        tileLoadFunction      
+        tileLoadFunction: (tile, src) => {
+            if (tile.tileCoord[0] >= 12) {
+                tile.getImage().src = `${CACHE_API_URL}${encodeURIComponent(src)}`;
+            } else {
+                tile.getImage().src = src;
+            }
+        }     
     };
 
     return wmtsOptions;
@@ -129,8 +135,7 @@ function createWmsLayer(url, params = {}) {
                 'VERSION': '1.1.1',
                 ...params
             },
-            crossOrigin: 'anonymous',
-            tileLoadFunction            
+            crossOrigin: 'anonymous'
         })
     });
 }
@@ -153,9 +158,8 @@ function createFeaturesLayer(features, styling) {
     return vectorLayer;
 }
 
-
 async function tileLoadFunction(tile, src) {
-    if (tile.tileCoord[0] >= 13) {
+    if (tile.tileCoord[0] >= 12) {
         tile.getImage().src = `${CACHE_API_URL}${encodeURIComponent(src)}`;
     } else {
         tile.getImage().src = src;

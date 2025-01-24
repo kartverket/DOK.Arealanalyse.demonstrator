@@ -6,7 +6,7 @@ from ..models.map_image_payload import MapImagePayload
 from ..utils.constants import MAP_IMAGE_API_URL
 
 _LOGGER = logging.getLogger(__name__)
-_TIMEOUT = 15
+_TIMEOUT = 30
 
 
 async def create_map_image(payload: MapImagePayload) -> Tuple[int, bytes]:

@@ -178,7 +178,13 @@ async function getWmtsOptions() {
     const wmtsOptions = {
         ...options,
         crossOrigin: 'anonymous',
-        tileLoadFunction
+        tileLoadFunction: (tile, src) => {
+            if (tile.tileCoord[0] >= 12) {
+                tile.getImage().src = `${CACHE_API_URL}${encodeURIComponent(src)}`;
+            } else {
+                tile.getImage().src = src;
+            }
+        }
     };
 
     return wmtsOptions;
@@ -188,8 +194,7 @@ function createWmsLayer(url) {
     return new TileLayer({
         source: new TileWMS({
             url,
-            crossOrigin: 'anonymous',
-            tileLoadFunction
+            crossOrigin: 'anonymous'
         })
     });
 }
@@ -267,12 +272,4 @@ function getBufferStyle() {
             width: 2
         })
     });
-}
-
-async function tileLoadFunction(tile, src) {
-    if (tile.tileCoord[0] >= 13) {
-        tile.getImage().src = `${CACHE_API_URL}${encodeURIComponent(src)}`;
-    } else {
-        tile.getImage().src = src;
-    }
 }
