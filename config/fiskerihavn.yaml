@@ -12,11 +12,11 @@ layers:
   wms:
   - group_3
   result_status: HIT-RED
-  geolett_id: 2afd368b-42ff-4918-87c1-c9f6231cd8d0
+  geolett_id: a9a80fba-5462-4fb5-93c9-16d282e0c84a
 geom_field: lokalisering
 properties:
 - driftsenhetsnavn
 - kulturvernstatus
 - askeladdenid
 themes:
-- samferdsel
+- Kyst og fiskeri
