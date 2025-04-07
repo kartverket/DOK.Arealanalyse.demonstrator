@@ -1,0 +1,22 @@
+---
+
+type: dataset
+dataset_id: fabfe189-06b5-4a3f-84ba-3c48b02ce6de
+name: fiskerihavn
+
+metadata_id: fabfe189-06b5-4a3f-84ba-3c48b02ce6de
+wfs: https://services.kystverket.no/wfs.ashx
+wms: https://services.kystverket.no/wms.ashx
+layers:
+- wfs: layer_503
+  wms:
+  - group_3
+  result_status: HIT-RED
+  geolett_id: 2afd368b-42ff-4918-87c1-c9f6231cd8d0
+geom_field: lokalisering
+properties:
+- driftsenhetsnavn
+- kulturvernstatus
+- askeladdenid
+themes:
+- samferdsel
