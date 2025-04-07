@@ -12,7 +12,7 @@ layers:
   wms:
   - group_4
   result_status: HIT-RED
-  geolett_id: 0c5dc043-e5b3-4349-8587-9b464d013aaa
+  geolett_id: 2afd368b-42ff-4918-87c1-c9f6231cd8d0
 geom_field: lokalisering
 properties:
 - datauttaksdato
