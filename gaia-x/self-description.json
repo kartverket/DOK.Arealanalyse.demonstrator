@@ -1,4 +1,4 @@
-​{  
+{
     "@context": [
         "https://w3id.org/gaia-x/core/context/23.11.0.jsonld"
     ],
@@ -48,7 +48,7 @@
         "gx:commercialUsage": true,
         "gx:pricingModel": "perRequest",
         "gx:terms": "Tjenesten koster 0 NOK per kall. Fakturering skjer månedlig basert på bruk."
-      },
+    },
     "gx:serviceLevelAgreement": {
         "gx:availability": "99.9%",
         "gx:responseTime": "100s",
