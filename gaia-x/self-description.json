@@ -1,0 +1,88 @@
+​{  
+    "@context": [
+        "https://w3id.org/gaia-x/core/context/23.11.0.jsonld"
+    ],
+    "@id": "did:web:arkitektum.no#dok-arealanalyse",
+    "@type": "gx:ServiceOffering",
+    "gx:providedBy": {
+        "@id": "did:web:arkitektum.no",
+        "gx:legalName": "Demoleverandør",
+        "gx:headquarterAddress": {
+            "gx:country": "NO",
+            "gx:locality": "Bø",
+            "gx:postalCode": "3800",
+            "gx:streetAddress": "Demoveien 6"
+        }
+    },
+    "gx:description": "DOK Arealanalyse er en demo prosesseringstjeneste som analyserer et område mot DOK datasettene. Tjenesten er eksponert som OGC API - Processes.",
+    "gx:serviceType": "OGC API - Processes",
+    "gx:serviceEndpoint": {
+        "@id": "https://dok-arealanalyse-api.azurewebsites.net/processes/dokanalyse"
+    },
+    "gx:dependsOn": [
+        {
+            "@id": "https://kartkatalog.geonorge.no/metadata/c72906a0-2bc2-41d7-bea2-c92d368e3c49",
+            "@type": "dcat:Dataset",
+            "dct:title": "Kulturminner",
+            "dct:publisher": {
+                "foaf:name": "Riksantikvaren"
+            }
+        },
+        {
+            "@id": "https://kartkatalog.geonorge.no/metadata/54ada9d8-e6fc-48d6-82b0-5477166a4aaa",
+            "@type": "dcat:Dataset",
+            "dct:title": "Snøskred",
+            "dct:publisher": {
+                "foaf:name": "NVE"
+            }
+        }
+    ],
+    "gx:termsAndConditions": {
+        "gx:url": "https://kartverket.no/vilkar"
+    },
+    "gx:policy": {
+        "@type": "gx:DataUsagePolicy",
+        "gx:personalData": false,
+        "gx:purpose": "analytical",
+        "gx:restrictions": "none",
+        "gx:commercialUsage": true,
+        "gx:pricingModel": "perRequest",
+        "gx:terms": "Tjenesten koster 0 NOK per kall. Fakturering skjer månedlig basert på bruk."
+      },
+    "gx:serviceLevelAgreement": {
+        "gx:availability": "99.9%",
+        "gx:responseTime": "100s",
+        "gx:uptime": "99.9%"
+    },
+    "gx:serviceLevel": {
+        "gx:serviceLevel": "basic",
+        "gx:serviceLevelDescription": "Tjenesten er tilgjengelig 24/7 med en responstid på under 100 sekunder."
+    },
+    "gx:license": {
+        "@id": "https://data.norge.no/nlod/no/"
+    },
+    "gx:version": "1.0.0",
+    "gx:language": "nb",
+    "gx:transport": "https",
+    "gx:mediaType": "application/json",
+    "gx:keywords": [
+        "arealanalyse",
+        "DOK",
+        "OGC API",
+        "geodata",
+        "prosessering"
+    ],
+    "gx:securityProfile": {
+        "gx:authentication": "Maskinporten",
+        "gx:authorization": "OAuth2",
+        "gx:confidentiality": "restricted",
+        "gx:securityProtocols": [
+        {
+            "gx:protocol": "OAuth2",
+            "gx:tokenEndpoint": "https://maskinporten.no/token",
+            "gx:flow": "client_credentials",
+            "gx:scopes": ["geonorge:dok-arealanalyse.read"]
+        }
+        ]
+    }
+}
