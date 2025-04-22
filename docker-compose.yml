@@ -52,6 +52,9 @@ services:
       - dokanalyse:/mnt/dokanalyse
     restart: always    
 
+volumes:
+  dokanalyse:
+
 networks:
   internal:
     driver: bridge
