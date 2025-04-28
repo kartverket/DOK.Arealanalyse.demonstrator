@@ -12,15 +12,27 @@ layers:
   wms:
   - kuverdi_svært_stor_verdi
   result_status: HIT-RED
-  geolett_id: 3dd08517-af52-45db-a6ed-ac29b5d98fc4
+  geolett_id: 9d803106-57f6-494e-bca8-67f1fd1f72a3
+  veiledning_bygg_id: 522da012-1633-40c5-ad96-e4784d278401
   filter: Verdikategori = 'Svært stor verdi'
 - arcgis: '0'
   wms:
   - kuverdi_stor_verdi
+  result_status: HIT-RED
+  geolett_id: cfbd9296-6624-4822-ac40-ee8492ec88ca
+  filter: Verdikategori = 'Stor verdi'
+- arcgis: '0'
+  wms:
   - kuverdi_middels_verdi
+  result_status: HIT-YELLOW
+  geolett_id: 3db0182e-7bff-44d2-a8f8-e312b303d6cf
+  filter: Verdikategori = 'Middels verdi'
+- arcgis: '0'
+  wms:
   - kuverdi_noe_verdi
   result_status: HIT-YELLOW
-  filter: Verdikategori = 'Stor verdi' OR Verdikategori = 'Middels verdi' OR Verdikategori = 'Noe verdi'
+  geolett_id: bc86e470-6789-4abf-95f2-3cdba521b5fe
+  filter: Verdikategori = 'Noe verdi'
 properties:
 - Naturtype
 - Verdikategori
@@ -38,6 +50,25 @@ indicators:
 - type: object
   quality_dimension_id: stedfestingsnøyaktighet
   quality_dimension_name: Stedfestingsnøyaktighet
-  quality_warning_text: Data kan være utfordrende å bruke i plan- eller byggesak
+  quality_warning_text: Stedfestingsnøyaktighet er usikker på et eller flere objekter
   property: Nøyaktighetsklasse
   warning_threshold: Mindre god (> 50m)
+
+- type: coverage
+  quality_dimension_id: fullstendighet_dekning
+  quality_dimension_name: Fullstendighetsdekning
+  quality_warning_text: Området er ikke kartlagt for naturtyper
+  warning_threshold: ikkeKartlagt
+  arcgis:
+    url: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_nin/MapServer
+    layer: '1'
+    filter: Ikke treff 
+    property: Dekningskartverdi
+    veiledning_bygg_id: 45ece8ff-e382-4c40-b469-045e2939f554
+    veiledning_plan_id: 0685b79a-76a8-439a-8793-6dc31a0a9099
+    properties:
+    - Prosjektnavn
+    - Dekningskartverdi
+    - Årstall
+    - Kartleggingsinstruks
+    - Prosjektrapport
