@@ -17,16 +17,27 @@ cd DOK.Arealanalyse.demonstrator
 ```
 
 ## Justere konfigurasjonen til ditt miljø
-juster .env filen som ligger i roten av prosjektet
+juster .env filen som ligger i /pygeoapi katalogen i prosjektet
 
 ```ini
 PYGEOAPI_API_URL=http://localhost:5000
 ```
+## Bygge pygeoapi med dok arealanalyse
+```bash
+docker-compose up --build
+```
 
-## Bygge applikasjonen
+
+## Bygge demo applikasjonen
 
 ```bash
 docker-compose up --build
+```
+
+## Sette opp volum for logging og konfigurasjonsfiler
+```bash
+docker run -v C:/dev/kartverket/dok:/mnt/dokanalyse
+docker run -v C:/dev/kartverket/DOK.arealanalyse.demo/DOK.Arealanalyse.demonstrator/config:/mnt/dokconfig
 ```
 
 ## Tilgang til images for Docker

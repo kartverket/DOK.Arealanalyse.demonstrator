@@ -1,0 +1,21 @@
+---
+disabled: true
+
+type: dataset
+dataset_id: 25b83fc1-f2bd-4052-bd2d-bd949ac0f402
+name: Referanseruter
+
+metadata_id: 25b83fc1-f2bd-4052-bd2d-bd949ac0f402
+wfs: TODO - har ikke
+wms: TODO - har ikke
+layers:
+- wfs: Referanseruter
+  wms:
+  - referanseruter
+  result_status: HIT-RED
+  geolett_id: 0cdcda80-d153-495c-afe4-ad26634a4274
+geom_field: lokalisering
+properties:
+- todo
+themes:
+- samferdsel

@@ -58,11 +58,10 @@ indicators:
   quality_dimension_id: fullstendighet_dekning
   quality_dimension_name: Fullstendighetsdekning
   quality_warning_text: Området er ikke kartlagt for naturtyper
-  warning_threshold: ikkeKartlagt
+  warning_threshold: null
   arcgis:
     url: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_nin/MapServer
     layer: '1'
-    filter: Ikke treff 
     property: Dekningskartverdi
     veiledning_bygg_id: 45ece8ff-e382-4c40-b469-045e2939f554
     veiledning_plan_id: 0685b79a-76a8-439a-8793-6dc31a0a9099

@@ -39,10 +39,12 @@ indicators:
 - type: coverage
   quality_dimension_id: fullstendighet_dekning
   quality_dimension_name: Fullstendighetsdekning
-  quality_warning_text: Området er ikke kartlagt
+  quality_warning_text: Området er ikke kartlagt for stormflo
   warning_threshold: ikkeKartlagt
   wfs:
     url: https://wfs.geonorge.no/skwms1/wfs.stormflo_havniva
     layer: Dekningsområde
     geom_field: område
     property: dekningStatus
+    veiledning_bygg_id: 41d0f1be-4538-4eed-af15-ab3984cf49bd
+    veiledning_plan_id: 41d0f1be-4538-4eed-af15-ab3984cf49bd
