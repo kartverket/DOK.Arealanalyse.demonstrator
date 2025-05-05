@@ -19,7 +19,7 @@ services:
     image: crdokanalyse.azurecr.io/dokanalyse-web-api:v1
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - Pygeoapi__ApiUrl=${PYGEOAPI_API_URL}
+      - Pygeoapi__ApiUrl=http://localhost:5000/
     ports:
       - "5001:5001"      
     expose:
@@ -51,6 +51,20 @@ services:
     volumes:
       - dokanalyse:/mnt/dokanalyse
     restart: always    
+  
+  pygeoapi:
+    build: .
+    ports:
+      - "5000:80"
+    volumes:
+      - ./pygeoapi/pygeoapi-config.yml:/pygeoapi/local.config.yml
+    environment:
+      - PYGEOAPI_CONFIG=/pygeoapi/local.config.yml
+      - PYGEOAPI_API_URL=http://localhost:5000/
+      - APP_FILES_DIR=/mnt/dokanalyse
+      - DOKANALYSE_CONFIG_DIR=/mnt/dokconfig
+      - SOCKET_IO_SRV_URL=http://localhost:5002/
+
 
 volumes:
   dokanalyse:

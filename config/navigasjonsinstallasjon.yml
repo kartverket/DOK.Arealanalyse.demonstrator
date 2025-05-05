@@ -8,13 +8,16 @@ metadata_id: 94b8c392-e2c8-426a-8dbe-ae828049a1df
 wfs: https://nfs.kystverket.no/arcgis/services/nfs/NFSSistOperativ/MapServer/WFSServer
 wms: https://nfs.kystverket.no/arcgis/services/nfs/NFSSistOperativ/MapServer/WMSServer
 layers:
-- wfs: nfs_NFSSistOperativ:Lys
+- wfs: Lys
+  # ønsker liste med flere lag Lys,IB,Sektorlinje,Lyssektor,Racon,Fastsjømerke,Flytendemerke,Overettlinje__lys,Overettlinje__merke
   wms:
   - NAVIGASJONSINSTALLASJONER
   result_status: HIT-RED
   geolett_id: 2afd368b-42ff-4918-87c1-c9f6231cd8d0
-geom_field: lokalisering
+geom_field: SHAPE
 properties:
-- datauttaksdato
+- Kategori
+- SjomerkeNr
+- navn
 themes:
 - samferdsel

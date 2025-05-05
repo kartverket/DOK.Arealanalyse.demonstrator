@@ -90,4 +90,4 @@ resources:
   dokanalyse:
     type: process
     processor:
-      name: Dokanalyse
+      name: DokanalyseProcessor

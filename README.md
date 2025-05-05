@@ -21,23 +21,19 @@ juster .env filen som ligger i /pygeoapi katalogen i prosjektet
 
 ```ini
 PYGEOAPI_API_URL=http://localhost:5000
+APP_FILES_DIR=/mnt/dokanalyse
+DOKANALYSE_CONFIG_DIR=/mnt/dokconfig
+SOCKET_IO_SRV_URL=http://localhost:5002/
+AR5_FGDB_PATH=/path/to/ar5.gdb
 ```
-## Bygge pygeoapi med dok arealanalyse
+## Kjøre applikasjonene i docker 
 ```bash
 docker-compose up --build
 ```
 
-
-## Bygge demo applikasjonen
-
+## Sette opp volum for konfigurasjonsfiler til analysene
 ```bash
-docker-compose up --build
-```
-
-## Sette opp volum for logging og konfigurasjonsfiler
-```bash
-docker run -v C:/dev/kartverket/dok:/mnt/dokanalyse
-docker run -v C:/dev/kartverket/DOK.arealanalyse.demo/DOK.Arealanalyse.demonstrator/config:/mnt/dokconfig
+docker run -v C:/dev/kartverket/DOK.arealanalyse.demo/DOK.Arealanalyse.demonstrator/config:/mnt/dokconfig pygeoapi-pygeoapi-1
 ```
 
 ## Tilgang til images for Docker

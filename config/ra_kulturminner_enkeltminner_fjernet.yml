@@ -1,0 +1,29 @@
+---
+
+type: dataset
+dataset_id: 41c10b72-a5ca-460f-b1f2-f27376719706
+name: kulturminner_enkeltminner
+
+metadata_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
+wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
+wms: https://kart.ra.no/wms/kulturminner
+layers:
+- wfs: Enkeltminne
+  wms:
+  - Enkeltminner
+  result_status: HIT-RED
+  geolett_id: 550b9023-6f93-4175-aebf-e8c2f754b288
+  veiledning_bygg_id: 87969cd5-ed0c-431c-a9bd-08d2e634a316
+  filter: vernetype = FJE AND enkeltminnekategori in (E-ARK, E-BER, E-MAR, E-RUI)
+geom_field: område
+properties:
+- navn
+- kulturminneId
+- vernelov
+- verneparagraf
+- vernetype
+- vernedato
+- linkAskeladden
+- linkKulturminnesøk
+themes:
+- kulturminner
