@@ -12,7 +12,8 @@ layers:
   wms:
   - Flom_aktsomhetsomrade
   result_status: HIT-YELLOW
-  geolett_id: 44ef4297-d5a5-4fab-9db3-d67429d7a5f0
+  geolett_id: 8ddb40bf-0045-4426-8886-1d85ef349eeb
+  veiledning_bygg_id: 44ef4297-d5a5-4fab-9db3-d67429d7a5f0
 geom_field: område
 properties:
 - vassOmråde

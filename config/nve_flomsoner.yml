@@ -15,7 +15,8 @@ layers:
   - Flomsone_200arsflom_klima
   filter: gjentaksintervall IN [20, 200, 2100]
   result_status: HIT-RED
-  geolett_id: 5adab8dc-b327-49ed-9336-e85fe2453a05
+  geolett_id: e1ec191f-9b57-4d59-8d56-f2fbf21f825d
+  veiledning_bygg_id: 5adab8dc-b327-49ed-9336-e85fe2453a05
 geom_field: område
 properties:
 - gjentaksintervall

@@ -12,7 +12,8 @@ layers:
   wms:
   - Skredanalyseomraade
   result_status: HIT-RED
-  geolett_id: c37bac2a-1e32-49f8-b633-a305c166ec38
+  geolett_id: 1490d2ee-a5c6-4dfb-907a-44cb5022781b
+  veiledning_bygg_id: c37bac2a-1e32-49f8-b633-a305c166ec38
 properties:
 - skredOmrID
 - vurdertStatSannsynlighet

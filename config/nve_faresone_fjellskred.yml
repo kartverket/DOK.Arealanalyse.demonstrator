@@ -13,6 +13,7 @@ layers:
   - Faresoner_fjellskred_sammensat
   result_status: HIT-RED
   geolett_id: a43cee7f-bcc4-44a9-b144-419a0c134a25
+  veiledning_bygg_id: a43cee7f-bcc4-44a9-b144-419a0c134a25
 properties:
 - skredOmrNavn
 - skredType

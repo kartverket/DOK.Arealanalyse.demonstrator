@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: 41c10b72-a5ca-460f-b1f2-f27376719705
+dataset_id: 9508dae0-0024-43e3-af62-866f9073a2b0
 name: kulturminner_enkeltminner
 
 metadata_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
@@ -12,9 +12,9 @@ layers:
   wms:
   - Enkeltminner
   result_status: HIT-RED
-  geolett_id: ccf12fba-2931-4a21-a6ce-28f7c188d762
-  veiledning_bygg_id: c65f324d-73b1-41ad-bf0f-e24573da1871
-  filter: vernetype = IKKEV AND enkeltminnekategori IN (E-ARK, E-BER, E-MAR, E-RUI)
+  geolett_id: 2c25b109-2785-49fd-a96c-cedaabf5e4c8
+  veiledning_bygg_id: 40560775-6f23-4da1-809d-96a29682c368
+  filter: vernetype = IUAV AND enkeltminnekategori IN (E-ARK, E-BER, E-MAR, E-RUI)
 geom_field: område
 properties:
 - navn
