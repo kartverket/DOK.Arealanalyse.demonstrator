@@ -16,6 +16,10 @@ git clone https://github.com/kartverket/DOK.Arealanalyse.demonstrator.git
 cd DOK.Arealanalyse.demonstrator
 ```
 
+## Komponenter i løsningen
+![Arkitektur](komponenter.jpg)
+
+
 ## Justere konfigurasjonen til ditt miljø
 juster .env filen som ligger i /pygeoapi katalogen i prosjektet
 
