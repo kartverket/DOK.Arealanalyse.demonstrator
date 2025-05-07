@@ -3,7 +3,8 @@ name: dokanalyse
 services:
   front-end:
     container_name: dokanalyse-front-end
-    image: crdokanalyse.azurecr.io/dokanalyse-front-end:v1
+    build:
+      context: ./client/front-end
     ports:
       - "80:80"
       - "443:443"
@@ -16,10 +17,11 @@ services:
 
   web-api:
     container_name: dokanalyse-web-api
-    image: crdokanalyse.azurecr.io/dokanalyse-web-api:v1
+    build:
+      context: ./client/api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - Pygeoapi__ApiUrl=http://localhost:5000/
+      - Pygeoapi__ApiUrl=http://host.docker.internal:5000/processes/dokanalyse/execution
     ports:
       - "5001:5001"      
     expose:
@@ -30,7 +32,8 @@ services:
 
   socket-io:
     container_name: dokanalyse-socket-io
-    image: crdokanalyse.azurecr.io/dokanalyse-socket-io:v1
+    build:
+      context: ./socket-io
     ports:
       - "5002:5002"   
     expose:
@@ -41,7 +44,8 @@ services:
 
   binary-creator:
     container_name: dokanalyse-binary-creator
-    image: crdokanalyse.azurecr.io/dokanalyse-binary-creator:v1
+    build:
+      context: ./binary-creator
     ports:
       - "5003:5003"
     expose:
@@ -51,19 +55,6 @@ services:
     volumes:
       - dokanalyse:/mnt/dokanalyse
     restart: always    
-  
-  pygeoapi:
-    build: .
-    ports:
-      - "5000:80"
-    volumes:
-      - ./pygeoapi/pygeoapi-config.yml:/pygeoapi/local.config.yml
-    environment:
-      - PYGEOAPI_CONFIG=/pygeoapi/local.config.yml
-      - PYGEOAPI_API_URL=http://localhost:5000/
-      - APP_FILES_DIR=/mnt/dokanalyse
-      - DOKANALYSE_CONFIG_DIR=/mnt/dokconfig
-      - SOCKET_IO_SRV_URL=http://localhost:5002/
 
 
 volumes:
