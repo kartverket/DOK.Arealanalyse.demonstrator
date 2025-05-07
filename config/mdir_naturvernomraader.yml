@@ -7,7 +7,6 @@ name: naturvernområder
 metadata_id: 5857ec0a-8d2c-4cd8-baa2-0dc54ae213b4
 arcgis: https://kart.miljodirektoratet.no/arcgis/rest/services/vern/mapserver
 wms: https://kart.miljodirektoratet.no/arcgis/services/vern/mapServer/WMSServer
-
 layers:
 - arcgis: '0'
   wms:
@@ -25,4 +24,3 @@ properties:
 
 themes:
 - natur
----
