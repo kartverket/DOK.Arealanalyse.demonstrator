@@ -5,6 +5,8 @@ services:
     container_name: dokanalyse-front-end
     build:
       context: ./client/front-end
+    environment:
+      - SOCKET_IO_SRV_URL=http://host.docker.internal:5002/
     ports:
       - "80:80"
       - "443:443"

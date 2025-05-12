@@ -21,7 +21,7 @@ cd DOK.Arealanalyse.demonstrator
 
 
 ## Justere konfigurasjonen til ditt miljø
-juster .env filen som ligger i /pygeoapi katalogen i prosjektet
+juster miljøvariabler i prosjektet
 
 ```ini
 PYGEOAPI_API_URL=http://localhost:5000

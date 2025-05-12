@@ -1,5 +1,7 @@
 ---
 
+disabled: true
+
 type: dataset
 dataset_id: c74656bb-267d-4546-aa14-6323070d06c7
 name: naturtyper_ku_verdi
@@ -41,7 +43,8 @@ properties:
 - Faktaark
 themes:
 - natur
----
+
+
 
 type: quality
 dataset_id: c74656bb-267d-4546-aa14-6323070d06c7
@@ -53,3 +56,21 @@ indicators:
   quality_warning_text: Stedfestingsnøyaktighet er usikker på et eller flere objekter
   property: Nøyaktighetsklasse
   warning_threshold: Mindre god (> 50m)
+
+- type: coverage
+  quality_dimension_id: fullstendighet_dekning
+  quality_dimension_name: Fullstendighetsdekning
+  quality_warning_text: Området er ikke kartlagt for naturtyper
+  warning_threshold: null
+  arcgis:
+    url: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_nin/MapServer
+    layer: '1'
+    property: Dekningskartverdi
+    veiledning_bygg_id: 45ece8ff-e382-4c40-b469-045e2939f554
+    veiledning_plan_id: 0685b79a-76a8-439a-8793-6dc31a0a9099
+    properties:
+    - Prosjektnavn
+    - Dekningskartverdi
+    - Årstall
+    - Kartleggingsinstruks
+    - Prosjektrapport

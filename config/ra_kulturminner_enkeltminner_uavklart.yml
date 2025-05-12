@@ -2,7 +2,7 @@
 
 type: dataset
 dataset_id: 9508dae0-0024-43e3-af62-866f9073a2b0
-name: kulturminner_enkeltminner
+name: kulturminner_enkeltminner_iuav
 
 metadata_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
 wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
@@ -14,14 +14,14 @@ layers:
   result_status: HIT-RED
   geolett_id: 2c25b109-2785-49fd-a96c-cedaabf5e4c8
   veiledning_bygg_id: 40560775-6f23-4da1-809d-96a29682c368
-  filter: vernetype = IUAV AND enkeltminnekategori IN (E-ARK, E-BER, E-MAR, E-RUI)
+  filter: vern = 'IUAV' AND enkeltminnekategori IN ('E-ARK', 'E-BER', 'E-MAR', 'E-RUI')
 geom_field: område
 properties:
 - navn
 - kulturminneId
 - vernelov
 - verneparagraf
-- vernetype
+- vern
 - vernedato
 - linkAskeladden
 - linkKulturminnesøk
