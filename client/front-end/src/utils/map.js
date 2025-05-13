@@ -3,6 +3,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import TileLayer from 'ol/layer/Tile';
 import TileWMS from 'ol/source/TileWMS';
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS';
+import { OSM } from 'ol/source';
 import { WMTSCapabilities } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
 import { Vector as VectorLayer } from 'ol/layer';
@@ -16,20 +17,27 @@ import baseMap from 'config/baseMap.config';
 const MAP_WIDTH = 720;
 const MAP_HEIGHT = 480;
 const CACHE_API_URL = import.meta.env.VITE_CACHE_API_URL;
+const BASE_MAP = import.meta.env.VITE_BASE_MAP;
 
 export async function createMap(inputGeometry, result) {
     const featuresLayer = createFeaturesLayer(inputGeometry, result);
+    const layers = [];
 
     featuresLayer.set('id', 'features');
+
+    if (BASE_MAP === 'OSM') {
+        layers.push(createOsmLayer());
+    } else {
+        layers.push(await createWmtsLayer());
+    }
+
+    layers.push(createWmsLayer(result.rasterResult.mapUri));
+    layers.push(featuresLayer);
 
     const map = new OlMap({
         controls: defaultControls().extend([new FullScreen()]),
         interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
-        layers: [
-            await createWmtsLayer(),
-            createWmsLayer(result.rasterResult.mapUri),
-            featuresLayer
-        ]
+        layers
     });
 
     map.setView(new View({
@@ -43,15 +51,21 @@ export async function createMap(inputGeometry, result) {
 
 export async function createOutlineMap(geometry) {
     const featuresLayer = createOutlineFeaturesLayer(geometry);
+    const layers = [];
 
     featuresLayer.set('id', 'features');
 
+    if (BASE_MAP === 'OSM') {
+        layers.push(createOsmLayer());
+    } else {
+        layers.push(await createWmtsLayer());
+    }
+
+    layers.push(featuresLayer);
+
     const map = new OlMap({
         interactions: defaultInteractions().extend([new DragRotateAndZoom()]),
-        layers: [
-            await createWmtsLayer(),
-            featuresLayer
-        ]
+        layers
     });
 
     map.setView(new View({
@@ -84,14 +98,18 @@ export function getLayer(map, id) {
 
 async function createTempMap(inputGeometry, result) {
     const featuresLayer = createFeaturesLayer(inputGeometry, result);
+    const layers = [];
 
-    const map = new OlMap({
-        layers: [
-            await  createWmtsLayer(),
-            createWmsLayer(result.rasterResult.mapUri),
-            featuresLayer
-        ]
-    });
+    if (BASE_MAP === 'OSM') {
+        layers.push(createOsmLayer());
+    } else {
+        layers.push(await createWmtsLayer());
+    }
+
+    layers.push(createWmsLayer(result.rasterResult.mapUri));
+    layers.push(featuresLayer);
+
+    const map = new OlMap({ layers });
 
     map.setView(new View({
         padding: [50, 50, 50, 50],
@@ -142,6 +160,13 @@ function createFeature(geoJson, projection, style) {
     feature.setStyle(style);
 
     return feature;
+}
+
+function createOsmLayer() {
+    return new TileLayer({
+        source: new OSM(),
+        className: 'ol-bw'
+    });
 }
 
 async function createWmtsLayer() {

@@ -3,6 +3,7 @@ import { Vector as VectorLayer } from 'ol/layer';
 import VectorSource from 'ol/source/Vector';
 import TileLayer from 'ol/layer/Tile';
 import TileWMS from 'ol/source/TileWMS';
+import { OSM } from 'ol/source';
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS';
 import { WMTSCapabilities } from 'ol/format';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -49,9 +50,14 @@ export default async function createMapImage(options) {
 
 async function createTempMap(options) {
     const layers = [];
+    const baseMap = options.baseMap;
 
-    if (options.wmts) {
-        layers.push(await createWmtsLayer(options.wmts));
+    if (baseMap) {
+        if (baseMap.osm) {
+            layers.push(createOsmLayer(baseMap.osm.grayscale));
+        } else if (baseMap.wmts) {
+            layers.push(await createWmtsLayer(baseMap.wmts));
+        }        
     }
 
     if (options.wms?.length) {
@@ -70,7 +76,9 @@ async function createTempMap(options) {
 
     const mapElement = document.createElement('div');
     Object.assign(mapElement.style, { position: 'absolute', left: '-10000px', top: '-10000px', width: `${options.width}px`, height: `${options.height}px` });
+
     document.getElementsByTagName('body')[0].appendChild(mapElement);
+    document.head.insertAdjacentHTML('beforeend', '<style>.ol-bw{filter:grayscale(100%)}</style>');
 
     map.setTarget(mapElement);
 
@@ -79,6 +87,13 @@ async function createTempMap(options) {
     map.getView().fit(extent, map.getSize());
 
     return [map, mapElement];
+}
+
+function createOsmLayer(grayscale) {
+    return new TileLayer({
+        source: new OSM(),        
+        className: grayscale ? 'ol-bw' : null
+    });
 }
 
 async function createWmtsLayer(wmts) {

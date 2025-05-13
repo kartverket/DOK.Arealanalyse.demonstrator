@@ -58,7 +58,6 @@ services:
       - dokanalyse:/mnt/dokanalyse
     restart: always    
 
-
 volumes:
   dokanalyse:
 
