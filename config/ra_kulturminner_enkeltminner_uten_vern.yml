@@ -14,7 +14,7 @@ layers:
   result_status: HIT-RED
   planning_guidance_id: ccf12fba-2931-4a21-a6ce-28f7c188d762
   building_guidance_id: c65f324d-73b1-41ad-bf0f-e24573da1871
-  filter: vernetype = 'IKKEV'
+  filter: vernetype = 'IKKEV' AND enkeltminnekategori IN ('E-ARK', 'E-BER', 'E-MAR', 'E-RUI')
 geom_field: område
 properties:
 - navn
