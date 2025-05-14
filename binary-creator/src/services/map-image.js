@@ -13,7 +13,7 @@ export async function createMapImage(inputData) {
     const browser = await getBrowser();
     const page = await browser.newPage();
     const start = new Date();
-
+    
     try {
         await page.goto(FILE_URI, { waitUntil: 'networkidle0' });
         const result = await page.evaluate(data => window.mapRenderer.createMapImage(data), inputData);
