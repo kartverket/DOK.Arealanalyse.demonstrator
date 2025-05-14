@@ -1,21 +1,21 @@
 ---
 
 type: dataset
-dataset_id: 41c10b72-a5ca-460f-b1f2-f27376719703
+config_id: 41c10b72-a5ca-460f-b1f2-f27376719703
 name: kulturminner_enkeltminner_aut
 
 metadata_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
-ogc_api: https://api.ra.no/LokaliteterEnkeltminnerOgSikringssoner/collections
+wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
 wms: https://kart.ra.no/wms/kulturminner
 layers:
-- ogc_api: Enkeltminner
+- wfs: Enkeltminne
   wms:
   - Enkeltminner
   result_status: HIT-RED
-  geolett_id: f2ea33ed-791b-498b-8011-740972cf31b8
-  veiledning_bygg_id: 2bd10582-4ad2-4fa3-b262-53763e51d512
+  planning_guidance_id: f2ea33ed-791b-498b-8011-740972cf31b8
+  building_guidance_id: 2bd10582-4ad2-4fa3-b262-53763e51d512
   filter: vernetype = 'AUT'
-geom_field: geometry
+geom_field: område
 properties:
 - navn
 - kulturminneId
@@ -23,6 +23,7 @@ properties:
 - verneparagraf
 - vernetype
 - vernedato
+- enkeltminnekategori
 - linkAskeladden
 - linkKulturminnesøk
 themes:

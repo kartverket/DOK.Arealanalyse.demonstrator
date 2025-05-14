@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: 3a220fd3-2aa3-4c34-89aa-b41c07f6564d
+config_id: 3a220fd3-2aa3-4c34-89aa-b41c07f6564d
 name: naturvernområder
 
 metadata_id: 0e7eb17f-35ef-46d3-a465-3112d8bb2b5e
@@ -12,8 +12,8 @@ layers:
   wms:
   - foreslatt_naturvern_omrade
   result_status: HIT-RED
-  geolett_id: 9dfd2c3a-bdf4-4d95-aad2-9ba37a522794
-  veiledning_bygg_id: d38864a8-03e9-4141-8a6b-a646941c7c2c
+  planning_guidance_id: 9dfd2c3a-bdf4-4d95-aad2-9ba37a522794
+  building_guidance_id: d38864a8-03e9-4141-8a6b-a646941c7c2c
 properties:
 - navn
 - faktaark
@@ -22,6 +22,5 @@ properties:
 - datafangstdato
 - maalemetode
 - noeyaktighet
-
 themes:
 - natur

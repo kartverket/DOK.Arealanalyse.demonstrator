@@ -1,9 +1,9 @@
 ---
-disabled: true
 
 type: dataset
-dataset_id: 25b83fc1-f2bd-4052-bd2d-bd949ac0f402
-name: Referanseruter
+config_id: c38052f3-2c3d-4ce6-9be0-3f06d67cf8eb
+name: referanseruter
+disabled: true
 
 metadata_id: 25b83fc1-f2bd-4052-bd2d-bd949ac0f402
 wfs: TODO - har ikke

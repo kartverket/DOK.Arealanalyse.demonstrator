@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: 6fbe96e8-6015-46c4-aedf-0e0d751d76fb
+config_id: 6fbe96e8-6015-46c4-aedf-0e0d751d76fb
 name: farled
 
 metadata_id: 8ff1538a-a93c-4391-8d6f-3555fc37819c
@@ -12,7 +12,7 @@ layers:
   wms:
   - group_4
   result_status: HIT-RED
-  geolett_id: 2afd368b-42ff-4918-87c1-c9f6231cd8d0
+  planning_guidance_id: 2afd368b-42ff-4918-87c1-c9f6231cd8d0
 geom_field: lokalisering
 properties:
 - datauttaksdato
