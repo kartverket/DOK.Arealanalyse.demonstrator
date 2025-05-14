@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: 6b118e25-55a1-4767-bf3e-e6bda5669276
+config_id: 6b118e25-55a1-4767-bf3e-e6bda5669276
 name: naturtyper_utvalgte_kalkmark_boreonemoral
 
 metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
@@ -12,7 +12,7 @@ layers:
   wms:
   - naturtype_utvalgt_omr
   result_status: HIT-RED
-  geolett_id: 39592497-57fc-418b-b3f1-8947aa8453b7
+  planning_guidance_id: 39592497-57fc-418b-b3f1-8947aa8453b7
   filter: UtvalgtNaturtypeKode = 'UN07'
 properties:
 - Områdenavn

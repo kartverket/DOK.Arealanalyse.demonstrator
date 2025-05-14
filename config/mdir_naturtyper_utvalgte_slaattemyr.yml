@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: 5b2e0a94-cb47-4075-8082-9b35096fbe2c
+config_id: 5b2e0a94-cb47-4075-8082-9b35096fbe2c
 name: naturtyper_utvalgte_slåttemyr
 
 metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
@@ -12,7 +12,7 @@ layers:
   wms:
   - naturtype_utvalgt_omr
   result_status: HIT-RED
-  geolett_id: f6e743f8-1081-469c-829c-f13201ec943c
+  planning_guidance_id: f6e743f8-1081-469c-829c-f13201ec943c
   filter: UtvalgtNaturtypeKode = 'UN02'
 properties:
 - Områdenavn

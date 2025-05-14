@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: fc94ee13-d4c2-4d50-8e0b-f8f44d8c7f03
+config_id: fc94ee13-d4c2-4d50-8e0b-f8f44d8c7f03
 name: naturtyper_utvalgte_slåttemark
 
 metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
@@ -12,7 +12,7 @@ layers:
   wms:
   - naturtype_utvalgt_omr
   result_status: HIT-RED
-  geolett_id: 41c0fc6a-b938-4877-9a62-183ecba6cd48
+  planning_guidance_id: 41c0fc6a-b938-4877-9a62-183ecba6cd48
   filter: UtvalgtNaturtypeKode = 'UN01'
 properties:
 - Områdenavn

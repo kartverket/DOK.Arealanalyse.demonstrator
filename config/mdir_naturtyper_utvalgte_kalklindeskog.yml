@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: e85af2f1-eebe-4777-932e-ff240095c194
+config_id: e85af2f1-eebe-4777-932e-ff240095c194
 name: naturtyper_utvalgte_kalklindeskog
 
 metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
@@ -12,7 +12,7 @@ layers:
   wms:
   - naturtype_utvalgt_omr
   result_status: HIT-RED
-  geolett_id: a2e49e65-2f5e-4188-b848-94cbc32315ff
+  planning_guidance_id: a2e49e65-2f5e-4188-b848-94cbc32315ff
   filter: UtvalgtNaturtypeKode = 'UN04'
 properties:
 - Områdenavn

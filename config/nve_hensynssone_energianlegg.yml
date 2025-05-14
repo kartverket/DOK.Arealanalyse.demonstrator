@@ -13,7 +13,7 @@ layers:
   - Distribusjonsnett
   - Regionalnett
   result_status: HIT-RED
-  geolett_id: cc04ba06-1ad4-40cc-b961-389786a269ad
+  planning_guidance_id: cc04ba06-1ad4-40cc-b961-389786a269ad
 geom_field: linje
 properties:
 - navn

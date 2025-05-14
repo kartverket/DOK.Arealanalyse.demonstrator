@@ -12,26 +12,26 @@ layers:
   wms:
   - kuverdi_svært_stor_verdi
   result_status: HIT-RED
-  geolett_id: 9d803106-57f6-494e-bca8-67f1fd1f72a3
-  veiledning_bygg_id: 522da012-1633-40c5-ad96-e4784d278401
+  planning_guidance_id: 9d803106-57f6-494e-bca8-67f1fd1f72a3
+  building_guidance_id: 522da012-1633-40c5-ad96-e4784d278401
   filter: Verdikategori = 'Svært stor verdi'
 - arcgis: '0'
   wms:
   - kuverdi_stor_verdi
   result_status: HIT-RED
-  geolett_id: cfbd9296-6624-4822-ac40-ee8492ec88ca
+  planning_guidance_id: cfbd9296-6624-4822-ac40-ee8492ec88ca
   filter: Verdikategori = 'Stor verdi'
 - arcgis: '0'
   wms:
   - kuverdi_middels_verdi
   result_status: HIT-YELLOW
-  geolett_id: 3db0182e-7bff-44d2-a8f8-e312b303d6cf
+  planning_guidance_id: 3db0182e-7bff-44d2-a8f8-e312b303d6cf
   filter: Verdikategori = 'Middels verdi'
 - arcgis: '0'
   wms:
   - kuverdi_noe_verdi
   result_status: HIT-YELLOW
-  geolett_id: bc86e470-6789-4abf-95f2-3cdba521b5fe
+  planning_guidance_id: bc86e470-6789-4abf-95f2-3cdba521b5fe
   filter: Verdikategori = 'Noe verdi'
 properties:
 - Naturtype
@@ -44,7 +44,7 @@ themes:
 ---
 
 type: quality
-dataset_id: c74656bb-267d-4546-aa14-6323070d06c7
+config_id: c74656bb-267d-4546-aa14-6323070d06c7
 
 indicators:
 - type: object
@@ -63,8 +63,8 @@ indicators:
     url: https://kart.miljodirektoratet.no/arcgis/rest/services/naturtyper_nin/MapServer
     layer: '1'
     property: Dekningskartverdi
-    veiledning_bygg_id: 45ece8ff-e382-4c40-b469-045e2939f554
-    veiledning_plan_id: 0685b79a-76a8-439a-8793-6dc31a0a9099
+    planning_guidance_id: 0685b79a-76a8-439a-8793-6dc31a0a9099
+    building_guidance_id: 45ece8ff-e382-4c40-b469-045e2939f554
     properties:
     - Prosjektnavn
     - Dekningskartverdi

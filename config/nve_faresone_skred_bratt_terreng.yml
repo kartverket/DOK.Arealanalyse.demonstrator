@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: d893e564-0a9d-4d3b-8d4f-8485b843b9a0
+config_id: d893e564-0a9d-4d3b-8d4f-8485b843b9a0
 name: faresone_skred_bratt_terreng
 
 metadata_id: b2d5aaf8-79ac-40f3-9cd6-fdc30bc42ea1
@@ -12,8 +12,8 @@ layers:
   wms:
   - Skredanalyseomraade
   result_status: HIT-RED
-  geolett_id: 1490d2ee-a5c6-4dfb-907a-44cb5022781b
-  veiledning_bygg_id: c37bac2a-1e32-49f8-b633-a305c166ec38
+  planning_guidance_id: 1490d2ee-a5c6-4dfb-907a-44cb5022781b
+  building_guidance_id: c37bac2a-1e32-49f8-b633-a305c166ec38
 properties:
 - skredOmrID
 - vurdertStatSannsynlighet

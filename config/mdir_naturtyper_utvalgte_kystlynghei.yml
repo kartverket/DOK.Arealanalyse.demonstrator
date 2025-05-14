@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: 7ea189bc-0b59-4742-8260-5bfd3bfaa510
+config_id: 7ea189bc-0b59-4742-8260-5bfd3bfaa510
 name: naturtyper_utvalgte_kystlynghei
 
 metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
@@ -12,7 +12,7 @@ layers:
   wms:
   - naturtype_utvalgt_omr
   result_status: HIT-RED
-  geolett_id: ee52d09e-341b-493d-942b-09e5a218fdca
+  planning_guidance_id: ee52d09e-341b-493d-942b-09e5a218fdca
   filter: UtvalgtNaturtypeKode = 'UN06'
 properties:
 - Områdenavn

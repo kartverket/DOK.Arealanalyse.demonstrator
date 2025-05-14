@@ -1,7 +1,7 @@
 ---
 
 type: dataset
-dataset_id: 5a9e5c93-e4b3-4949-96f0-7abd7fdb320a
+config_id: 5a9e5c93-e4b3-4949-96f0-7abd7fdb320a
 name: naturtyper_utvalgte_hul_eik
 
 metadata_id: 2c0072de-f702-401e-bfb3-5ad3d08d4c2d
@@ -12,7 +12,7 @@ layers:
   wms:
   - naturtype_utvalgt_omr
   result_status: HIT-RED
-  geolett_id: 5f93f5a9-84f8-4529-b5ae-5a02597d914b
+  planning_guidance_id: 5f93f5a9-84f8-4529-b5ae-5a02597d914b
   filter: UtvalgtNaturtypeKode = 'UN03'
 properties:
 - Områdenavn

@@ -1,8 +1,8 @@
 ---
 
 type: dataset
+config_id: 08a6057d-ab78-4114-b924-9d6e093d1a5b
 name: aktsomhetsomr_kvikkleireskred
-dataset_id: 08a6057d-ab78-4114-b924-9d6e093d1a5b
 
 metadata_id: dabd2a2c-36d5-4ed7-a4c9-d49808a2b848 
 arcgis: https://nve.geodataonline.no/arcgis/rest/services/KvikkleireskredAktsomhet/MapServer/
@@ -12,8 +12,8 @@ layers:
   wms:
   - KvikkleireskredAktsomhet
   result_status: HIT-YELLOW
-  geolett_id: 3316086f-d95a-409e-a184-7b98ed21cfbd
-  veiledning_bygg_id: d34718b6-da67-47c7-a61d-05f222f8e613
+  planning_guidance_id: 3316086f-d95a-409e-a184-7b98ed21cfbd
+  building_guidance_id: d34718b6-da67-47c7-a61d-05f222f8e613
 properties:
 - skredType
 - opphav
