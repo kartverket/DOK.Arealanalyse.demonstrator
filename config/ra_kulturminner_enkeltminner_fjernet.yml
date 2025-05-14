@@ -14,14 +14,15 @@ layers:
   result_status: HIT-RED
   geolett_id: 550b9023-6f93-4175-aebf-e8c2f754b288
   veiledning_bygg_id: 87969cd5-ed0c-431c-a9bd-08d2e634a316
-  filter: vern = 'FJE' AND enkeltminnekategori IN ('E-ARK', 'E-BER', 'E-MAR', 'E-RUI')
+  filter: vernetype = 'FJE' AND enkeltminnekategori IN ('E-ARK', 'E-BER', 'E-MAR', 'E-RUI')
 geom_field: område
 properties:
 - navn
 - kulturminneId
 - vernelov
 - verneparagraf
-- vern
+- vernetype
+- enkeltminnekategori
 - vernedato
 - linkAskeladden
 - linkKulturminnesøk

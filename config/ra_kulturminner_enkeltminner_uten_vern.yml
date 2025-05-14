@@ -5,23 +5,24 @@ dataset_id: 41c10b72-a5ca-460f-b1f2-f27376719705
 name: kulturminner_enkeltminner_ikkev
 
 metadata_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
-ogc_api: https://api.ra.no/LokaliteterEnkeltminnerOgSikringssoner/collections
+wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
 wms: https://kart.ra.no/wms/kulturminner
 layers:
-- ogc_api: Enkeltminner
+- wfs: Enkeltminne
   wms:
   - Enkeltminner
   result_status: HIT-RED
   geolett_id: ccf12fba-2931-4a21-a6ce-28f7c188d762
   veiledning_bygg_id: c65f324d-73b1-41ad-bf0f-e24573da1871
-  filter: vernetype = 'IKKEV'
-geom_field: geometry
+  filter: vernetype = 'IKKEV' AND enkeltminnekategori IN ('E-ARK', 'E-BER', 'E-MAR', 'E-RUI')
+geom_field: område
 properties:
 - navn
 - kulturminneId
 - vernelov
 - verneparagraf
 - vernetype
+- enkeltminnekategori
 - vernedato
 - linkAskeladden
 - linkKulturminnesøk

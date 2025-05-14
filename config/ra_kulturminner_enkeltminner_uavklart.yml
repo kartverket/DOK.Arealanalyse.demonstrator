@@ -14,14 +14,15 @@ layers:
   result_status: HIT-RED
   geolett_id: 2c25b109-2785-49fd-a96c-cedaabf5e4c8
   veiledning_bygg_id: 40560775-6f23-4da1-809d-96a29682c368
-  filter: vern = 'IUAV' AND enkeltminnekategori IN ('E-ARK', 'E-BER', 'E-MAR', 'E-RUI')
+  filter: vernetype = 'IUAV' AND enkeltminnekategori IN ('E-ARK', 'E-BER', 'E-MAR', 'E-RUI')
 geom_field: område
 properties:
 - navn
 - kulturminneId
 - vernelov
 - verneparagraf
-- vern
+- vernetype
+- enkeltminnekategori
 - vernedato
 - linkAskeladden
 - linkKulturminnesøk
