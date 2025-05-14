@@ -7,6 +7,7 @@ import { OSM } from 'ol/source';
 import WMTS, { optionsFromCapabilities } from 'ol/source/WMTS';
 import { WMTSCapabilities } from 'ol/format';
 import GeoJSON from 'ol/format/GeoJSON';
+import { grayscale as grayscaleFunc } from 'ol-ext/util/imagesLoader';
 import './config/projections.config';
 import './config/extents.config';
 
@@ -57,7 +58,7 @@ async function createTempMap(options) {
             layers.push(createOsmLayer(baseMap.osm.grayscale));
         } else if (baseMap.wmts) {
             layers.push(await createWmtsLayer(baseMap.wmts));
-        }        
+        }
     }
 
     if (options.wms?.length) {
@@ -78,21 +79,28 @@ async function createTempMap(options) {
     Object.assign(mapElement.style, { position: 'absolute', left: '-10000px', top: '-10000px', width: `${options.width}px`, height: `${options.height}px` });
 
     document.getElementsByTagName('body')[0].appendChild(mapElement);
-    document.head.insertAdjacentHTML('beforeend', '<style>.ol-bw{filter:grayscale(100%)}</style>');
-
     map.setTarget(mapElement);
 
     const extent = featuresLayer.getSource().getExtent();
-    console.log(extent)
     map.getView().fit(extent, map.getSize());
 
     return [map, mapElement];
 }
 
 function createOsmLayer(grayscale) {
+    let osm;
+
+    if (grayscale) {
+        osm = new OSM({
+            tileLoadFunction: grayscaleFunc()
+        });
+    } else {
+        osm = new OSM();
+    }
+
     return new TileLayer({
-        source: new OSM(),        
-        className: grayscale ? 'ol-bw' : null
+        source: osm,
+        maxZoom: 22
     });
 }
 
@@ -136,7 +144,7 @@ async function getWmtsOptions(wmts) {
             } else {
                 tile.getImage().src = src;
             }
-        }     
+        }
     };
 
     return wmtsOptions;

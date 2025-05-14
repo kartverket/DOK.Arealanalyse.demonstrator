@@ -13,6 +13,7 @@ import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
 import { getEpsgCode } from './helpers';
 import baseMap from 'config/baseMap.config';
+import { grayscale } from 'ol-ext/util/imagesLoader';
 
 const MAP_WIDTH = 720;
 const MAP_HEIGHT = 480;
@@ -163,9 +164,12 @@ function createFeature(geoJson, projection, style) {
 }
 
 function createOsmLayer() {
+    const osm = new OSM({ 
+        tileLoadFunction: grayscale()
+    });
+
     return new TileLayer({
-        source: new OSM(),
-        className: 'ol-bw'
+        source: osm
     });
 }
 

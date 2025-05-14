@@ -1066,6 +1066,7 @@ __metadata:
   resolution: "map-image-renderer-client-script@workspace:."
   dependencies:
     ol: "npm:^10.3.1"
+    ol-ext: "npm:^4.0.31"
     proj4: "npm:^2.15.0"
     url-parse: "npm:^1.5.10"
     vite: "npm:^6.0.5"
@@ -1250,6 +1251,15 @@ __metadata:
   version: 3.0.0
   resolution: "normalize-path@npm:3.0.0"
   checksum: 10c0/e008c8142bcc335b5e38cf0d63cfd39d6cf2d97480af9abdbe9a439221fd4d749763bab492a8ee708ce7a194bb00c9da6d0a115018672310850489137b3da046
+  languageName: node
+  linkType: hard
+
+"ol-ext@npm:^4.0.31":
+  version: 4.0.31
+  resolution: "ol-ext@npm:4.0.31"
+  peerDependencies:
+    ol: ">= 5.3.0"
+  checksum: 10c0/6b2314bfbdbeaccfe182b63f6e5181ab79991764d2cd585c9c93967364542cd3d63cab4364c8959332844d4af7fb992466819b72d72254c4251a7465f3610a9b
   languageName: node
   linkType: hard
 
