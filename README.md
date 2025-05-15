@@ -8,44 +8,56 @@ Demonstrator for oppsett av arealanalyse basert på pygeoapi
 
 Disse verktøyene er nødvendige for å bygge og kjøre applikasjonen i et containerisert miljø.
 
-## Laste ned prosjektet
-Start med å laste ned prosjektet
+
+## Komponenter i løsningen
+![Arkitektur](komponenter.jpg)
+
+## Last ned demonstrator prosjektet
+Start med å laste ned demonstrator prosjektet som inneholder front-end, socket-io, web-api, binary-creator og config filer for analyseoppsett mot datasettene i DOK
 
 ```bash
 git clone https://github.com/kartverket/DOK.Arealanalyse.demonstrator.git
 cd DOK.Arealanalyse.demonstrator
 ```
 
-## Komponenter i løsningen
-![Arkitektur](komponenter.jpg)
-
-
-## Justere konfigurasjonen til ditt miljø
+### Justere konfigurasjonen til ditt miljø
 juster miljøvariabler i prosjektet
 
 ```ini
 PYGEOAPI_API_URL=http://localhost:5000
 APP_FILES_DIR=/mnt/dokanalyse
-DOKANALYSE_CONFIG_DIR=/mnt/dokconfig
 SOCKET_IO_SRV_URL=http://localhost:5002/
-AR5_FGDB_PATH=/path/to/ar5.gdb
 ```
-## Kjøre applikasjonene i docker 
+### Kjøre applikasjonene i docker 
+```bash
+docker-compose up --build
+```
+## Last ned pygeoapi med plugin for DOK arealanalyse
+Må bruke branch 0.19.1 som passer sammen med process-plugin for DOK arealanalyse
+
+```bash
+git clone --branch 0.19.1 https://github.com/kartverket/DOK.Arealanalyse.Pygeoapi.git
+cd DOK.Arealanalyse.Pygeoapi
+```
+### Justere konfigurasjonen til ditt miljø
+juster miljøvariabler i prosjektet
+
+```ini
+PYGEOAPI_CONFIG=/pygeoapi/local.config.yml
+PYGEOAPI_API_URL=http://localhost:5000/
+APP_FILES_DIR=/mnt/dokanalyse
+DOKANALYSE_CONFIG_DIR=/mnt/dokanalyse/config
+AR5_FGDB_PATH=
+BLOB_STORAGE_CONN_STR=
+MAP_IMAGE_API_URL=http://host.docker.internal:5003/binary/create/map-image
+SOCKET_IO_SRV_URL=http://host.docker.internal:5002/
+```
+### Kjøre applikasjonene i docker 
 ```bash
 docker-compose up --build
 ```
 
-## Sette opp volum for konfigurasjonsfiler til analysene
-```bash
-docker run -v C:/dev/kartverket/DOK.arealanalyse.demo/DOK.Arealanalyse.demonstrator/config:/mnt/dokconfig pygeoapi-pygeoapi-1
-```
 
-## Tilgang til images for Docker
-TODO - nå bak Azure Container Registry tilgang
-```powershell
-az login
-az acr login --name crdokanalyse
-```
 
 ## Markedsplass
 Beskrivelse av tjenesten som er ihht GaiaX for evt publisering av tjenesten i dataspace/markedsplass
