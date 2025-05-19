@@ -5,10 +5,10 @@ config_id: 9508dae0-0024-43e3-af62-866f9073a2b0
 name: kulturminner_enkeltminner_iuav
 
 metadata_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
-wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
+ogc_api: https://api.ra.no/LokaliteterEnkeltminnerOgSikringssoner/collections
 wms: https://kart.ra.no/wms/kulturminner
 layers:
-- wfs: Enkeltminne
+- ogc_api: enkeltminner
   wms:
   - Enkeltminner
   result_status: HIT-RED

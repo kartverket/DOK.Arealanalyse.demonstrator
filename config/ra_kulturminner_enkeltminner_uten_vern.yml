@@ -1,14 +1,14 @@
 ---
 
 type: dataset
-config_id: 41c10b72-a5ca-460f-b1f2-f27376719705
+config_id: f5e9ac5c-2d1e-43eb-ac8a-da918d922584
 name: kulturminner_enkeltminner_ikkev
 
 metadata_id: c72906a0-2bc2-41d7-bea2-c92d368e3c49
-wfs: https://wfs.geonorge.no/skwms1/wfs.kulturminner
+ogc_api: https://api.ra.no/LokaliteterEnkeltminnerOgSikringssoner/collections
 wms: https://kart.ra.no/wms/kulturminner
 layers:
-- wfs: Enkeltminne
+- ogc_api: enkeltminner
   wms:
   - Enkeltminner
   result_status: HIT-RED
